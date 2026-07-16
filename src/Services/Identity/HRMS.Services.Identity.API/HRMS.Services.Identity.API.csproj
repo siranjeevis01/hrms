@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Update="appsettings*.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\..\Shared\HRMS.Shared.Kernel\HRMS.Shared.Kernel.csproj" />
     <ProjectReference Include="..\..\..\Shared\Persistence\HRMS.Shared.Persistence\HRMS.Shared.Persistence.csproj" />
     <ProjectReference Include="..\..\..\Shared\Caching\HRMS.Shared.Caching\HRMS.Shared.Caching.csproj" />
