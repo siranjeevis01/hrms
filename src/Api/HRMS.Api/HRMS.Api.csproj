@@ -12,7 +12,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.Npgsql" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
-    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
@@ -38,56 +38,48 @@
 
   <!-- Module: Attendance -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Attendance\HRMS.Services.Attendance.API\HRMS.Services.Attendance.API.csproj" />
     <ProjectReference Include="..\..\Services\Attendance\HRMS.Services.Attendance.Application\HRMS.Services.Attendance.Application.csproj" />
     <ProjectReference Include="..\..\Services\Attendance\HRMS.Services.Attendance.Infrastructure\HRMS.Services.Attendance.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Audit -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Audit\HRMS.Services.Audit.API\HRMS.Services.Audit.API.csproj" />
     <ProjectReference Include="..\..\Services\Audit\HRMS.Services.Audit.Application\HRMS.Services.Audit.Application.csproj" />
     <ProjectReference Include="..\..\Services\Audit\HRMS.Services.Audit.Infrastructure\HRMS.Services.Audit.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Chat -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Chat\HRMS.Services.Chat.API\HRMS.Services.Chat.API.csproj" />
     <ProjectReference Include="..\..\Services\Chat\HRMS.Services.Chat.Application\HRMS.Services.Chat.Application.csproj" />
     <ProjectReference Include="..\..\Services\Chat\HRMS.Services.Chat.Infrastructure\HRMS.Services.Chat.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Dashboard -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Dashboard\HRMS.Services.Dashboard.API\HRMS.Services.Dashboard.API.csproj" />
     <ProjectReference Include="..\..\Services\Dashboard\HRMS.Services.Dashboard.Application\HRMS.Services.Dashboard.Application.csproj" />
     <ProjectReference Include="..\..\Services\Dashboard\HRMS.Services.Dashboard.Infrastructure\HRMS.Services.Dashboard.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Document -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Document\HRMS.Services.Document.API\HRMS.Services.Document.API.csproj" />
     <ProjectReference Include="..\..\Services\Document\HRMS.Services.Document.Application\HRMS.Services.Document.Application.csproj" />
     <ProjectReference Include="..\..\Services\Document\HRMS.Services.Document.Infrastructure\HRMS.Services.Document.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Employee -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Employee\HRMS.Services.Employee.API\HRMS.Services.Employee.API.csproj" />
     <ProjectReference Include="..\..\Services\Employee\HRMS.Services.Employee.Application\HRMS.Services.Employee.Application.csproj" />
     <ProjectReference Include="..\..\Services\Employee\HRMS.Services.Employee.Infrastructure\HRMS.Services.Employee.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Expense -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Expense\HRMS.Services.Expense.API\HRMS.Services.Expense.API.csproj" />
     <ProjectReference Include="..\..\Services\Expense\HRMS.Services.Expense.Application\HRMS.Services.Expense.Application.csproj" />
     <ProjectReference Include="..\..\Services\Expense\HRMS.Services.Expense.Infrastructure\HRMS.Services.Expense.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Helpdesk -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Helpdesk\HRMS.Services.Helpdesk.API\HRMS.Services.Helpdesk.API.csproj" />
     <ProjectReference Include="..\..\Services\Helpdesk\HRMS.Services.Helpdesk.Application\HRMS.Services.Helpdesk.Application.csproj" />
     <ProjectReference Include="..\..\Services\Helpdesk\HRMS.Services.Helpdesk.Infrastructure\HRMS.Services.Helpdesk.Infrastructure.csproj" />
   </ItemGroup>
@@ -101,76 +93,66 @@
 
   <!-- Module: Leave -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Leave\API\HRMS.Services.Leave.API.csproj" />
+    <ProjectReference Include="..\..\Services\Leave\Domain\HRMS.Services.Leave.Domain.csproj" />
     <ProjectReference Include="..\..\Services\Leave\Application\HRMS.Services.Leave.Application\HRMS.Services.Leave.Application.csproj" />
     <ProjectReference Include="..\..\Services\Leave\Infrastructure\HRMS.Services.Leave.Infrastructure\HRMS.Services.Leave.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Notification -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Notification\HRMS.Services.Notification.API\HRMS.Services.Notification.API.csproj" />
     <ProjectReference Include="..\..\Services\Notification\HRMS.Services.Notification.Application\HRMS.Services.Notification.Application.csproj" />
     <ProjectReference Include="..\..\Services\Notification\HRMS.Services.Notification.Infrastructure\HRMS.Services.Notification.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Organization -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Organization\HRMS.Services.Organization.API\HRMS.Services.Organization.API.csproj" />
     <ProjectReference Include="..\..\Services\Organization\HRMS.Services.Organization.Application\HRMS.Services.Organization.Application.csproj" />
     <ProjectReference Include="..\..\Services\Organization\HRMS.Services.Organization.Infrastructure\HRMS.Services.Organization.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Payroll -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Payroll\HRMS.Services.Payroll.API\HRMS.Services.Payroll.API.csproj" />
     <ProjectReference Include="..\..\Services\Payroll\HRMS.Services.Payroll.Application\HRMS.Services.Payroll.Application.csproj" />
     <ProjectReference Include="..\..\Services\Payroll\HRMS.Services.Payroll.Infrastructure\HRMS.Services.Payroll.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Performance -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Performance\HRMS.Services.Performance.API\HRMS.Services.Performance.API.csproj" />
     <ProjectReference Include="..\..\Services\Performance\HRMS.Services.Performance.Application\HRMS.Services.Performance.Application.csproj" />
   </ItemGroup>
 
   <!-- Module: ProjectTask -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\ProjectTask\HRMS.Services.ProjectTask.API\HRMS.Services.ProjectTask.API.csproj" />
     <ProjectReference Include="..\..\Services\ProjectTask\HRMS.Services.ProjectTask.Application\HRMS.Services.ProjectTask.Application.csproj" />
     <ProjectReference Include="..\..\Services\ProjectTask\HRMS.Services.ProjectTask.Infrastructure\HRMS.Services.ProjectTask.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Recruitment -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Recruitment\HRMS.Services.Recruitment.API\HRMS.Services.Recruitment.API.csproj" />
     <ProjectReference Include="..\..\Services\Recruitment\HRMS.Services.Recruitment.Application\HRMS.Services.Recruitment.Application.csproj" />
     <ProjectReference Include="..\..\Services\Recruitment\HRMS.Services.Recruitment.Infrastructure\HRMS.Services.Recruitment.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Report -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Report\HRMS.Services.Report.API\HRMS.Services.Report.API.csproj" />
     <ProjectReference Include="..\..\Services\Report\HRMS.Services.Report.Application\HRMS.Services.Report.Application.csproj" />
     <ProjectReference Include="..\..\Services\Report\HRMS.Services.Report.Infrastructure\HRMS.Services.Report.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Training -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Training\HRMS.Services.Training.API\HRMS.Services.Training.API.csproj" />
     <ProjectReference Include="..\..\Services\Training\HRMS.Services.Training.Application\HRMS.Services.Training.Application.csproj" />
     <ProjectReference Include="..\..\Services\Training\HRMS.Services.Training.Infrastructure\HRMS.Services.Training.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Travel -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Travel\HRMS.Services.Travel.API\HRMS.Services.Travel.API.csproj" />
     <ProjectReference Include="..\..\Services\Travel\HRMS.Services.Travel.Application\HRMS.Services.Travel.Application.csproj" />
     <ProjectReference Include="..\..\Services\Travel\HRMS.Services.Travel.Infrastructure\HRMS.Services.Travel.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Workflow -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Workflow\HRMS.Services.Workflow.API\HRMS.Services.Workflow.API.csproj" />
     <ProjectReference Include="..\..\Services\Workflow\HRMS.Services.Workflow.Application\HRMS.Services.Workflow.Application.csproj" />
   </ItemGroup>
 
