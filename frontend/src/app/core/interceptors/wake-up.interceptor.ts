@@ -1,7 +1,7 @@
 import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
 import { Observable, throwError, timer, Subject } from 'rxjs';
 import { catchError, switchMap, finalize } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 const isWakingUp = { value: false };
 const wakeUpComplete = new Subject<void>();
