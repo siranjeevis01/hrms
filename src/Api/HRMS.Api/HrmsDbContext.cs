@@ -262,6 +262,15 @@ public class HrmsDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HRMS.Services.Document.Domain.Entities.Document).Assembly);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HRMS.Services.Workflow.Domain.Entities.WorkflowDefinition).Assembly);
 
+        modelBuilder.Entity<HRMS.Services.Employee.Domain.Entities.SalaryComponent>().HasNoKey();
+
+        modelBuilder.Entity<HRMS.Services.Identity.Domain.Entities.UserRole>()
+            .HasKey(e => new { e.UserId, e.RoleId });
+
+        modelBuilder.Entity<HRMS.Services.Payroll.Domain.Entities.TaxSlab>().HasNoKey();
+
+        modelBuilder.Ignore<HRMS.Services.Organization.Domain.ValueObjects.Address>();
+
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
