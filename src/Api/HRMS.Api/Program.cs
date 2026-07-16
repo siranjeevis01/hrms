@@ -184,6 +184,13 @@ try
 
     app.UseSession();
 
+    app.MapGet("/", () => Results.Json(new
+    {
+        service = "HRMS Pro API",
+        version = "1.0.0",
+        status = "running",
+        health = "/health/live"
+    }));
     app.MapControllers();
     app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
     {
