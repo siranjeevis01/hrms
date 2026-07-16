@@ -68,8 +68,13 @@ try
         });
     });
 
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    if (string.IsNullOrWhiteSpace(connectionString))
+        connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+    if (string.IsNullOrWhiteSpace(connectionString))
+        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+    Log.Information("Connection string starts with: {Prefix}", connectionString.Length > 20 ? connectionString.Substring(0, 20) + "..." : connectionString);
 
     builder.Services.AddDbContext<HrmsDbContext>(options =>
         options.UseNpgsql(connectionString, npgsqlOptions =>
