@@ -1,6 +1,9 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://hrms-api.onrender.com',
+  production: false,
+  apiUrl: 'https://hrms-30g6.onrender.com',
+  signalRUrl: 'https://hrms-30g6.onrender.com/hubs/chat',
+  wakeUpUrl: 'https://hrms-30g6.onrender.com/api/v1/health/live',
+  wakeUpDelayMs: 65000,
   firebase: {
     apiKey: 'your-api-key',
     authDomain: 'your-project.firebaseapp.com',
@@ -9,5 +12,4 @@ export const environment = {
     messagingSenderId: 'your-sender-id',
     appId: 'your-app-id',
   },
-  signalRUrl: 'https://hrms-api.onrender.com/hub/chat',
 };

@@ -1,5 +1,4 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
 import { Observable, throwError, timer, Subject } from 'rxjs';
 import { catchError, switchMap, finalize } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -21,7 +20,10 @@ export const wakeUpInterceptor: HttpInterceptorFn = (req, next) => {
   );
 };
 
-function handleWakeUp(req: Parameters<HttpInterceptorFn>[0], next: Parameters<HttpInterceptorFn>[1]: Observable<unknown> {
+function handleWakeUp(
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn
+): Observable<HttpEvent<unknown>> {
   isWakingUp.value = true;
   wakeUpMessage.next('Server is waking up, please wait approximately 60 seconds...');
 
