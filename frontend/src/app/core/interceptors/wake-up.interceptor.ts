@@ -13,7 +13,7 @@ export { wakeUpMessage as wakeUpMessage$ };
 export const wakeUpInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: { status: number }) => {
-      if (error.status === 0 && !isWakingUp.value && !environment.production) {
+      if (error.status === 0 && !isWakingUp.value) {
         return handleWakeUp(req, next);
       }
       return throwError(() => error);
@@ -25,7 +25,7 @@ function handleWakeUp(req: Parameters<HttpInterceptorFn>[0], next: Parameters<Ht
   isWakingUp.value = true;
   wakeUpMessage.next('Server is waking up, please wait approximately 60 seconds...');
 
-  return timer(65000).pipe(
+  return timer(environment.wakeUpDelayMs || 65000).pipe(
     switchMap(() => {
       wakeUpMessage.next('Retrying request...');
       return next(req);

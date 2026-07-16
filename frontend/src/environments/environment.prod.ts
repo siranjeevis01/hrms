@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  apiUrl: '',
-  signalRUrl: '/hubs/chat',
-  wakeUpUrl: '',
+  apiUrl: 'https://hrms-30g6.onrender.com',
+  signalRUrl: 'https://hrms-30g6.onrender.com/hubs/chat',
+  wakeUpUrl: 'https://hrms-30g6.onrender.com/api/v1/health/live',
   wakeUpDelayMs: 65000,
 };
