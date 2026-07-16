@@ -1,0 +1,83 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">OKRs</h1>
+      <p class="text-gray-600 mt-1">Objectives and Key Results</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="showCreateForm.set(true)">
+      <mat-icon>add</mat-icon> Create Cycle
+    </button>
+  </div>
+
+  @if (showCreateForm()) {
+    <mat-card class="mb-6">
+      <mat-card-header><mat-card-title>New OKR Cycle</mat-card-title></mat-card-header>
+      <mat-card-content class="p-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Cycle Name</mat-label>
+            <input matInput [(ngModel)]="newCycle.name" placeholder="Q1 2026">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Start Date</mat-label>
+            <input matInput [matDatepicker]="sp" [min]="minDate" [(ngModel)]="newCycle.startDate">
+            <mat-datepicker-toggle matSuffix [for]="sp"></mat-datepicker-toggle>
+            <mat-datepicker #sp></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>End Date</mat-label>
+            <input matInput [matDatepicker]="ep" [min]="minDate" [(ngModel)]="newCycle.endDate">
+            <mat-datepicker-toggle matSuffix [for]="ep"></mat-datepicker-toggle>
+            <mat-datepicker #ep></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+      <mat-card-actions class="p-4 flex gap-2">
+        <button mat-button (click)="showCreateForm.set(false)">Cancel</button>
+        <button mat-raised-button color="primary" (click)="createCycle()">Create</button>
+      </mat-card-actions>
+    </mat-card>
+  }
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (cycles().length === 0) {
+    <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+      <mat-icon class="text-gray-300 text-6xl">trending_up</mat-icon>
+      <p class="text-gray-500 mt-4">No OKR cycles yet</p>
+    </div>
+  } @else {
+    <div class="space-y-4">
+      @for (cycle of cycles(); track cycle.id) {
+        <mat-card>
+          <mat-card-content class="p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="font-semibold text-lg">{{ cycle.name }}</h3>
+                <p class="text-sm text-gray-500">{{ cycle.startDate | date:'MMM d' }} - {{ cycle.endDate | date:'MMM d, y' }}</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-sm font-medium" [class]="getStatusColor(cycle.status)">
+                {{ cycle.status | titlecase }}
+              </span>
+            </div>
+            @if (cycle.objectives.length > 0) {
+              <div class="space-y-3">
+                @for (obj of cycle.objectives; track obj.id) {
+                  <div class="p-3 bg-gray-50 rounded-lg">
+                    <div class="flex justify-between mb-1">
+                      <span class="font-medium text-sm">{{ obj.title }}</span>
+                      <span class="text-sm">{{ obj.progress }}%</span>
+                    </div>
+                    <mat-progress-bar mode="determinate" [value]="obj.progress" color="primary"></mat-progress-bar>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="text-gray-400 text-sm">No objectives added yet</p>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

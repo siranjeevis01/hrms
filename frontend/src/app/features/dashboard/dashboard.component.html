@@ -1,0 +1,224 @@
+<div class="p-6 space-y-6">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <mat-card class="bg-red-50 border border-red-200">
+      <mat-card-content class="flex items-center gap-3 p-4">
+        <mat-icon class="text-red-500">error</mat-icon>
+        <span class="text-red-700">{{ error() }}</span>
+        <button mat-button color="warn" (click)="loadDashboardData()">Retry</button>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (!loading()) {
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <mat-card class="hover:shadow-lg transition-shadow cursor-pointer" matRipple (click)="navigateTo('/employees')">
+        <mat-card-content class="p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Employees</p>
+              <p class="text-3xl font-bold text-gray-900 mt-1">{{ stats()?.totalEmployees ?? 0 }}</p>
+              <p class="text-sm text-gray-500 mt-1">{{ stats()?.activeEmployees ?? 0 }} active</p>
+            </div>
+            <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center">
+              <mat-icon class="text-blue-600 text-2xl">groups</mat-icon>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="hover:shadow-lg transition-shadow cursor-pointer">
+        <mat-card-content class="p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">New Hires This Month</p>
+              <p class="text-3xl font-bold text-gray-900 mt-1">{{ stats()?.newHires ?? 0 }}</p>
+              <p class="text-sm text-green-600 mt-1">Open positions: {{ stats()?.openPositions ?? 0 }}</p>
+            </div>
+            <div class="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
+              <mat-icon class="text-green-600 text-2xl">person_add</mat-icon>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="hover:shadow-lg transition-shadow cursor-pointer">
+        <mat-card-content class="p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Attendance Today</p>
+              <p class="text-3xl font-bold text-gray-900 mt-1">{{ stats()?.avgAttendance ?? 0 }}%</p>
+              <p class="text-sm text-gray-500 mt-1">Company average</p>
+            </div>
+            <div class="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center">
+              <mat-icon class="text-amber-600 text-2xl">fact_check</mat-icon>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="hover:shadow-lg transition-shadow cursor-pointer">
+        <mat-card-content class="p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Pending Leave Requests</p>
+              <p class="text-3xl font-bold text-gray-900 mt-1">{{ stats()?.pendingLeaves ?? 0 }}</p>
+              <p class="text-sm text-orange-600 mt-1">Requires attention</p>
+            </div>
+            <div class="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center">
+              <mat-icon class="text-orange-600 text-2xl">event_busy</mat-icon>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Employee Distribution by Department</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          @if (pieChartData) {
+            <div class="h-72">
+              <canvas
+                baseChart
+                [data]="pieChartData"
+                type="pie"
+                [options]="pieChartOptions"
+              ></canvas>
+            </div>
+          } @else {
+            <div class="h-72 flex items-center justify-center text-gray-400">
+              No data available
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Monthly Attendance Trend</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          @if (lineChartData) {
+            <div class="h-72">
+              <canvas
+                baseChart
+                [data]="lineChartData"
+                type="line"
+                [options]="lineChartOptions"
+              ></canvas>
+            </div>
+          } @else {
+            <div class="h-72 flex items-center justify-center text-gray-400">
+              No data available
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Activities, Events, Quick Actions Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Recent Activities -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Recent Activities</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-0">
+          @if (activities().length === 0) {
+            <div class="p-8 text-center text-gray-400">
+              <mat-icon class="text-4xl">inbox</mat-icon>
+              <p class="mt-2">No recent activities</p>
+            </div>
+          } @else {
+            <mat-list>
+              @for (activity of activities(); track activity.id) {
+                <mat-list-item class="py-2">
+                  <div matListItemIcon>
+                    <mat-icon class="text-gray-500">{{ getActivityIcon(activity.type) }}</mat-icon>
+                  </div>
+                  <div matListItemTitle class="text-sm">{{ activity.description }}</div>
+                  <div matListItemLine>
+                    <span class="text-xs text-gray-400">{{ activity.user }}</span>
+                    <span class="text-xs text-gray-400 ml-2">{{ activity.timestamp | date:'short' }}</span>
+                  </div>
+                </mat-list-item>
+              }
+            </mat-list>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Upcoming Events -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Upcoming Events & Holidays</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-0">
+          @if (events().length === 0) {
+            <div class="p-8 text-center text-gray-400">
+              <mat-icon class="text-4xl">event</mat-icon>
+              <p class="mt-2">No upcoming events</p>
+            </div>
+          } @else {
+            <mat-list>
+              @for (event of events(); track event.id) {
+                <mat-list-item class="py-2">
+                  <div matListItemIcon>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                          [ngClass]="getEventTypeColor(event.type)">
+                      {{ event.type | titlecase }}
+                    </span>
+                  </div>
+                  <div matListItemTitle class="text-sm">{{ event.title }}</div>
+                  <div matListItemLine>
+                    <span class="text-xs text-gray-400">{{ event.date | date:'mediumDate' }}</span>
+                    <span class="text-xs text-gray-500 ml-2">{{ event.description }}</span>
+                  </div>
+                </mat-list-item>
+              }
+            </mat-list>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Quick Actions -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Quick Actions</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          <div class="grid grid-cols-2 gap-3">
+            <button mat-stroked-button class="h-20 flex-col gap-2" (click)="navigateTo('/employees/create')">
+              <mat-icon class="text-blue-600">person_add</mat-icon>
+              <span class="text-xs">Add Employee</span>
+            </button>
+            <button mat-stroked-button class="h-20 flex-col gap-2" (click)="navigateTo('/attendance')">
+              <mat-icon class="text-green-600">fact_check</mat-icon>
+              <span class="text-xs">Mark Attendance</span>
+            </button>
+            <button mat-stroked-button class="h-20 flex-col gap-2" (click)="navigateTo('/leaves/apply')">
+              <mat-icon class="text-amber-600">event_note</mat-icon>
+              <span class="text-xs">Apply Leave</span>
+            </button>
+            <button mat-stroked-button class="h-20 flex-col gap-2" (click)="navigateTo('/reports')">
+              <mat-icon class="text-purple-600">assessment</mat-icon>
+              <span class="text-xs">View Reports</span>
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>

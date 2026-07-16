@@ -1,0 +1,115 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Performance Dashboard</h1>
+    <p class="text-gray-600 mt-1">Track goals, reviews, and employee performance</p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 flex items-center gap-2">
+      <mat-icon>error</mat-icon><span>{{ error() }}</span>
+      <button mat-button color="warn" (click)="loadDashboard()">Retry</button>
+    </div>
+  } @else if (stats(); as s) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('goals')" matRipple>
+        <mat-card-content class="p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Active Goals</p>
+              <p class="text-2xl font-bold text-blue-600">{{ s.activeGoals }}</p>
+            </div>
+            <mat-icon class="text-blue-500 bg-blue-50 p-2 rounded-full">flag</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('okrs')" matRipple>
+        <mat-card-content class="p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">OKR Completion</p>
+              <p class="text-2xl font-bold text-green-600">{{ s.okrCompletionRate }}%</p>
+            </div>
+            <mat-icon class="text-green-500 bg-green-50 p-2 rounded-full">trending_up</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('reviews')" matRipple>
+        <mat-card-content class="p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Pending Reviews</p>
+              <p class="text-2xl font-bold text-amber-600">{{ s.pendingReviews }}</p>
+            </div>
+            <mat-icon class="text-amber-500 bg-amber-50 p-2 rounded-full">rate_review</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('appraisals')" matRipple>
+        <mat-card-content class="p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Appraisals Pending</p>
+              <p class="text-2xl font-bold text-orange-600">{{ s.appraisalPending }}</p>
+            </div>
+            <mat-icon class="text-orange-500 bg-orange-50 p-2 rounded-full">assignment</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <mat-card>
+        <mat-card-header><mat-card-title>Goal Progress by Department</mat-card-title></mat-card-header>
+        <mat-card-content class="p-4">
+          @if (s.goalProgressByDepartment.length > 0) {
+            <div class="space-y-4">
+              @for (dept of s.goalProgressByDepartment; track dept.department; let i = $index) {
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-700">{{ dept.department }}</span>
+                    <span class="font-medium">{{ dept.progress }}%</span>
+                  </div>
+                  <div class="w-full bg-gray-100 rounded-full h-3">
+                    <div class="h-3 rounded-full transition-all duration-500"
+                         [style.width.%]="dept.progress" [style.background-color]="getBarColor(i)"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-gray-500 text-center py-8">No data available</p>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header><mat-card-title>Rating Distribution</mat-card-title></mat-card-header>
+        <mat-card-content class="p-4">
+          @if (s.ratingDistribution.length > 0) {
+            <div class="space-y-3">
+              @for (item of s.ratingDistribution; track item.rating) {
+                <div class="flex items-center gap-3">
+                  <span class="w-8 text-sm text-gray-600 text-right">{{ item.rating }}★</span>
+                  <div class="flex-1 bg-gray-100 rounded-full h-6 overflow-hidden">
+                    <div class="h-full rounded-full flex items-center px-2 text-white text-xs font-medium"
+                         [style.width.%]="item.count * 10"
+                         [style.background-color]="getBarColor(item.rating - 1)">
+                      {{ item.count }}
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-gray-500 text-center py-8">No ratings yet</p>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>

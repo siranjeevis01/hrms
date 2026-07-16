@@ -1,0 +1,19 @@
+using HRMS.Services.Recruitment.Domain.Enums;
+using MediatR;
+
+namespace HRMS.Services.Recruitment.Application.Commands.SubmitInterviewFeedback;
+
+public class SubmitInterviewFeedbackCommand : IRequest<Guid>
+{
+    public Guid InterviewId { get; set; }
+    public Guid InterviewerId { get; set; }
+    public int TechnicalRating { get; set; }
+    public int CommunicationRating { get; set; }
+    public int CulturalFitRating { get; set; }
+    public int ProblemSolvingRating { get; set; }
+    public int OverallRating { get; set; }
+    public string Strengths { get; set; } = "[]";
+    public string Weaknesses { get; set; } = "[]";
+    public string? Comments { get; set; }
+    public HireRecommendation Recommendation { get; set; }
+}

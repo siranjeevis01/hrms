@@ -1,0 +1,211 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex items-center gap-3 mb-6">
+      <button mat-icon-button (click)="cancel()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Create New Job</h1>
+        <p class="text-gray-600 mt-1">Fill in the details to post a new position</p>
+      </div>
+    </div>
+
+    <form [formGroup]="jobForm">
+      <mat-card class="mb-6">
+        <mat-card-header>
+          <mat-card-title>Basic Information</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4 space-y-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Job Title</mat-label>
+            <input matInput formControlName="title" placeholder="e.g. Senior Software Engineer">
+            @if (jobForm.get('title')?.hasError('required') && jobForm.get('title')?.touched) {
+              <mat-error>Title is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="4" placeholder="Describe the role..."></textarea>
+            @if (jobForm.get('description')?.hasError('required') && jobForm.get('description')?.touched) {
+              <mat-error>Description is required</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <mat-form-field appearance="outline">
+              <mat-label>Department</mat-label>
+              <input matInput formControlName="department" placeholder="e.g. Engineering">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Designation</mat-label>
+              <input matInput formControlName="designation" placeholder="e.g. Senior Engineer">
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="w-full md:w-1/2">
+            <mat-label>Employment Type</mat-label>
+            <mat-select formControlName="employmentType">
+              @for (type of employmentTypes; track type.value) {
+                <mat-option [value]="type.value">{{ type.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="mb-6">
+        <mat-card-header>
+          <mat-card-title>Experience & Salary</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <mat-form-field appearance="outline">
+              <mat-label>Min Experience (years)</mat-label>
+              <input matInput type="number" formControlName="minExperience">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Max Experience (years)</mat-label>
+              <input matInput type="number" formControlName="maxExperience">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Min Salary</mat-label>
+              <input matInput type="number" formControlName="minSalary">
+              <span matTextPrefix>$&nbsp;</span>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Max Salary</mat-label>
+              <input matInput type="number" formControlName="maxSalary">
+              <span matTextPrefix>$&nbsp;</span>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="mb-6">
+        <mat-card-header>
+          <mat-card-title>Skills</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          <div class="flex gap-2 mb-3">
+            <mat-form-field appearance="outline" class="flex-1">
+              <mat-label>Add skill</mat-label>
+              <input matInput [(ngModel)]="newSkill" [ngModelOptions]="{standalone: true}"
+                     (keyup.enter)="addSkill()" placeholder="e.g. Angular">
+            </mat-form-field>
+            <button mat-raised-button color="primary" (click)="addSkill()" class="self-end mb-1">
+              <mat-icon>add</mat-icon> Add
+            </button>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            @for (skill of skills; track skill) {
+              <span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                {{ skill }}
+                <button mat-icon-button class="!w-5 !h-5" (click)="removeSkill(skill)">
+                  <mat-icon class="text-sm">close</mat-icon>
+                </button>
+              </span>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="mb-6">
+        <mat-card-header>
+          <mat-card-title>Requirements</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          <div class="flex gap-2 mb-3">
+            <mat-form-field appearance="outline" class="flex-1">
+              <mat-label>Add requirement</mat-label>
+              <input matInput [(ngModel)]="newRequirement" [ngModelOptions]="{standalone: true}"
+                     (keyup.enter)="addRequirement()">
+            </mat-form-field>
+            <button mat-raised-button color="primary" (click)="addRequirement()" class="self-end mb-1">
+              <mat-icon>add</mat-icon> Add
+            </button>
+          </div>
+          <ul class="space-y-2">
+            @for (req of requirements; track req) {
+              <li class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                <span class="text-sm">{{ req }}</span>
+                <button mat-icon-button (click)="removeRequirement(req)">
+                  <mat-icon class="text-red-500">delete</mat-icon>
+                </button>
+              </li>
+            }
+          </ul>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="mb-6">
+        <mat-card-header>
+          <mat-card-title>Responsibilities</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          <div class="flex gap-2 mb-3">
+            <mat-form-field appearance="outline" class="flex-1">
+              <mat-label>Add responsibility</mat-label>
+              <input matInput [(ngModel)]="newResponsibility" [ngModelOptions]="{standalone: true}"
+                     (keyup.enter)="addResponsibility()">
+            </mat-form-field>
+            <button mat-raised-button color="primary" (click)="addResponsibility()" class="self-end mb-1">
+              <mat-icon>add</mat-icon> Add
+            </button>
+          </div>
+          <ul class="space-y-2">
+            @for (resp of responsibilities; track resp) {
+              <li class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                <span class="text-sm">{{ resp }}</span>
+                <button mat-icon-button (click)="removeResponsibility(resp)">
+                  <mat-icon class="text-red-500">delete</mat-icon>
+                </button>
+              </li>
+            }
+          </ul>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="mb-6">
+        <mat-card-header>
+          <mat-card-title>Benefits</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          <div class="flex gap-2 mb-3">
+            <mat-form-field appearance="outline" class="flex-1">
+              <mat-label>Add benefit</mat-label>
+              <input matInput [(ngModel)]="newBenefit" [ngModelOptions]="{standalone: true}"
+                     (keyup.enter)="addBenefit()">
+            </mat-form-field>
+            <button mat-raised-button color="primary" (click)="addBenefit()" class="self-end mb-1">
+              <mat-icon>add</mat-icon> Add
+            </button>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            @for (benefit of benefits; track benefit) {
+              <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                {{ benefit }}
+                <button mat-icon-button class="!w-5 !h-5" (click)="removeBenefit(benefit)">
+                  <mat-icon class="text-sm">close</mat-icon>
+                </button>
+              </span>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <div class="flex justify-end gap-3 mb-8">
+        <button mat-button (click)="cancel()" [disabled]="saving()">Cancel</button>
+        <button mat-stroked-button (click)="saveDraft()" [disabled]="saving()">
+          @if (saving()) { <mat-spinner diameter="16" class="inline-block mr-2"></mat-spinner> }
+          Save as Draft
+        </button>
+        <button mat-raised-button color="primary" (click)="publish()" [disabled]="saving()">
+          @if (saving()) { <mat-spinner diameter="16" class="inline-block mr-2"></mat-spinner> }
+          Publish
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

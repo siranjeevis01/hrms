@@ -1,0 +1,23 @@
+<mat-card class="stat-card">
+  <div class="stat-card__content">
+    <div class="stat-card__info">
+      <p class="stat-card__title">{{ title }}</p>
+      <h3 class="stat-card__value">{{ value }}</h3>
+      @if (trendValue) {
+        <div class="stat-card__trend" [ngClass]="'trend-' + trend">
+          @if (trend === 'up') {
+            <mat-icon class="stat-card__trend-icon">trending_up</mat-icon>
+          } @else if (trend === 'down') {
+            <mat-icon class="stat-card__trend-icon">trending_down</mat-icon>
+          } @else {
+            <mat-icon class="stat-card__trend-icon">trending_flat</mat-icon>
+          }
+          <span class="stat-card__trend-value">{{ trendValue }}</span>
+        </div>
+      }
+    </div>
+    <div class="stat-card__icon" [style.background-color]="color + '15'" [style.color]="color">
+      <mat-icon>{{ icon }}</mat-icon>
+    </div>
+  </div>
+</mat-card>

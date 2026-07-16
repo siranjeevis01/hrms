@@ -1,0 +1,44 @@
+<div class="p-6 space-y-6">
+  <h1 class="text-2xl font-bold text-gray-900">Frequently Asked Questions</h1>
+
+  <mat-form-field appearance="outline" class="w-full max-w-md">
+    <mat-label>Search FAQs</mat-label>
+    <input matInput [(ngModel)]="searchQuery" (keyup.enter)="loadFaqs()" />
+    <mat-icon matPrefix>search</mat-icon>
+  </mat-form-field>
+
+  @if (categories().length > 0) {
+    <div class="flex flex-wrap gap-2">
+      <button mat-stroked-button [class]="!selectedCategory() ? '!bg-blue-50 !border-blue-500' : ''" (click)="selectedCategory.set(''); loadFaqs()">All</button>
+      @for (cat of categories(); track cat) {
+        <button mat-stroked-button [class]="selectedCategory() === cat ? '!bg-blue-50 !border-blue-500' : ''" (click)="selectedCategory.set(cat); loadFaqs()">{{ cat }}</button>
+      }
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="flex justify-center py-12"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (faqs().length === 0) {
+    <div class="text-center py-16 bg-white rounded-lg border">
+      <mat-icon class="text-gray-400 text-6xl">help_outline</mat-icon>
+      <p class="mt-4 text-gray-600 text-lg">No FAQs found</p>
+    </div>
+  } @else {
+    <mat-accordion>
+      @for (faq of faqs(); track faq.id) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title class="text-sm font-medium">{{ faq.question }}</mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="text-gray-600 text-sm leading-relaxed">{{ faq.answer }}</div>
+          <div class="flex items-center justify-between mt-4 pt-3 border-t">
+            <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">{{ faq.category }}</span>
+            <button mat-button color="primary" (click)="markHelpful(faq.id, $event)">
+              <mat-icon class="!text-sm">thumb_up</mat-icon> Helpful ({{ faq.helpful }})
+            </button>
+          </div>
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+</div>

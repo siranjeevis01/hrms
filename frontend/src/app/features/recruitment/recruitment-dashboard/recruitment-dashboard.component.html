@@ -1,0 +1,189 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Recruitment Dashboard</h1>
+    <p class="text-gray-600 mt-1">Overview of your recruitment pipeline and activities</p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 flex items-center gap-2">
+      <mat-icon>error</mat-icon>
+      <span>{{ error() }}</span>
+      <button mat-button color="warn" (click)="loadDashboard()">Retry</button>
+    </div>
+  } @else if (stats(); as s) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('jobs')" matRipple>
+        <mat-card-content class="p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Open Positions</p>
+              <p class="text-2xl font-bold text-blue-600">{{ s.openPositions }}</p>
+            </div>
+            <mat-icon class="text-blue-500 bg-blue-50 p-2 rounded-full">work</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('candidates')" matRipple>
+        <mat-card-content class="p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Applications This Month</p>
+              <p class="text-2xl font-bold text-purple-600">{{ s.applicationsThisMonth }}</p>
+            </div>
+            <mat-icon class="text-purple-500 bg-purple-50 p-2 rounded-full">description</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('interviews')" matRipple>
+        <mat-card-content class="p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Interviews Scheduled</p>
+              <p class="text-2xl font-bold text-amber-600">{{ s.interviewsScheduled }}</p>
+            </div>
+            <mat-icon class="text-amber-500 bg-amber-50 p-2 rounded-full">event</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('offers')" matRipple>
+        <mat-card-content class="p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Offers Pending</p>
+              <p class="text-2xl font-bold text-orange-600">{{ s.offersPending }}</p>
+            </div>
+            <mat-icon class="text-orange-500 bg-orange-50 p-2 rounded-full">gavel</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" matRipple>
+        <mat-card-content class="p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Hired This Month</p>
+              <p class="text-2xl font-bold text-green-600">{{ s.hiredThisMonth }}</p>
+            </div>
+            <mat-icon class="text-green-500 bg-green-50 p-2 rounded-full">person_add</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <mat-card class="lg:col-span-2">
+        <mat-card-header>
+          <mat-card-title>Recruitment Pipeline Funnel</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          @if (s.pipelineFunnel.length > 0) {
+            <div class="space-y-3">
+              @for (stage of s.pipelineFunnel; track stage.stage; let i = $index) {
+                <div class="flex items-center gap-3">
+                  <span class="w-24 text-sm text-gray-600 text-right">{{ stage.stage }}</span>
+                  <div class="flex-1 bg-gray-100 rounded-full h-8 overflow-hidden">
+                    <div
+                      class="h-full rounded-full flex items-center px-3 text-white text-sm font-medium transition-all duration-500"
+                      [style.width.%]="getFunnelPercentage(stage.count, s.pipelineFunnel[0]?.count || 1)"
+                      [style.background-color]="getFunnelColor(i)">
+                      {{ stage.count }}
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-gray-500 text-center py-8">No pipeline data available</p>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Upcoming Interviews</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          @if (s.upcomingInterviews.length > 0) {
+            <mat-list>
+              @for (interview of s.upcomingInterviews; track interview.id) {
+                <mat-list-item class="cursor-pointer hover:bg-gray-50 rounded-lg">
+                  <mat-icon matListItemIcon>
+                    {{ getInterviewTypeIcon(interview.type) }}
+                  </mat-icon>
+                  <div matListItemTitle class="font-medium">
+                    {{ interview.candidate?.firstName }} {{ interview.candidate?.lastName }}
+                  </div>
+                  <div matListItemLine class="text-sm text-gray-500">
+                    {{ interview.scheduledDate | date:'MMM d, y h:mm a' }}
+                  </div>
+                  <div matListItemLine class="text-xs text-gray-400">
+                    {{ interview.type | titlecase }} - {{ interview.duration }} min
+                  </div>
+                </mat-list-item>
+              }
+            </mat-list>
+          } @else {
+            <p class="text-gray-500 text-center py-8">No upcoming interviews</p>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Recent Applications</mat-card-title>
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="navigateTo('candidates')">View All</button>
+        </mat-card-actions>
+      </mat-card-header>
+      <mat-card-content class="p-4">
+        @if (s.recentApplications.length > 0) {
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b">
+                  <th class="text-left py-2 px-3 text-gray-600 font-medium">Candidate</th>
+                  <th class="text-left py-2 px-3 text-gray-600 font-medium">Position</th>
+                  <th class="text-left py-2 px-3 text-gray-600 font-medium">Applied</th>
+                  <th class="text-left py-2 px-3 text-gray-600 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (app of s.recentApplications; track app.id) {
+                  <tr class="border-b hover:bg-gray-50 cursor-pointer" (click)="navigateTo('candidates/' + app.candidateId)">
+                    <td class="py-3 px-3 font-medium">
+                      {{ app.candidate?.firstName }} {{ app.candidate?.lastName }}
+                    </td>
+                    <td class="py-3 px-3 text-gray-600">{{ app.job?.title }}</td>
+                    <td class="py-3 px-3 text-gray-500">{{ app.appliedDate | date:'MMM d, y' }}</td>
+                    <td class="py-3 px-3">
+                      <span class="px-2 py-1 rounded-full text-xs font-medium"
+                        [class]="app.status === 'applied' ? 'bg-blue-100 text-blue-800' :
+                                  app.status === 'screening' ? 'bg-yellow-100 text-yellow-800' :
+                                  app.status === 'shortlisted' ? 'bg-purple-100 text-purple-800' :
+                                  app.status === 'interview' ? 'bg-indigo-100 text-indigo-800' :
+                                  app.status === 'hired' ? 'bg-green-100 text-green-800' :
+                                  app.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                  'bg-gray-100 text-gray-800'">
+                        {{ app.status | titlecase }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="text-gray-500 text-center py-8">No recent applications</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

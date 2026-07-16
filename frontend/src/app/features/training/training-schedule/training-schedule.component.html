@@ -1,0 +1,75 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Training Schedule</h1>
+      <p class="text-gray-600 mt-1">Upcoming training sessions</p>
+    </div>
+    <div class="flex gap-2">
+      <button mat-stroked-button [color]="viewMode === 'calendar' ? 'primary' : ''" (click)="viewMode = 'calendar'">
+        <mat-icon>calendar_today</mat-icon> Calendar
+      </button>
+      <button mat-stroked-button [color]="viewMode === 'list' ? 'primary' : ''" (click)="viewMode = 'list'">
+        <mat-icon>view_list</mat-icon> List
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (schedules().length === 0) {
+    <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+      <mat-icon class="text-gray-300 text-6xl">event</mat-icon>
+      <p class="text-gray-500 mt-4">No upcoming training sessions</p>
+    </div>
+  } @else if (viewMode === 'calendar') {
+    <div class="space-y-6">
+      @for (entry of groupedByDate | keyvalue; track entry.key) {
+        <div>
+          <h2 class="text-lg font-semibold text-gray-700 mb-3">{{ entry.key | date:'EEEE, MMMM d, y' }}</h2>
+          <div class="space-y-3">
+            @for (schedule of entry.value; track schedule.id) {
+              <mat-card>
+                <mat-card-content class="p-4 flex items-center gap-4">
+                  <div class="w-16 text-center">
+                    <p class="text-xl font-bold text-blue-600">{{ schedule.startDate | date:'h:mm' }}</p>
+                    <p class="text-xs text-gray-400">{{ schedule.startDate | date:'a' }}</p>
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="font-semibold">{{ schedule.title }}</h3>
+                    <p class="text-sm text-gray-500">{{ schedule.instructor }}</p>
+                    @if (schedule.location) {
+                      <p class="text-xs text-gray-400 mt-1"><mat-icon class="text-base">location_on</mat-icon> {{ schedule.location }}</p>
+                    }
+                  </div>
+                  <span class="px-3 py-1 rounded-full text-xs font-medium" [class]="getTypeColor(schedule.type)">
+                    {{ schedule.type | titlecase }}
+                  </span>
+                </mat-card-content>
+              </mat-card>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="space-y-3">
+      @for (schedule of schedules(); track schedule.id) {
+        <mat-card>
+          <mat-card-content class="p-4 flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h3 class="font-semibold">{{ schedule.title }}</h3>
+              <p class="text-sm text-gray-500">{{ schedule.instructor }}</p>
+              <p class="text-xs text-gray-400">{{ schedule.startDate | date:'MMM d, y h:mm a' }} - {{ schedule.endDate | date:'h:mm a' }}</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-400">{{ schedule.enrolledCount }}/{{ schedule.maxParticipants }}</span>
+              <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getTypeColor(schedule.type)">
+                {{ schedule.type | titlecase }}
+              </span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

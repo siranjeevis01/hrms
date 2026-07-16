@@ -1,0 +1,77 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-3xl mx-auto">
+    <div class="flex items-center gap-3 mb-6">
+      <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+      <h1 class="text-2xl font-bold text-gray-900">Performance Review</h1>
+    </div>
+
+    @if (loading()) {
+      <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+    } @else {
+      <mat-card class="mb-6">
+        <mat-card-header><mat-card-title>Review Criteria</mat-card-title></mat-card-header>
+        <mat-card-content class="p-4 space-y-6">
+          @for (rating of ratings; track rating.criterion; let i = $index) {
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-medium">{{ rating.criterion }}</span>
+                <span class="text-sm text-gray-500">{{ rating.rating }}/5</span>
+              </div>
+              <div class="flex items-center gap-1">
+                @for (star of getStarArray(rating.rating); track star) {
+                  <button mat-icon-button class="!w-8 !h-8" (click)="updateRating(i, star)">
+                    <mat-icon [class]="star <= rating.rating ? 'text-amber-400' : 'text-gray-300'">
+                      {{ star <= rating.rating ? 'star' : 'star_border' }}
+                    </mat-icon>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="mb-6">
+        <mat-card-header><mat-card-title>Self Assessment</mat-card-title></mat-card-header>
+        <mat-card-content class="p-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Your self assessment</mat-label>
+            <textarea matInput [(ngModel)]="selfAssessment" rows="5" placeholder="Describe your achievements and challenges..."></textarea>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="mb-6">
+        <mat-card-header><mat-card-title>Manager Assessment</mat-card-title></mat-card-header>
+        <mat-card-content class="p-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Manager's assessment</mat-label>
+            <textarea matInput [(ngModel)]="managerAssessment" rows="5" placeholder="Manager's feedback..."></textarea>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="mb-6">
+        <mat-card-header><mat-card-title>Overall Comments</mat-card-title></mat-card-header>
+        <mat-card-content class="p-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Final comments</mat-label>
+            <textarea matInput [(ngModel)]="overallComments" rows="3"></textarea>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+
+      <div class="flex justify-end gap-3 mb-8">
+        <button mat-button (click)="goBack()" [disabled]="saving()">Cancel</button>
+        <button mat-stroked-button (click)="saveDraft()" [disabled]="saving()">
+          @if (saving()) { <mat-spinner diameter="16" class="inline-block mr-2"></mat-spinner> }
+          Save Draft
+        </button>
+        <button mat-raised-button color="primary" (click)="submit()" [disabled]="saving()">
+          @if (saving()) { <mat-spinner diameter="16" class="inline-block mr-2"></mat-spinner> }
+          Submit Review
+        </button>
+      </div>
+    }
+  </div>
+</div>

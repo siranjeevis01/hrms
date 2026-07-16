@@ -1,0 +1,224 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-900">Analytics</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  }
+
+  <!-- Filters -->
+  <mat-card>
+    <mat-card-content class="p-4">
+      <div class="flex flex-wrap gap-4 items-end">
+        <mat-form-field appearance="outline" class="w-48">
+          <mat-label>Department</mat-label>
+          <mat-select [(value)]="selectedDepartment">
+            <mat-option value="">All Departments</mat-option>
+            @for (dept of departments(); track dept) {
+              <mat-option [value]="dept">{{ dept }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-44">
+          <mat-label>From Date</mat-label>
+          <input matInput [matDatepicker]="fromPicker" />
+          <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fromPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-44">
+          <mat-label>To Date</mat-label>
+          <input matInput [matDatepicker]="toPicker" />
+          <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+          <mat-datepicker #toPicker></mat-datepicker>
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" (click)="applyFilters()">
+          <mat-icon class="mr-1">filter_list</mat-icon>
+          Apply Filters
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Analytics Tabs -->
+  <mat-card>
+    <mat-tab-group [(selectedIndex)]="selectedTab" animationDuration="200ms">
+      <!-- Employee Analytics Tab -->
+      <mat-tab label="Employee Analytics">
+        <div class="p-6 space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Department Distribution</mat-card-title>
+              </mat-card-header>
+              <mat-card-content class="p-4">
+                @if (employeePieData) {
+                  <div class="h-72">
+                    <canvas
+                      baseChart
+                      [data]="employeePieData"
+                      type="pie"
+                      [options]="pieChartOptions"
+                    ></canvas>
+                  </div>
+                } @else {
+                  <div class="h-72 flex items-center justify-center text-gray-400">No data</div>
+                }
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Headcount Trend</mat-card-title>
+              </mat-card-header>
+              <mat-card-content class="p-4">
+                @if (attendanceBarData) {
+                  <div class="h-72">
+                    <canvas
+                      baseChart
+                      [data]="attendanceBarData"
+                      type="bar"
+                      [options]="barChartOptions"
+                    ></canvas>
+                  </div>
+                } @else {
+                  <div class="h-72 flex items-center justify-center text-gray-400">No data</div>
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Attendance Analytics Tab -->
+      <mat-tab label="Attendance Analytics">
+        <div class="p-6 space-y-6">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Attendance Overview</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="p-4">
+              @if (attendanceBarData) {
+                <div class="h-80">
+                  <canvas
+                    baseChart
+                    [data]="attendanceBarData"
+                    type="bar"
+                    [options]="barChartOptions"
+                  ></canvas>
+                </div>
+              } @else {
+                <div class="h-80 flex items-center justify-center text-gray-400">No attendance data</div>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Payroll Analytics Tab -->
+      <mat-tab label="Payroll Analytics">
+        <div class="p-6 space-y-6">
+          @if (payrollSummary(); as summary) {
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <mat-card>
+                <mat-card-content class="p-4 text-center">
+                  <p class="text-sm text-gray-500 uppercase">Total Payroll</p>
+                  <p class="text-2xl font-bold text-gray-900 mt-1">${{ summary.totalPayroll | number }}</p>
+                </mat-card-content>
+              </mat-card>
+              <mat-card>
+                <mat-card-content class="p-4 text-center">
+                  <p class="text-sm text-gray-500 uppercase">Average Salary</p>
+                  <p class="text-2xl font-bold text-gray-900 mt-1">${{ summary.averageSalary | number }}</p>
+                </mat-card-content>
+              </mat-card>
+              <mat-card>
+                <mat-card-content class="p-4 text-center">
+                  <p class="text-sm text-gray-500 uppercase">Highest Salary</p>
+                  <p class="text-2xl font-bold text-gray-900 mt-1">${{ summary.highestSalary | number }}</p>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Department-wise Payroll</mat-card-title>
+              </mat-card-header>
+              <mat-card-content class="p-4">
+                <table mat-table [dataSource]="summary.departmentWise" class="w-full">
+                  <ng-container matColumnDef="department">
+                    <th mat-header-cell *matHeaderCellDef>Department</th>
+                    <td mat-cell *matCellDef="let row">{{ row.department }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="employeeCount">
+                    <th mat-header-cell *matHeaderCellDef>Employees</th>
+                    <td mat-cell *matCellDef="let row">{{ row.employeeCount }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="totalSalary">
+                    <th mat-header-cell *matHeaderCellDef>Total Salary</th>
+                    <td mat-cell *matCellDef="let row">${{ row.totalSalary | number }}</td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+              </mat-card-content>
+            </mat-card>
+          } @else {
+            <div class="flex justify-center items-center h-48 text-gray-400">No payroll data</div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Recruitment Analytics Tab -->
+      <mat-tab label="Recruitment Analytics">
+        <div class="p-6 space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <mat-card>
+              <mat-card-content class="p-4 text-center">
+                <p class="text-sm text-gray-500 uppercase">Open Positions</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">{{ payrollSummary() ? 12 : 0 }}</p>
+              </mat-card-content>
+            </mat-card>
+            <mat-card>
+              <mat-card-content class="p-4 text-center">
+                <p class="text-sm text-gray-500 uppercase">Applications</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">{{ payrollSummary() ? 156 : 0 }}</p>
+              </mat-card-content>
+            </mat-card>
+            <mat-card>
+              <mat-card-content class="p-4 text-center">
+                <p class="text-sm text-gray-500 uppercase">Avg. Time to Hire</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">21 days</p>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Pipeline Overview</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="p-4">
+              @if (employeePieData) {
+                <div class="h-72">
+                  <canvas
+                    baseChart
+                    [data]="employeePieData"
+                    type="doughnut"
+                    [options]="pieChartOptions"
+                  ></canvas>
+                </div>
+              } @else {
+                <div class="h-72 flex items-center justify-center text-gray-400">No data</div>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card>
+</div>

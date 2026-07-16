@@ -1,0 +1,78 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Goals</h1>
+      <p class="text-gray-600 mt-1">Track and manage performance goals</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="navigateTo('goals/create')">
+      <mat-icon>add</mat-icon> Create Goal
+    </button>
+  </div>
+
+  <div class="flex flex-wrap gap-2 mb-6">
+    <button mat-stroked-button [color]="viewFilter === 'all' ? 'primary' : ''" (click)="viewFilter = 'all'">All Goals</button>
+    <button mat-stroked-button [color]="viewFilter === 'my' ? 'primary' : ''" (click)="viewFilter = 'my'">My Goals</button>
+    <button mat-stroked-button [color]="viewFilter === 'team' ? 'primary' : ''" (click)="viewFilter = 'team'">Team Goals</button>
+  </div>
+
+  <div class="flex flex-wrap gap-4 mb-6">
+    <mat-form-field appearance="outline" class="w-40">
+      <mat-label>Status</mat-label>
+      <mat-select [(ngModel)]="filterStatus">
+        <mat-option value="">All</mat-option>
+        <mat-option value="not_started">Not Started</mat-option>
+        <mat-option value="in_progress">In Progress</mat-option>
+        <mat-option value="completed">Completed</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="w-40">
+      <mat-label>Category</mat-label>
+      <mat-select [(ngModel)]="filterCategory">
+        <mat-option value="">All</mat-option>
+        <mat-option value="individual">Individual</mat-option>
+        <mat-option value="team">Team</mat-option>
+        <mat-option value="department">Department</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (filteredGoals().length === 0) {
+    <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+      <mat-icon class="text-gray-300 text-6xl">flag</mat-icon>
+      <p class="text-gray-500 mt-4">No goals found</p>
+      <button mat-raised-button color="primary" class="mt-4" (click)="navigateTo('goals/create')">Create Goal</button>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (goal of filteredGoals(); track goal.id) {
+        <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('goals/' + goal.id)" matRipple>
+          <mat-card-content class="p-4">
+            <div class="flex items-start justify-between mb-2">
+              <h3 class="font-semibold text-sm">{{ goal.title }}</h3>
+              <span class="px-2 py-0.5 rounded-full text-xs font-medium" [class]="getPriorityColor(goal.priority)">
+                {{ goal.priority | titlecase }}
+              </span>
+            </div>
+            <p class="text-xs text-gray-500 mb-3 line-clamp-2">{{ goal.description }}</p>
+            <div class="flex items-center gap-2 mb-3">
+              <span class="px-2 py-0.5 rounded-full text-xs font-medium" [class]="getStatusColor(goal.status)">
+                {{ goal.status | titlecase }}
+              </span>
+              <span class="text-xs text-gray-400">{{ goal.category | titlecase }}</span>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-gray-500">Progress</span>
+                <span class="font-medium">{{ goal.progress }}%</span>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="goal.progress" color="primary"></mat-progress-bar>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Due: {{ goal.endDate | date:'MMM d, y' }}</p>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

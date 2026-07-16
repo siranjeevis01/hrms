@@ -1,0 +1,153 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Job Listings</h1>
+      <p class="text-gray-600 mt-1">Manage your open positions</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="navigateTo('jobs/create')">
+      <mat-icon>add</mat-icon> Create Job
+    </button>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+    <div class="flex flex-wrap items-center gap-4">
+      <mat-form-field appearance="outline" class="flex-1 min-w-[200px]">
+        <mat-label>Search</mat-label>
+        <input matInput placeholder="Search jobs..." [(ngModel)]="searchQuery">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-48">
+        <mat-label>Department</mat-label>
+        <mat-select [(ngModel)]="selectedDepartment">
+          <mat-option value="">All Departments</mat-option>
+          @for (dept of departments(); track dept) {
+            <mat-option [value]="dept">{{ dept }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-40">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="selectedStatus">
+          <mat-option value="">All Statuses</mat-option>
+          @for (s of statuses; track s.value) {
+            <mat-option [value]="s.value">{{ s.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-40">
+        <mat-label>Type</mat-label>
+        <mat-select [(ngModel)]="selectedEmploymentType">
+          <mat-option value="">All Types</mat-option>
+          @for (t of employmentTypes; track t.value) {
+            <mat-option [value]="t.value">{{ t.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-button (click)="clearFilters()" class="text-gray-500">
+        <mat-icon>clear</mat-icon> Clear
+      </button>
+
+      <mat-button-toggle-group [value]="viewMode()" (change)="viewMode.set($event.value)">
+        <mat-button-toggle value="grid"><mat-icon>grid_view</mat-icon></mat-button-toggle>
+        <mat-button-toggle value="list"><mat-icon>view_list</mat-icon></mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 flex items-center gap-2">
+      <mat-icon>error</mat-icon>
+      <span>{{ error() }}</span>
+      <button mat-button color="warn" (click)="loadJobs()">Retry</button>
+    </div>
+  } @else if (filteredJobs().length === 0) {
+    <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+      <mat-icon class="text-gray-300 text-6xl">work_off</mat-icon>
+      <p class="text-gray-500 mt-4 text-lg">No jobs found</p>
+      <p class="text-gray-400 mt-1">Try adjusting your filters or create a new job</p>
+      <button mat-raised-button color="primary" class="mt-4" (click)="navigateTo('jobs/create')">
+        <mat-icon>add</mat-icon> Create Job
+      </button>
+    </div>
+  } @else {
+    @if (viewMode() === 'grid') {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (job of filteredJobs(); track job.id) {
+          <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('jobs/' + job.id)" matRipple>
+            <mat-card-header>
+              <mat-card-title class="text-lg">{{ job.title }}</mat-card-title>
+              <mat-card-subtitle>{{ job.department }} &bull; {{ job.designation }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content class="p-4">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getStatusColor(job.status)">
+                  {{ job.status | titlecase }}
+                </span>
+                <span class="px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                  {{ getEmploymentTypeLabel(job.employmentType) }}
+                </span>
+              </div>
+              <div class="flex items-center gap-4 text-sm text-gray-500">
+                <span class="flex items-center gap-1">
+                  <mat-icon class="text-base">people</mat-icon> {{ job.applicationCount }} applications
+                </span>
+                <span class="flex items-center gap-1">
+                  <mat-icon class="text-base">calendar_today</mat-icon> {{ job.postedDate | date:'MMM d' }}
+                </span>
+              </div>
+              @if (job.skills.length > 0) {
+                <div class="flex flex-wrap gap-1 mt-3">
+                  @for (skill of job.skills.slice(0, 3); track skill) {
+                    <span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">{{ skill }}</span>
+                  }
+                  @if (job.skills.length > 3) {
+                    <span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">+{{ job.skills.length - 3 }}</span>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    } @else {
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="text-left py-3 px-4 font-medium text-gray-600">Title</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-600">Department</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-600">Type</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-600">Applications</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-600">Posted</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (job of filteredJobs(); track job.id) {
+              <tr class="border-t hover:bg-gray-50 cursor-pointer" (click)="navigateTo('jobs/' + job.id)">
+                <td class="py-3 px-4 font-medium">{{ job.title }}</td>
+                <td class="py-3 px-4 text-gray-600">{{ job.department }}</td>
+                <td class="py-3 px-4 text-gray-600">{{ getEmploymentTypeLabel(job.employmentType) }}</td>
+                <td class="py-3 px-4 text-gray-600">{{ job.applicationCount }}</td>
+                <td class="py-3 px-4 text-gray-500">{{ job.postedDate | date:'MMM d, y' }}</td>
+                <td class="py-3 px-4">
+                  <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getStatusColor(job.status)">
+                    {{ job.status | titlecase }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>

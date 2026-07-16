@@ -1,0 +1,76 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">KPIs</h1>
+      <p class="text-gray-600 mt-1">Key Performance Indicators</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="showCreateForm.set(true)">
+      <mat-icon>add</mat-icon> Create KPI
+    </button>
+  </div>
+
+  @if (showCreateForm()) {
+    <mat-card class="mb-6">
+      <mat-card-header><mat-card-title>Create KPI</mat-card-title></mat-card-header>
+      <mat-card-content class="p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Name</mat-label>
+            <input matInput [(ngModel)]="newKpi.name">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Metric</mat-label>
+            <input matInput [(ngModel)]="newKpi.metric" placeholder="e.g. Revenue, CSAT">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Target</mat-label>
+            <input matInput type="number" [(ngModel)]="newKpi.target">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Current</mat-label>
+            <input matInput type="number" [(ngModel)]="newKpi.current">
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+      <mat-card-actions class="p-4 flex gap-2">
+        <button mat-button (click)="showCreateForm.set(false)">Cancel</button>
+        <button mat-raised-button color="primary" (click)="createKPI()">Create</button>
+      </mat-card-actions>
+    </mat-card>
+  }
+
+  <div class="flex gap-2 mb-4">
+    <button mat-stroked-button [color]="filterStatus === '' ? 'primary' : ''" (click)="filterStatus = ''">All</button>
+    <button mat-stroked-button [color]="filterStatus === 'active' ? 'primary' : ''" (click)="filterStatus = 'active'">Active</button>
+    <button mat-stroked-button [color]="filterStatus === 'inactive' ? 'primary' : ''" (click)="filterStatus = 'inactive'">Inactive</button>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (filteredKPIs.length === 0) {
+    <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+      <mat-icon class="text-gray-300 text-6xl">speed</mat-icon>
+      <p class="text-gray-500 mt-4">No KPIs found</p>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (kpi of filteredKPIs; track kpi.id) {
+        <mat-card>
+          <mat-card-content class="p-4">
+            <h3 class="font-semibold mb-1">{{ kpi.name }}</h3>
+            <p class="text-sm text-gray-500 mb-3">{{ kpi.metric }}</p>
+            <div class="flex items-end justify-between">
+              <div>
+                <p class="text-xs text-gray-400">Target: {{ kpi.target }}</p>
+                <p class="text-xs text-gray-400">Current: {{ kpi.current }}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-2xl font-bold" [class]="getScoreColor(kpi.score)">{{ kpi.score }}%</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

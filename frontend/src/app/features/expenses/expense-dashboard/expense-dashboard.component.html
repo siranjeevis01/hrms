@@ -1,0 +1,81 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Expense Dashboard</h1>
+      <p class="text-gray-500 mt-1">Track and manage your expenses</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="navigateTo('submit')">
+      <mat-icon>add</mat-icon>
+      Submit Expense
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (stats()) {
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <mat-card class="p-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center"><mat-icon class="text-blue-600">receipt_long</mat-icon></div>
+          <div><p class="text-2xl font-bold text-gray-900">{{ formatCurrency(stats()!.totalThisMonth) }}</p><p class="text-sm text-gray-500">This Month</p></div>
+        </div>
+      </mat-card>
+      <mat-card class="p-5 cursor-pointer hover:shadow-md" (click)="navigateTo('approvals')">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-yellow-50 flex items-center justify-center"><mat-icon class="text-yellow-600">pending_actions</mat-icon></div>
+          <div><p class="text-2xl font-bold text-gray-900">{{ stats()!.pendingCount }}</p><p class="text-sm text-gray-500">Pending Approvals</p></div>
+        </div>
+      </mat-card>
+      <mat-card class="p-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center"><mat-icon class="text-green-600">check_circle</mat-icon></div>
+          <div><p class="text-2xl font-bold text-gray-900">{{ formatCurrency(stats()!.totalApproved) }}</p><p class="text-sm text-gray-500">Approved</p></div>
+        </div>
+      </mat-card>
+      <mat-card class="p-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-purple-50 flex items-center justify-center"><mat-icon class="text-purple-600">paid</mat-icon></div>
+          <div><p class="text-2xl font-bold text-gray-900">{{ formatCurrency(stats()!.totalReimbursed) }}</p><p class="text-sm text-gray-500">Reimbursed</p></div>
+        </div>
+      </mat-card>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <mat-card>
+        <div class="px-6 py-4 border-b"><h2 class="font-semibold text-gray-900">Expenses by Category</h2></div>
+        <mat-card-content class="p-6">
+          @if (pieChartData) {
+            <div class="h-64"><canvas baseChart [data]="pieChartData" [options]="pieChartOptions" type="pie"></canvas></div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <div class="px-6 py-4 border-b flex items-center justify-between">
+          <h2 class="font-semibold text-gray-900">Recent Claims</h2>
+          <button mat-button color="primary" (click)="navigateTo('my-expenses')">View All</button>
+        </div>
+        <div class="divide-y">
+          @for (expense of recentExpenses(); track expense.id) {
+            <div class="px-6 py-4 hover:bg-gray-50 flex items-center justify-between">
+              <div>
+                <p class="font-medium text-gray-900">{{ expense.title }}</p>
+                <p class="text-sm text-gray-500">{{ expense.createdAt | date:'MMM d, yyyy' }}</p>
+              </div>
+              <div class="text-right">
+                <p class="font-semibold text-gray-900">{{ formatCurrency(expense.totalAmount) }}</p>
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium" [ngClass]="getStatusColor(expense.status)">{{ expense.status | titlecase }}</span>
+              </div>
+            </div>
+          }
+          @if (recentExpenses().length === 0) {
+            <div class="px-6 py-8 text-center text-gray-400">
+              <mat-icon class="text-4xl">receipt</mat-icon>
+              <p class="mt-2">No expenses yet</p>
+            </div>
+          }
+        </div>
+      </mat-card>
+    </div>
+  }
+</div>

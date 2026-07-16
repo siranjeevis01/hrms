@@ -1,0 +1,51 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Recruitment Pipeline</h1>
+      <p class="text-gray-600 mt-1">Drag and drop candidates between stages</p>
+    </div>
+    <mat-form-field appearance="outline" class="w-64">
+      <mat-label>Search pipeline</mat-label>
+      <input matInput [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" placeholder="Candidate or job...">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <div class="flex gap-4 overflow-x-auto pb-4">
+      @for (column of columns(); track column.status) {
+        <div class="min-w-[280px] max-w-[320px] flex-shrink-0">
+          <div class="rounded-t-lg px-4 py-3 flex items-center justify-between" [style.background-color]="column.color + '20'">
+            <h3 class="font-semibold text-sm" [style.color]="column.color">{{ column.label }}</h3>
+            <span class="px-2 py-0.5 rounded-full text-xs font-bold" [style.background-color]="column.color + '30'" [style.color]="column.color">
+              {{ column.applications.length }}
+            </span>
+          </div>
+          <div cdkDropList [cdkDropListData]="column.applications" [cdkDropListConnectedTo]="[]"
+               (cdkDropListDropped)="onDrop($event)"
+               class="bg-gray-100 rounded-b-lg p-2 min-h-[300px] space-y-2">
+            @for (app of column.applications; track app.id) {
+              <mat-card cdkDrag class="cursor-pointer hover:shadow-md transition-shadow">
+                <mat-card-content class="p-3" (click)="viewCandidate(app.candidateId)">
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">
+                      {{ app.candidate?.firstName?.charAt(0) }}{{ app.candidate?.lastName?.charAt(0) }}
+                    </div>
+                    <div>
+                      <p class="font-medium text-sm">{{ app.candidate?.firstName }} {{ app.candidate?.lastName }}</p>
+                      <p class="text-xs text-gray-500">{{ app.job?.title }}</p>
+                    </div>
+                  </div>
+                  <div class="text-xs text-gray-400">{{ app.appliedDate | date:'MMM d, y' }}</div>
+                </mat-card-content>
+                <div cdkDragPlaceholder class="bg-blue-100 border-2 border-dashed border-blue-300 rounded-lg p-3"></div>
+              </mat-card>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,115 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Offer Management</h1>
+      <p class="text-gray-600 mt-1">Create and manage job offers</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="showCreateForm.set(true)">
+      <mat-icon>add</mat-icon> Create Offer
+    </button>
+  </div>
+
+  @if (showCreateForm()) {
+    <mat-card class="mb-6">
+      <mat-card-header><mat-card-title>Create New Offer</mat-card-title></mat-card-header>
+      <mat-card-content class="p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <mat-form-field appearance="outline">
+            <mat-label>Candidate</mat-label>
+            <mat-select [(ngModel)]="newOffer.candidateId">
+              @for (c of candidates(); track c.id) { <mat-option [value]="c.id">{{ c.firstName }} {{ c.lastName }}</mat-option> }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Job Position</mat-label>
+            <mat-select [(ngModel)]="newOffer.jobId" (selectionChange)="newOffer.position = $event.value">
+              @for (j of jobs(); track j.id) { <mat-option [value]="j.id">{{ j.title }}</mat-option> }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>CTC</mat-label>
+            <input matInput type="number" [(ngModel)]="newOffer.ctc">
+            <span matTextPrefix>$&nbsp;</span>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Basic Salary</mat-label>
+            <input matInput type="number" [(ngModel)]="newOffer.basicSalary">
+            <span matTextPrefix>$&nbsp;</span>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Joining Date</mat-label>
+            <input matInput [matDatepicker]="joinPicker" [min]="minDate" [(ngModel)]="newOffer.joiningDate">
+            <mat-datepicker-toggle matSuffix [for]="joinPicker"></mat-datepicker-toggle>
+            <mat-datepicker #joinPicker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Offer Expiry</mat-label>
+            <input matInput [matDatepicker]="expiryPicker" [min]="minDate" [(ngModel)]="newOffer.expiryDate">
+            <mat-datepicker-toggle matSuffix [for]="expiryPicker"></mat-datepicker-toggle>
+            <mat-datepicker #expiryPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+      <mat-card-actions class="p-4 flex gap-2">
+        <button mat-button (click)="showCreateForm.set(false)">Cancel</button>
+        <button mat-raised-button color="primary" (click)="createOffer()">Create Offer</button>
+      </mat-card-actions>
+    </mat-card>
+  }
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <mat-tab-group>
+      <mat-tab [label]="'Pending (' + pendingOffers.length + ')'">
+        <div class="p-4 space-y-4">
+          @if (pendingOffers.length === 0) {
+            <p class="text-gray-500 text-center py-8">No pending offers</p>
+          }
+          @for (offer of pendingOffers; track offer.id) {
+            <mat-card>
+              <mat-card-content class="p-4 flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <p class="font-medium">{{ offer.candidate?.firstName }} {{ offer.candidate?.lastName }}</p>
+                  <p class="text-sm text-gray-500">{{ offer.position }} &bull; {{ offer.department }}</p>
+                  <p class="text-sm text-gray-600 mt-1">CTC: ${{ offer.ctc | number }} &bull; Joining: {{ offer.joiningDate | date:'MMM d, y' }}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getStatusColor(offer.status)">
+                    {{ offer.status | titlecase }}
+                  </span>
+                  <button mat-icon-button [matMenuTriggerFor]="offerMenu"><mat-icon>more_vert</mat-icon></button>
+                  <mat-menu #offerMenu="matMenu">
+                    <button mat-menu-item (click)="updateStatus(offer.id, 'sent')"><mat-icon>send</mat-icon> Send</button>
+                    <button mat-menu-item (click)="updateStatus(offer.id, 'accepted')"><mat-icon>check</mat-icon> Accept</button>
+                    <button mat-menu-item (click)="updateStatus(offer.id, 'rejected')"><mat-icon>close</mat-icon> Reject</button>
+                  </mat-menu>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </mat-tab>
+      <mat-tab [label]="'History (' + historyOffers.length + ')'">
+        <div class="p-4 space-y-4">
+          @if (historyOffers.length === 0) {
+            <p class="text-gray-500 text-center py-8">No offer history</p>
+          }
+          @for (offer of historyOffers; track offer.id) {
+            <mat-card>
+              <mat-card-content class="p-4 flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <p class="font-medium">{{ offer.candidate?.firstName }} {{ offer.candidate?.lastName }}</p>
+                  <p class="text-sm text-gray-500">{{ offer.position }}</p>
+                </div>
+                <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getStatusColor(offer.status)">
+                  {{ offer.status | titlecase }}
+                </span>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

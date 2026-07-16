@@ -1,0 +1,159 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Payroll</h1>
+        <p class="text-gray-500 mt-1">Manage payroll processing and salary disbursement</p>
+      </div>
+      <div class="flex gap-2">
+        <button mat-stroked-button routerLink="/payroll/run">
+          <mat-icon class="mr-1">play_arrow</mat-icon>
+          Run Payroll
+        </button>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="flex items-center justify-center py-20">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      <!-- Summary Cards -->
+      @if (summary(); as s) {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <mat-card>
+            <div class="p-5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-500">Total Employees</p>
+                  <p class="text-3xl font-bold text-gray-900 mt-1">{{ s.totalEmployees }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+                  <mat-icon class="text-indigo-600">group</mat-icon>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+          <mat-card>
+            <div class="p-5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-500">Processed Amount</p>
+                  <p class="text-3xl font-bold text-emerald-600 mt-1">
+                    {{ formatCurrency(s.processedAmount) }}
+                  </p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                  <mat-icon class="text-emerald-600">check_circle</mat-icon>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+          <mat-card>
+            <div class="p-5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-500">Pending Amount</p>
+                  <p class="text-3xl font-bold text-amber-600 mt-1">
+                    {{ formatCurrency(s.pendingAmount) }}
+                  </p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                  <mat-icon class="text-amber-600">pending</mat-icon>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+          <mat-card>
+            <div class="p-5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-500">Average Salary</p>
+                  <p class="text-3xl font-bold text-purple-600 mt-1">
+                    {{ formatCurrency(s.avgSalary) }}
+                  </p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                  <mat-icon class="text-purple-600">payments</mat-icon>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <!-- Monthly Trend Chart -->
+          <mat-card>
+            <div class="p-5">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Monthly Payroll Trend</h3>
+              <div class="flex items-end gap-3 h-48 px-2">
+                @for (item of monthlyTrend(); track item.month) {
+                  <div class="flex-1 flex flex-col items-center gap-1">
+                    <span class="text-[10px] text-gray-500">{{ formatCurrency(item.amount) }}</span>
+                    <div
+                      class="w-full bg-indigo-500 rounded-t transition-all duration-500 hover:bg-indigo-600"
+                      [style.height.%]="(item.amount / maxTrendValue()) * 100"
+                    ></div>
+                    <span class="text-xs text-gray-500">{{ item.month }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </mat-card>
+
+          <!-- Department Distribution -->
+          <mat-card>
+            <div class="p-5">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">By Department</h3>
+              <div class="space-y-4">
+                @for (dept of departmentData(); track dept.name) {
+                  <div>
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="text-sm text-gray-700">{{ dept.name }}</span>
+                      <span class="text-sm font-medium text-gray-900">
+                        {{ formatCurrency(dept.amount) }}
+                      </span>
+                    </div>
+                    <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        class="h-full rounded-full transition-all duration-700"
+                        [style.width.%]="(dept.amount / maxDeptValue()) * 100"
+                        [style.background]="dept.color"
+                      ></div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </mat-card>
+        </div>
+
+        <!-- Additional Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <mat-card>
+            <div class="p-5 flex items-center gap-4">
+              <div class="w-14 h-14 rounded-xl bg-red-100 flex items-center justify-center">
+                <mat-icon class="text-red-600 text-2xl">remove_circle</mat-icon>
+              </div>
+              <div>
+                <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(s.totalDeductions) }}</p>
+                <p class="text-sm text-gray-500">Total Deductions</p>
+              </div>
+            </div>
+          </mat-card>
+          <mat-card>
+            <div class="p-5 flex items-center gap-4">
+              <div class="w-14 h-14 rounded-xl bg-emerald-100 flex items-center justify-center">
+                <mat-icon class="text-emerald-600 text-2xl">add_circle</mat-icon>
+              </div>
+              <div>
+                <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(s.totalAllowances) }}</p>
+                <p class="text-sm text-gray-500">Total Allowances</p>
+              </div>
+            </div>
+          </mat-card>
+        </div>
+      }
+    }
+  </div>
+</div>

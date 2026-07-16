@@ -1,0 +1,18 @@
+<div class="page-header">
+  <div class="page-header__left">
+    @if (showBackButton) {
+      <button mat-icon-button (click)="backClick.emit()" class="page-header__back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    }
+    <div class="page-header__titles">
+      <h1 class="page-header__title">{{ title }}</h1>
+      @if (subtitle) {
+        <p class="page-header__subtitle">{{ subtitle }}</p>
+      }
+    </div>
+  </div>
+  <div class="page-header__right">
+    <ng-content />
+  </div>
+</div>

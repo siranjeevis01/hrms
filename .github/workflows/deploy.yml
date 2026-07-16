@@ -1,0 +1,84 @@
+name: CI/CD - Deploy HRMS Pro
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  NODE_VERSION: '20'
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Restore .NET dependencies
+        run: dotnet restore HRMSPro.sln
+
+      - name: Build .NET solution
+        run: dotnet build HRMSPro.sln --configuration Release --no-restore
+
+      - name: Build Consolidated API
+        run: dotnet publish src/Api/HRMS.Api/HRMS.Api.csproj -c Release -o ./publish
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: npx ng lint
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npx ng build --configuration production
+
+      - name: Upload API artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hrms-api
+          path: ./publish
+          retention-days: 3
+
+      - name: Upload Frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hrms-frontend
+          path: frontend/dist/hrms-frontend/browser
+          retention-days: 3
+
+  deploy-production:
+    name: Deploy to Render
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Backend to Render
+        uses: brentvollebregt/auto-deploy-render@v1
+        with:
+          service-id: ${{ secrets.RENDER_SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
+
+      - name: Deploy Frontend to Render
+        uses: brentvollebregt/auto-deploy-render@v1
+        with:
+          service-id: ${{ secrets.RENDER_STATIC_SITE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}

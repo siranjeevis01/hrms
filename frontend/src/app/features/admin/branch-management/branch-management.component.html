@@ -1,0 +1,22 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between"><h1 class="text-2xl font-bold text-gray-900">Branches</h1><button mat-raised-button color="primary"><mat-icon>add</mat-icon> Add Branch</button></div>
+  @if (loading()) { <div class="flex justify-center py-12"><p class="text-gray-500">Loading...</p></div> }
+  @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (branch of branches(); track branch.id) {
+        <mat-card class="p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center"><mat-icon class="text-blue-600">location_city</mat-icon></div>
+            @if (branch.isHeadquarters) { <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">HQ</span> }
+          </div>
+          <h3 class="font-semibold text-gray-900">{{ branch.name }}</h3>
+          <p class="text-sm text-gray-500 mt-1">{{ branch.address }}, {{ branch.city }}</p>
+          <div class="flex items-center gap-4 mt-3 text-sm text-gray-500">
+            <span>{{ branch.employeeCount }} employees</span>
+            <span>{{ branch.country }}</span>
+          </div>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

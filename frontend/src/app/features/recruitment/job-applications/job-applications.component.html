@@ -1,0 +1,46 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="flex items-center gap-3 mb-6">
+    <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+    <h1 class="text-2xl font-bold text-gray-900">Job Applications - Kanban Board</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <div class="flex gap-4 overflow-x-auto pb-4" cdkDropList id="board">
+      @for (column of columns(); track column.status) {
+        <div class="min-w-[280px] max-w-[320px] flex-shrink-0">
+          <div class="rounded-t-lg px-4 py-2 flex items-center justify-between"
+               [style.background-color]="column.color + '20'">
+            <h3 class="font-semibold text-sm" [style.color]="column.color">{{ column.label }}</h3>
+            <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+                  [style.background-color]="column.color + '30'" [style.color]="column.color">
+              {{ column.applications.length }}
+            </span>
+          </div>
+          <div cdkDropList [cdkDropListData]="column.applications" [cdkDropListConnectedTo]="[]"
+               (cdkDropListDropped)="onDrop($event)"
+               class="bg-gray-100 rounded-b-lg p-2 min-h-[200px] space-y-2">
+            @for (app of column.applications; track app.id) {
+              <mat-card cdkDrag class="cursor-pointer hover:shadow-md transition-shadow">
+                <mat-card-content class="p-3">
+                  <div class="font-medium text-sm mb-1">
+                    {{ app.candidate?.firstName }} {{ app.candidate?.lastName }}
+                  </div>
+                  <div class="text-xs text-gray-500 mb-2">{{ app.candidate?.email }}</div>
+                  <div class="text-xs text-gray-400">{{ app.appliedDate | date:'MMM d, y' }}</div>
+                  <button mat-button class="!p-0 !min-h-0 !text-xs mt-2" color="primary"
+                          (click)="viewCandidate(app.candidateId); $event.stopPropagation()">
+                    View Profile
+                  </button>
+                </mat-card-content>
+                <div cdkDragPlaceholder class="bg-blue-100 border-2 border-dashed border-blue-300 rounded-lg p-3">
+                </div>
+              </mat-card>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,31 @@
+.chat-container {
+  overflow: hidden;
+}
+
+.conversations-panel {
+  min-width: 320px;
+}
+
+.message-bubble {
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .conversations-panel {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .chat-panel:not(.hidden) {
+    width: 100%;
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}

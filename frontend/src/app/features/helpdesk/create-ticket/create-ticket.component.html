@@ -1,0 +1,53 @@
+<div class="p-6 max-w-3xl mx-auto">
+  <div class="flex items-center gap-3 mb-6">
+    <button mat-icon-button (click)="cancel()"><mat-icon>arrow_back</mat-icon></button>
+    <h1 class="text-2xl font-bold text-gray-900">Create Ticket</h1>
+  </div>
+
+  <mat-card>
+    <mat-card-content class="p-6">
+      <form [formGroup]="ticketForm" class="space-y-4">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Subject</mat-label>
+          <input matInput formControlName="subject" placeholder="Brief description of the issue" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description" rows="6" placeholder="Detailed description of the issue..."></textarea>
+        </mat-form-field>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Category</mat-label>
+            <mat-select formControlName="categoryId">
+              @for (cat of categories(); track cat.id) { <mat-option [value]="cat.id">{{ cat.name }}</mat-option> }
+            </mat-select>
+          </mat-form-field>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+            <div class="flex gap-2">
+              @for (p of priorities; track p.value) {
+                <button type="button" mat-stroked-button [class]="ticketForm.get('priority')?.value === p.value ? 'border-2 border-blue-500 bg-blue-50' : ''" (click)="ticketForm.patchValue({priority: p.value})">
+                  {{ p.label }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 flex items-center justify-between">
+          <button mat-stroked-button type="button"><mat-icon>attach_file</mat-icon> Attach Files</button>
+          <div class="flex gap-2">
+            <button mat-button type="button" (click)="cancel()">Cancel</button>
+            <button mat-raised-button color="primary" type="button" (click)="onSubmit()" [disabled]="saving()">
+              @if (saving()) { <mat-spinner diameter="20" class="inline-block"></mat-spinner> }
+              @else { <mat-icon>send</mat-icon> Submit Ticket }
+            </button>
+          </div>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

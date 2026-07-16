@@ -1,0 +1,131 @@
+<div class="p-6 max-w-4xl mx-auto">
+  <div class="flex items-center gap-3 mb-6">
+    <button mat-icon-button (click)="cancel()"><mat-icon>arrow_back</mat-icon></button>
+    <div><h1 class="text-2xl font-bold text-gray-900">Submit Travel Request</h1></div>
+  </div>
+
+  <mat-card>
+    <mat-card-content class="p-6">
+      <mat-stepper linear #stepper>
+        <mat-step [stepControl]="travelForm" label="Travel Details">
+          <form [formGroup]="travelForm" class="mt-6 space-y-4">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Purpose</mat-label>
+              <textarea matInput formControlName="purpose" rows="2" placeholder="Purpose of travel"></textarea>
+            </mat-form-field>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Destination</mat-label>
+                <input matInput formControlName="destination" placeholder="City/Country" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Estimated Cost</mat-label>
+                <input matInput type="number" formControlName="estimatedCost" min="0" />
+                <span matPrefix>$&nbsp;</span>
+              </mat-form-field>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Start Date</mat-label>
+                <input matInput [matDatepicker]="startPicker" formControlName="startDate" />
+                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>End Date</mat-label>
+                <input matInput [matDatepicker]="endPicker" formControlName="endDate" />
+                <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                <mat-datepicker #endPicker></mat-datepicker>
+              </mat-form-field>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Transport Type</mat-label>
+                <mat-select formControlName="transportType">
+                  @for (t of transportTypes; track t.value) { <mat-option [value]="t.value">{{ t.label }}</mat-option> }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Accommodation</mat-label>
+                <mat-select formControlName="accommodationType">
+                  @for (a of accommodationTypes; track a.value) { <mat-option [value]="a.value">{{ a.label }}</mat-option> }
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Notes</mat-label>
+              <textarea matInput formControlName="notes" rows="2"></textarea>
+            </mat-form-field>
+
+            <div class="flex justify-end">
+              <button mat-raised-button color="primary" matStepperNext [disabled]="travelForm.invalid">Next <mat-icon>arrow_forward</mat-icon></button>
+            </div>
+          </form>
+        </mat-step>
+
+        <mat-step label="Itinerary">
+          <div class="mt-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold text-gray-900">Day-by-Day Itinerary</h3>
+              <button mat-stroked-button color="primary" type="button" (click)="addDay()"><mat-icon>add</mat-icon> Add Day</button>
+            </div>
+
+            <div formArrayName="days" class="space-y-4">
+              @for (day of itineraryDays.controls; track $index; let i = $index) {
+                <div [formGroupName]="i" class="border rounded-lg p-4 bg-gray-50">
+                  <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-medium text-gray-700">Day {{ i + 1 }}</h4>
+                    <button mat-icon-button type="button" (click)="removeDay(i)"><mat-icon class="!text-red-500">delete</mat-icon></button>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-label>Activities</mat-label>
+                      <textarea matInput formControlName="activities" rows="2" placeholder="What's planned"></textarea>
+                    </mat-form-field>
+                    <div class="space-y-3">
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Transport</mat-label>
+                        <input matInput formControlName="transport" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Accommodation</mat-label>
+                        <input matInput formControlName="accommodation" />
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Cost</mat-label>
+                        <input matInput type="number" formControlName="estimatedCost" min="0" />
+                        <span matPrefix>$&nbsp;</span>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            @if (itineraryDays.length === 0) {
+              <div class="text-center py-8 text-gray-400">
+                <mat-icon class="text-5xl">event</mat-icon>
+                <p class="mt-2">Add itinerary days to plan your trip</p>
+              </div>
+            }
+
+            <div class="flex justify-between pt-4">
+              <button mat-button matStepperPrevious><mat-icon>arrow_back</mat-icon> Back</button>
+              <div class="flex gap-2">
+                <button mat-button (click)="cancel()">Cancel</button>
+                <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="saving()">
+                  @if (saving()) { <mat-spinner diameter="20" class="inline-block"></mat-spinner> }
+                  @else { <mat-icon>send</mat-icon> Submit Request }
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-step>
+      </mat-stepper>
+    </mat-card-content>
+  </mat-card>
+</div>

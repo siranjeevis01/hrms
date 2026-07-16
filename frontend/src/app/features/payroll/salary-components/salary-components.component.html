@@ -1,0 +1,56 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">Salary Components</h1>
+      <p class="text-gray-500 mt-1">View all configured salary components</p>
+    </div>
+
+    @if (loading()) {
+      <div class="flex items-center justify-center py-20">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      <!-- Earnings -->
+      <h2 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+        <mat-icon class="text-emerald-600">add_circle</mat-icon>
+        Earnings
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        @for (comp of getEarningComponents(); track comp.id) {
+          <mat-card class="border-l-4 border-l-emerald-500">
+            <div class="p-4">
+              <h3 class="font-medium text-gray-900">{{ comp.name }}</h3>
+              <p class="text-xl font-bold text-emerald-600 mt-2">{{ formatValue(comp) }}</p>
+              <span class="inline-block mt-2 px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-700">
+                {{ comp.calculationType }}
+              </span>
+            </div>
+          </mat-card>
+        } @empty {
+          <div class="col-span-full text-center py-8 text-gray-500">No earning components</div>
+        }
+      </div>
+
+      <!-- Deductions -->
+      <h2 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+        <mat-icon class="text-red-600">remove_circle</mat-icon>
+        Deductions
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        @for (comp of getDeductionComponents(); track comp.id) {
+          <mat-card class="border-l-4 border-l-red-500">
+            <div class="p-4">
+              <h3 class="font-medium text-gray-900">{{ comp.name }}</h3>
+              <p class="text-xl font-bold text-red-600 mt-2">{{ formatValue(comp) }}</p>
+              <span class="inline-block mt-2 px-2 py-0.5 rounded text-xs bg-red-100 text-red-700">
+                {{ comp.calculationType }}
+              </span>
+            </div>
+          </mat-card>
+        } @empty {
+          <div class="col-span-full text-center py-8 text-gray-500">No deduction components</div>
+        }
+      </div>
+    }
+  </div>
+</div>

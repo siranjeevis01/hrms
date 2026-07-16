@@ -1,0 +1,111 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-3xl mx-auto">
+    <div class="flex items-center gap-3 mb-6">
+      <button mat-icon-button (click)="cancel()"><mat-icon>arrow_back</mat-icon></button>
+      <h1 class="text-2xl font-bold text-gray-900">Create Goal</h1>
+    </div>
+
+    <form [formGroup]="goalForm">
+      <mat-card class="mb-6">
+        <mat-card-header><mat-card-title>Goal Details</mat-card-title></mat-card-header>
+        <mat-card-content class="p-4 space-y-4">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" placeholder="Goal title">
+            @if (goalForm.get('title')?.hasError('required') && goalForm.get('title')?.touched) {
+              <mat-error>Title is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="3"></textarea>
+          </mat-form-field>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <mat-form-field appearance="outline">
+              <mat-label>Category</mat-label>
+              <mat-select formControlName="category">
+                <mat-option value="individual">Individual</mat-option>
+                <mat-option value="team">Team</mat-option>
+                <mat-option value="department">Department</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Priority</mat-label>
+              <mat-select formControlName="priority">
+                <mat-option value="low">Low</mat-option>
+                <mat-option value="medium">Medium</mat-option>
+                <mat-option value="high">High</mat-option>
+                <mat-option value="critical">Critical</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Start Date</mat-label>
+              <input matInput [matDatepicker]="startPicker" [min]="minDate" formControlName="startDate">
+              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>End Date</mat-label>
+              <input matInput [matDatepicker]="endPicker" [min]="minDate" formControlName="endDate">
+              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+              <mat-datepicker #endPicker></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Weight (%)</mat-label>
+              <input matInput type="number" formControlName="weight">
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="mb-6">
+        <mat-card-header>
+          <mat-card-title>Key Results</mat-card-title>
+          <mat-card-actions>
+            <button mat-button color="primary" type="button" (click)="addKeyResult()">
+              <mat-icon>add</mat-icon> Add
+            </button>
+          </mat-card-actions>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          <div formArrayName="keyResults" class="space-y-4">
+            @for (kr of keyResults.controls; track $index; let i = $index) {
+              <div [formGroupName]="i" class="flex gap-3 items-start p-3 bg-gray-50 rounded-lg">
+                <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <mat-form-field appearance="outline" class="md:col-span-1">
+                    <mat-label>Title</mat-label>
+                    <input matInput formControlName="title">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Target</mat-label>
+                    <input matInput type="number" formControlName="target">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Unit</mat-label>
+                    <input matInput formControlName="unit" placeholder="e.g. %, tickets">
+                  </mat-form-field>
+                </div>
+                <button mat-icon-button color="warn" type="button" (click)="removeKeyResult(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+          @if (keyResults.length === 0) {
+            <p class="text-gray-400 text-center py-4">No key results added yet</p>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <div class="flex justify-end gap-3 mb-8">
+        <button mat-button (click)="cancel()" [disabled]="saving()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="save()" [disabled]="saving()">
+          @if (saving()) { <mat-spinner diameter="16" class="inline-block mr-2"></mat-spinner> }
+          Create Goal
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

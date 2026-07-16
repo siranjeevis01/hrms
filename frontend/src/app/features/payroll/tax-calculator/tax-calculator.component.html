@@ -1,0 +1,142 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">Tax Calculator</h1>
+      <p class="text-gray-500 mt-1">Compare tax under old and new regimes</p>
+    </div>
+
+    <!-- Input -->
+    <mat-card class="mb-6">
+      <div class="p-6">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Annual Salary (CTC)</mat-label>
+          <input
+            matInput
+            type="number"
+            [value]="annualSalary()"
+            (input)="annualSalary.set(+$any($event.target).value)"
+            placeholder="Enter your annual CTC"
+          />
+          <mat-icon matSuffix>currency_rupee</mat-icon>
+        </mat-form-field>
+        <button
+          mat-flat-button
+          class="!bg-indigo-600 !text-white"
+          [disabled]="loading() || !annualSalary()"
+          (click)="calculate()"
+        >
+          @if (loading()) {
+            <mat-spinner diameter="18" class="!inline-block"></mat-spinner>
+          } @else {
+            <mat-icon class="mr-1">calculate</mat-icon>
+          }
+          Calculate Tax
+        </button>
+      </div>
+    </mat-card>
+
+    @if (result(); as r) {
+      <!-- Comparison Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Old Regime -->
+        <mat-card class="border-t-4 border-t-blue-500">
+          <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-1">Old Tax Regime</h3>
+            <p class="text-sm text-gray-500 mb-4">With deductions & exemptions</p>
+            <div class="text-center mb-4">
+              <p class="text-4xl font-bold text-blue-600">{{ formatCurrency(r.oldRegimeTax) }}</p>
+              <p class="text-sm text-gray-500 mt-1">Total Tax</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+              <div class="flex justify-between text-sm mb-2">
+                <span class="text-gray-600">Taxable Income</span>
+                <span class="font-medium">{{ formatCurrency(r.taxableIncome) }}</span>
+              </div>
+              <div class="flex justify-between text-sm mb-2">
+                <span class="text-gray-600">Income Tax</span>
+                <span class="font-medium text-blue-600">{{ formatCurrency(r.oldRegimeTax) }}</span>
+              </div>
+            </div>
+            <div class="space-y-2">
+              @for (section of r.oldRegimeBreakdown; track section.section) {
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">{{ section.section }}</span>
+                  <span class="font-medium">{{ formatCurrency(section.amount) }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </mat-card>
+
+        <!-- New Regime -->
+        <mat-card class="border-t-4 border-t-emerald-500">
+          <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-1">New Tax Regime</h3>
+            <p class="text-sm text-gray-500 mb-4">Default regime (no exemptions)</p>
+            <div class="text-center mb-4">
+              <p class="text-4xl font-bold text-emerald-600">{{ formatCurrency(r.newRegimeTax) }}</p>
+              <p class="text-sm text-gray-500 mt-1">Total Tax</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+              <div class="flex justify-between text-sm mb-2">
+                <span class="text-gray-600">Taxable Income</span>
+                <span class="font-medium">{{ formatCurrency(r.annualIncome) }}</span>
+              </div>
+              <div class="flex justify-between text-sm mb-2">
+                <span class="text-gray-600">Income Tax</span>
+                <span class="font-medium text-emerald-600">{{ formatCurrency(r.newRegimeTax) }}</span>
+              </div>
+            </div>
+            <div class="space-y-2">
+              @for (section of r.newRegimeBreakdown; track section.section) {
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">{{ section.section }}</span>
+                  <span class="font-medium">{{ formatCurrency(section.amount) }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </mat-card>
+      </div>
+
+      <!-- Recommendation -->
+      <mat-card>
+        <div class="p-6">
+          <div class="flex items-center gap-4">
+            @if (r.oldRegimeTax < r.newRegimeTax) {
+              <div class="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center">
+                <mat-icon class="text-blue-600 text-2xl">thumb_up</mat-icon>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">Old Regime is Better</h3>
+                <p class="text-gray-600">
+                  You save <strong class="text-emerald-600">{{ formatCurrency(r.newRegimeTax - r.oldRegimeTax) }}</strong>
+                  under the old tax regime.
+                </p>
+              </div>
+            } @else if (r.newRegimeTax < r.oldRegimeTax) {
+              <div class="w-14 h-14 rounded-xl bg-emerald-100 flex items-center justify-center">
+                <mat-icon class="text-emerald-600 text-2xl">thumb_up</mat-icon>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">New Regime is Better</h3>
+                <p class="text-gray-600">
+                  You save <strong class="text-emerald-600">{{ formatCurrency(r.oldRegimeTax - r.newRegimeTax) }}</strong>
+                  under the new tax regime.
+                </p>
+              </div>
+            } @else {
+              <div class="w-14 h-14 rounded-xl bg-gray-100 flex items-center justify-center">
+                <mat-icon class="text-gray-600 text-2xl">balance</mat-icon>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">Both Regimes are Equal</h3>
+                <p class="text-gray-600">Tax liability is the same under both regimes.</p>
+              </div>
+            }
+          </div>
+        </div>
+      </mat-card>
+    }
+  </div>
+</div>

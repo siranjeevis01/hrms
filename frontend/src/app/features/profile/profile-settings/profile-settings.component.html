@@ -1,0 +1,92 @@
+<div class="p-6 max-w-4xl mx-auto space-y-6">
+  <h1 class="text-2xl font-bold text-gray-900">Profile Settings</h1>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <!-- Change Password -->
+    <mat-card>
+      <mat-card-header class="px-6 pt-6"><mat-card-title>Change Password</mat-card-title></mat-card-header>
+      <mat-card-content class="p-6">
+        <form [formGroup]="passwordForm" class="space-y-4 max-w-md">
+          <mat-form-field appearance="outline" class="w-full"><mat-label>Current Password</mat-label><input matInput formControlName="currentPassword" type="password" /></mat-form-field>
+          <mat-form-field appearance="outline" class="w-full"><mat-label>New Password</mat-label><input matInput formControlName="newPassword" type="password" /></mat-form-field>
+          <mat-form-field appearance="outline" class="w-full"><mat-label>Confirm Password</mat-label><input matInput formControlName="confirmPassword" type="password" /></mat-form-field>
+          <button mat-raised-button color="primary" type="button" (click)="changePassword()" [disabled]="saving()">
+            @if (saving()) { <mat-spinner diameter="20" class="inline-block"></mat-spinner> } @else { Change Password }
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Notification Preferences -->
+    @if (settings()) {
+      <mat-card>
+        <mat-card-header class="px-6 pt-6"><mat-card-title>Notification Preferences</mat-card-title></mat-card-header>
+        <mat-card-content class="p-6">
+          <div class="space-y-3">
+            @for (notif of settings()!.notifications; track notif.type) {
+              <div class="flex items-center justify-between py-2">
+                <span class="font-medium text-gray-900 capitalize">{{ notif.type }}</span>
+                <div class="flex items-center gap-6">
+                  <div class="flex items-center gap-2">
+                    <mat-slide-toggle [checked]="notif.email" (change)="toggleNotification(notif.type, 'email')"></mat-slide-toggle>
+                    <span class="text-sm text-gray-500">Email</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <mat-slide-toggle [checked]="notif.push" (change)="toggleNotification(notif.type, 'push')"></mat-slide-toggle>
+                    <span class="text-sm text-gray-500">Push</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <mat-slide-toggle [checked]="notif.sms" (change)="toggleNotification(notif.type, 'sms')"></mat-slide-toggle>
+                    <span class="text-sm text-gray-500">SMS</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Theme -->
+      <mat-card>
+        <mat-card-header class="px-6 pt-6"><mat-card-title>Theme</mat-card-title></mat-card-header>
+        <mat-card-content class="p-6">
+          <div class="flex gap-3">
+            @for (theme of ['light', 'dark', 'system']; track theme) {
+              <button mat-stroked-button [class]="settings()!.theme === theme ? '!border-blue-500 !bg-blue-50' : ''" (click)="toggleTheme($any(theme))">
+                <mat-icon>{{ theme === 'light' ? 'light_mode' : theme === 'dark' ? 'dark_mode' : 'brightness_auto' }}</mat-icon>
+                {{ theme | titlecase }}
+              </button>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Sessions -->
+      <mat-card>
+        <mat-card-header class="px-6 pt-6"><mat-card-title>Active Sessions</mat-card-title></mat-card-header>
+        <mat-card-content class="p-6">
+          <div class="space-y-3">
+            @for (session of sessions(); track session.id) {
+              <div class="flex items-center justify-between p-3 rounded-lg" [class.bg-blue-50]="session.isCurrent" [class.bg-gray-50]="!session.isCurrent">
+                <div class="flex items-center gap-3">
+                  <mat-icon class="text-gray-500">{{ session.device.includes('Mobile') ? 'phone_android' : 'computer' }}</mat-icon>
+                  <div>
+                    <p class="font-medium text-gray-900">{{ session.browser }} on {{ session.device }}</p>
+                    <p class="text-xs text-gray-500">{{ session.ipAddress }} &middot; Last active {{ session.lastActive | date:'MMM d, h:mm a' }}</p>
+                  </div>
+                </div>
+                @if (session.isCurrent) {
+                  <span class="px-2 py-0.5 rounded text-xs bg-green-100 text-green-700">Current</span>
+                } @else {
+                  <button mat-button color="warn" (click)="revokeSession(session.id)">Revoke</button>
+                }
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+</div>

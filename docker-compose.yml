@@ -1,0 +1,1084 @@
+version: '3.8'
+
+networks:
+  hrms-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+  rabbitmq-data:
+    driver: local
+  es-data:
+    driver: local
+
+services:
+  # ============================================
+  # INFRASTRUCTURE SERVICES
+  # ============================================
+  
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-Root@123456}
+      MYSQL_DATABASE: hrms_identity
+      MYSQL_USER: ${MYSQL_USER:-hrms_admin}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-Hrms@123456}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+      - ./docker/mysql/conf.d:/etc/mysql/conf.d
+    networks:
+      - hrms-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-Root@123456}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-Redis@123456}
+    volumes:
+      - redis-data:/data
+    networks:
+      - hrms-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-Redis@123456}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-hrms_vhost}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - ./docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    networks:
+      - hrms-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=${ES_JAVA_OPTS:--Xms512m -Xmx512m}
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - cluster.name=hrms-cluster
+      - node.name=hrms-node-1
+      - bootstrap.memory_lock=true
+      - TZ=${TZ:-UTC}
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - hrms-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.10.2
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: ${ELASTICSEARCH_USERNAME:-elastic}
+      ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD:-changeme}
+      TZ: ${TZ:-UTC}
+    networks:
+      - hrms-network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.50
+    restart: unless-stopped
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+      - "4317:4317"
+      - "4318:4318"
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      TZ: ${TZ:-UTC}
+    networks:
+      - hrms-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:16686/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  # ============================================
+  # BACKEND MICROSERVICES
+  # ============================================
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: src/ApiGateway/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+        - BUILD_DATE=${BUILD_DATE:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-YourSuperSecretKeyHereMustBeAtLeast32Characters!}
+      JWT_ISSUER: ${JWT_ISSUER:-HRMS-Pro}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-HRMS-Pro-Users}
+      JWT_EXPIRY_MINUTES: ${JWT_EXPIRY_MINUTES:-60}
+      IdentityService__BaseUrl: http://identity-service:8080
+      OrganizationService__BaseUrl: http://organization-service:8080
+      EmployeeService__BaseUrl: http://employee-service:8080
+      AttendanceService__BaseUrl: http://attendance-service:8080
+      LeaveService__BaseUrl: http://leave-service:8080
+      PayrollService__BaseUrl: http://payroll-service:8080
+      NotificationService__BaseUrl: http://notification-service:8080
+      RecruitmentService__BaseUrl: http://recruitment-service:8080
+      ProjectTaskService__BaseUrl: http://projecttask-service:8080
+      PerformanceService__BaseUrl: http://performance-service:8080
+      TrainingService__BaseUrl: http://training-service:8080
+      AuditService__BaseUrl: http://audit-service:8080
+      ReportService__BaseUrl: http://report-service:8080
+      DashboardService__BaseUrl: http://dashboard-service:8080
+      ExpenseService__BaseUrl: http://expense-service:8080
+      TravelService__BaseUrl: http://travel-service:8080
+      HelpdeskService__BaseUrl: http://helpdesk-service:8080
+      ChatService__BaseUrl: http://chat-service:8080
+      DocumentService__BaseUrl: http://document-service:8080
+      WorkflowService__BaseUrl: http://workflow-service:8080
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-api-gateway
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: ${LOG_LEVEL:-Information}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/api-gateway:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  identity-service:
+    build:
+      context: .
+      dockerfile: src/Services/Identity/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5001:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_identity;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Jwt__SecretKey: ${JWT_SECRET_KEY:-YourSuperSecretKeyHereMustBeAtLeast32Characters!}
+      Jwt__Issuer: ${JWT_ISSUER:-HRMS-Pro}
+      Jwt__Audience: ${JWT_AUDIENCE:-HRMS-Pro-Users}
+      Jwt__ExpiryMinutes: ${JWT_EXPIRY_MINUTES:-60}
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-identity-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/identity-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  organization-service:
+    build:
+      context: .
+      dockerfile: src/Services/Organization/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5002:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_organization;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-organization-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/organization-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  employee-service:
+    build:
+      context: .
+      dockerfile: src/Services/Employee/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5003:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_employee;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-employee-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/employee-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  attendance-service:
+    build:
+      context: .
+      dockerfile: src/Services/Attendance/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5004:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_attendance;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-attendance-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/attendance-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  leave-service:
+    build:
+      context: .
+      dockerfile: src/Services/Leave/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5005:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_leave;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-leave-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/leave-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  payroll-service:
+    build:
+      context: .
+      dockerfile: src/Services/Payroll/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5006:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_payroll;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-payroll-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/payroll-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: src/Services/Notification/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5007:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_notification;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      SMTP__Host: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP__Port: ${SMTP_PORT:-587}
+      SMTP__Username: ${SMTP_USERNAME:-}
+      SMTP__Password: ${SMTP_PASSWORD:-}
+      SMTP__FromEmail: ${SMTP_FROM_EMAIL:-hrms@example.com}
+      SMTP__EnableSsl: ${SMTP_ENABLE_SSL:-true}
+      FCM__ServerKey: ${FCM_SERVER_KEY:-}
+      FCM__SenderId: ${FCM_SENDER_ID:-}
+      OpenTelemetry__ServiceName: hrms-notification-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/notification-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  recruitment-service:
+    build:
+      context: .
+      dockerfile: src/Services/Recruitment/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5008:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_recruitment;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-recruitment-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/recruitment-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  projecttask-service:
+    build:
+      context: .
+      dockerfile: src/Services/ProjectTask/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5009:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_projecttask;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-projecttask-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/projecttask-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  performance-service:
+    build:
+      context: .
+      dockerfile: src/Services/Performance/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5010:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_performance;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-performance-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/performance-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  training-service:
+    build:
+      context: .
+      dockerfile: src/Services/Training/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5011:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_training;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-training-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/training-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  audit-service:
+    build:
+      context: .
+      dockerfile: src/Services/Audit/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5012:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_audit;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-audit-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/audit-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  report-service:
+    build:
+      context: .
+      dockerfile: src/Services/Report/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5013:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_report;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-report-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/report-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  dashboard-service:
+    build:
+      context: .
+      dockerfile: src/Services/Dashboard/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5014:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_dashboard;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-dashboard-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/dashboard-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  expense-service:
+    build:
+      context: .
+      dockerfile: src/Services/Expense/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5015:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_expense;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-expense-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/expense-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  travel-service:
+    build:
+      context: .
+      dockerfile: src/Services/Travel/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5016:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_travel;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-travel-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/travel-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  helpdesk-service:
+    build:
+      context: .
+      dockerfile: src/Services/Helpdesk/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5017:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_helpdesk;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-helpdesk-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/helpdesk-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  chat-service:
+    build:
+      context: .
+      dockerfile: src/Services/Chat/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5018:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_chat;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-chat-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/chat-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  document-service:
+    build:
+      context: .
+      dockerfile: src/Services/Document/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5019:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_document;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-document-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/document-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  workflow-service:
+    build:
+      context: .
+      dockerfile: src/Services/Workflow/Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "5020:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_workflow;User=${MYSQL_USER:-hrms_admin};Password=${MYSQL_PASSWORD:-Hrms@123456};SslMode=None;
+      Redis__ConnectionString: redis:6379,password=${REDIS_PASSWORD:-Redis@123456}
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER:-hrms_rabbitmq}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-Rabbit@123456}
+      RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-hrms_vhost}
+      OpenTelemetry__ServiceName: hrms-workflow-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./logs/workflow-service:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ============================================
+  # FRONTEND
+  # ============================================
+
+  frontend:
+    build:
+      context: ./frontend/angular
+      dockerfile: Dockerfile
+      args:
+        - BUILD_VERSION=${BUILD_VERSION:-1.0.0}
+        - API_BASE_URL=${API_BASE_URL:-http://localhost:5000}
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      API_BASE_URL: ${API_BASE_URL:-http://localhost:5000}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./frontend/angular/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - hrms-network
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s

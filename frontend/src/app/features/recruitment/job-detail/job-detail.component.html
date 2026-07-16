@@ -1,0 +1,108 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex items-center gap-3 mb-6">
+      <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+      <h1 class="text-2xl font-bold text-gray-900">Job Details</h1>
+    </div>
+
+    @if (loading()) {
+      <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+    } @else if (error()) {
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 flex items-center gap-2">
+        <mat-icon>error</mat-icon><span>{{ error() }}</span>
+      </div>
+    } @else if (job(); as j) {
+      <mat-card class="mb-6">
+        <mat-card-header>
+          <mat-card-title class="text-xl">{{ j.title }}</mat-card-title>
+          <mat-card-subtitle>{{ j.department }} &bull; {{ j.designation }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="px-3 py-1 rounded-full text-sm font-medium" [class]="getStatusColor(j.status)">
+              {{ j.status | titlecase }}
+            </span>
+            <span class="px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-700">{{ j.employmentType | titlecase }}</span>
+            <span class="text-gray-500 text-sm">{{ j.applicationCount }} applications</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h3 class="font-semibold text-gray-700 mb-2">Experience</h3>
+              <p class="text-gray-600">{{ j.minExperience }} - {{ j.maxExperience }} years</p>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-700 mb-2">Salary Range</h3>
+              <p class="text-gray-600">${{ j.minSalary | number }} - ${{ j.maxSalary | number }}</p>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="font-semibold text-gray-700 mb-2">Description</h3>
+            <p class="text-gray-600 whitespace-pre-line">{{ j.description }}</p>
+          </div>
+
+          @if (j.skills.length > 0) {
+            <div class="mb-6">
+              <h3 class="font-semibold text-gray-700 mb-2">Skills</h3>
+              <div class="flex flex-wrap gap-2">
+                @for (skill of j.skills; track skill) {
+                  <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{{ skill }}</span>
+                }
+              </div>
+            </div>
+          }
+
+          @if (j.requirements.length > 0) {
+            <div class="mb-6">
+              <h3 class="font-semibold text-gray-700 mb-2">Requirements</h3>
+              <ul class="list-disc list-inside space-y-1 text-gray-600">
+                @for (req of j.requirements; track req) { <li>{{ req }}</li> }
+              </ul>
+            </div>
+          }
+
+          @if (j.responsibilities.length > 0) {
+            <div class="mb-6">
+              <h3 class="font-semibold text-gray-700 mb-2">Responsibilities</h3>
+              <ul class="list-disc list-inside space-y-1 text-gray-600">
+                @for (resp of j.responsibilities; track resp) { <li>{{ resp }}</li> }
+              </ul>
+            </div>
+          }
+
+          @if (j.benefits.length > 0) {
+            <div class="mb-6">
+              <h3 class="font-semibold text-gray-700 mb-2">Benefits</h3>
+              <div class="flex flex-wrap gap-2">
+                @for (benefit of j.benefits; track benefit) {
+                  <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">{{ benefit }}</span>
+                }
+              </div>
+            </div>
+          }
+        </mat-card-content>
+        <mat-divider></mat-divider>
+        <mat-card-actions class="p-4 flex gap-2 flex-wrap">
+          <button mat-raised-button color="primary" (click)="navigateToApplications()">
+            <mat-icon>people</mat-icon> View Applications
+          </button>
+          <button mat-stroked-button [matMenuTriggerFor]="statusMenu">
+            <mat-icon>swap_horiz</mat-icon> Change Status
+          </button>
+          <mat-menu #statusMenu="matMenu">
+            <button mat-menu-item (click)="updateStatus('published')" [disabled]="j.status === 'published'">
+              <mat-icon>publish</mat-icon> Publish
+            </button>
+            <button mat-menu-item (click)="updateStatus('on_hold')" [disabled]="j.status === 'on_hold'">
+              <mat-icon>pause</mat-icon> Put on Hold
+            </button>
+            <button mat-menu-item (click)="updateStatus('closed')" [disabled]="j.status === 'closed'">
+              <mat-icon>lock</mat-icon> Close
+            </button>
+          </mat-menu>
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+</div>

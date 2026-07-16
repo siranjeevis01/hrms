@@ -1,0 +1,945 @@
+version: '3.8'
+
+# Production overrides - use with: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+        reservations:
+          cpus: '2.0'
+          memory: 2G
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "10"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: hrms_identity
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    command: 
+      --default-authentication-plugin=mysql_native_password
+      --max-connections=1000
+      --innodb-buffer-pool-size=2G
+      --innodb-log-file-size=256M
+      --innodb-flush-log-at-trx-commit=2
+      --innodb-flush-method=O_DIRECT
+      --slow-query-log=1
+      --long-query-time=2
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --maxmemory 1gb --maxmemory-policy allkeys-lru --tcp-backlog 511
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST}
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+        reservations:
+          cpus: '2.0'
+          memory: 2G
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "10"
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
+      - cluster.name=hrms-cluster
+      - node.name=hrms-node-1
+      - bootstrap.memory_lock=true
+    healthcheck:
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.10.2
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "5"
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: ${ELASTICSEARCH_USERNAME}
+      ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
+    healthcheck:
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.50
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: src/ApiGateway/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+        - BUILD_DATE=${BUILD_DATE}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ISSUER: ${JWT_ISSUER}
+      JWT_AUDIENCE: ${JWT_AUDIENCE}
+      JWT_EXPIRY_MINUTES: ${JWT_EXPIRY_MINUTES}
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  identity-service:
+    build:
+      context: .
+      dockerfile: src/Services/Identity/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_identity;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Jwt__SecretKey: ${JWT_SECRET_KEY}
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__ExpiryMinutes: ${JWT_EXPIRY_MINUTES}
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  organization-service:
+    build:
+      context: .
+      dockerfile: src/Services/Organization/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_organization;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  employee-service:
+    build:
+      context: .
+      dockerfile: src/Services/Employee/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_employee;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  attendance-service:
+    build:
+      context: .
+      dockerfile: src/Services/Attendance/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_attendance;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  leave-service:
+    build:
+      context: .
+      dockerfile: src/Services/Leave/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_leave;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  payroll-service:
+    build:
+      context: .
+      dockerfile: src/Services/Payroll/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_payroll;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: src/Services/Notification/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_notification;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      SMTP__Host: ${SMTP_HOST}
+      SMTP__Port: ${SMTP_PORT}
+      SMTP__Username: ${SMTP_USERNAME}
+      SMTP__Password: ${SMTP_PASSWORD}
+      SMTP__FromEmail: ${SMTP_FROM_EMAIL}
+      SMTP__EnableSsl: ${SMTP_ENABLE_SSL}
+      FCM__ServerKey: ${FCM_SERVER_KEY}
+      FCM__SenderId: ${FCM_SENDER_ID}
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  recruitment-service:
+    build:
+      context: .
+      dockerfile: src/Services/Recruitment/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_recruitment;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  projecttask-service:
+    build:
+      context: .
+      dockerfile: src/Services/ProjectTask/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_projecttask;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  performance-service:
+    build:
+      context: .
+      dockerfile: src/Services/Performance/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_performance;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  training-service:
+    build:
+      context: .
+      dockerfile: src/Services/Training/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_training;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  audit-service:
+    build:
+      context: .
+      dockerfile: src/Services/Audit/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_audit;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  report-service:
+    build:
+      context: .
+      dockerfile: src/Services/Report/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_report;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  dashboard-service:
+    build:
+      context: .
+      dockerfile: src/Services/Dashboard/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_dashboard;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  expense-service:
+    build:
+      context: .
+      dockerfile: src/Services/Expense/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_expense;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  travel-service:
+    build:
+      context: .
+      dockerfile: src/Services/Travel/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_travel;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  helpdesk-service:
+    build:
+      context: .
+      dockerfile: src/Services/Helpdesk/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_helpdesk;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  chat-service:
+    build:
+      context: .
+      dockerfile: src/Services/Chat/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_chat;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  document-service:
+    build:
+      context: .
+      dockerfile: src/Services/Document/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_document;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  workflow-service:
+    build:
+      context: .
+      dockerfile: src/Services/Workflow/Dockerfile
+      target: final
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+    restart: always
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "10"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_workflow;User=${MYSQL_USER};Password=${MYSQL_PASSWORD};SslMode=Required;
+      Serilog__MinimumLevel__Default: Warning
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  frontend:
+    build:
+      context: ./frontend/angular
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - BUILD_VERSION=${BUILD_VERSION}
+        - API_BASE_URL=${API_BASE_URL}
+    restart: always
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      update_config:
+        parallelism: 1
+        delay: 30s
+        order: start-first
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+    environment:
+      NODE_ENV: production
+      API_BASE_URL: ${API_BASE_URL}

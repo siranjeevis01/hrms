@@ -1,0 +1,207 @@
+<div class="chat-container h-screen flex bg-gray-100">
+  <!-- Conversations List -->
+  <div class="conversations-panel w-full md:w-80 lg:w-96 bg-white border-r flex flex-col" [class.hidden]="showMobileChat()">
+    <div class="p-4 border-b">
+      <div class="flex items-center justify-between mb-3">
+        <h1 class="text-xl font-bold text-gray-900">Messages</h1>
+        <div class="flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full" [class.bg-green-500]="connected()" [class.bg-red-500]="!connected()"></span>
+          <button mat-icon-button (click)="showNewConversation.set(true)"><mat-icon>edit_square</mat-icon></button>
+        </div>
+      </div>
+      <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+        <mat-icon matPrefix class="!text-gray-400">search</mat-icon>
+        <input matInput [(ngModel)]="searchQuery" placeholder="Search conversations..." />
+      </mat-form-field>
+    </div>
+
+    <div class="flex-1 overflow-y-auto">
+      @if (loading()) {
+        <div class="flex justify-center py-8"><mat-spinner diameter="32"></mat-spinner></div>
+      } @else {
+        <!-- Channel Tabs -->
+        <div class="flex border-b">
+          <button class="flex-1 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600">All</button>
+          <button class="flex-1 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Direct</button>
+          <button class="flex-1 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Groups</button>
+          <button class="flex-1 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Channels</button>
+        </div>
+
+        @for (conversation of filteredConversations; track conversation.id) {
+          <div
+            class="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-50"
+            [class.bg-blue-50]="activeConversation()?.id === conversation.id"
+            (click)="selectConversation(conversation)"
+          >
+            <div class="relative flex-shrink-0">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold"
+                [class.bg-blue-500]="conversation.type === 'direct'"
+                [class.bg-green-500]="conversation.type === 'group'"
+                [class.bg-purple-500]="conversation.type === 'channel'">
+                {{ conversation.type === 'direct' ? conversation.name.charAt(0) : conversation.type === 'group' ? 'G' : '#' }}
+              </div>
+              @if (conversation.type === 'direct' && conversation.participants[0]?.isOnline) {
+                <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+              }
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between">
+                <span class="font-medium text-gray-900 text-sm truncate">{{ conversation.name }}</span>
+                @if (conversation.lastMessage) {
+                  <span class="text-xs text-gray-400 flex-shrink-0">{{ formatDate(conversation.lastMessage.createdAt) }}</span>
+                }
+              </div>
+              <div class="flex items-center justify-between mt-0.5">
+                @if (conversation.lastMessage) {
+                  <p class="text-xs text-gray-500 truncate">{{ conversation.lastMessage.content }}</p>
+                }
+                @if (conversation.unreadCount > 0) {
+                  <span class="ml-2 flex-shrink-0 bg-blue-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                    {{ conversation.unreadCount }}
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+        @if (filteredConversations.length === 0) {
+          <div class="text-center py-8 text-gray-400">
+            <mat-icon class="text-4xl">chat</mat-icon>
+            <p class="mt-2 text-sm">No conversations found</p>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Active Chat -->
+  <div class="chat-panel flex-1 flex flex-col bg-white" [class.hidden]="!showMobileChat()">
+    @if (activeConversation()) {
+      <!-- Chat Header -->
+      <div class="flex items-center gap-3 px-4 py-3 border-b bg-white">
+        <button mat-icon-button class="md:hidden" (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+        <div class="relative">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
+            [class.bg-blue-500]="activeConversation()!.type === 'direct'"
+            [class.bg-green-500]="activeConversation()!.type === 'group'"
+            [class.bg-purple-500]="activeConversation()!.type === 'channel'">
+            {{ activeConversation()!.type === 'direct' ? activeConversation()!.name.charAt(0) : activeConversation()!.type === 'group' ? 'G' : '#' }}
+          </div>
+          @if (activeConversation()!.type === 'direct' && activeConversation()!.participants[0]?.isOnline) {
+            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></span>
+          }
+        </div>
+        <div class="flex-1">
+          <h2 class="font-semibold text-gray-900">{{ activeConversation()!.name }}</h2>
+          <p class="text-xs text-gray-500">
+            @if (activeConversation()!.type === 'direct') {
+              {{ getOnlineStatus(activeConversation()!.participants[0]) }}
+            } @else {
+              {{ activeConversation()!.participants.length }} members
+            }
+          </p>
+        </div>
+        <button mat-icon-button [matMenuTriggerFor]="chatMenu"><mat-icon>more_vert</mat-icon></button>
+        <mat-menu #chatMenu="matMenu">
+          <button mat-menu-item><mat-icon>search</mat-icon><span>Search</span></button>
+          <button mat-menu-item><mat-icon>notifications_off</mat-icon><span>Mute</span></button>
+          <button mat-menu-item><mat-icon>info</mat-icon><span>Info</span></button>
+        </mat-menu>
+      </div>
+
+      <!-- Messages Area -->
+      <div #messagesContainer class="messages-area flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50">
+        @for (message of messages(); track message.id) {
+          <div class="flex gap-2" [class.flex-row-reverse]="message.senderId === 'current-user'">
+            @if (message.senderId !== 'current-user') {
+              <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
+                <span class="text-xs font-medium text-blue-700">{{ message.senderName.charAt(0) }}</span>
+              </div>
+            }
+            <div class="max-w-[70%]" [class.text-right]="message.senderId === 'current-user'">
+              @if (message.senderId !== 'current-user') {
+                <p class="text-xs text-gray-500 mb-1 ml-1">{{ message.senderName }}</p>
+              }
+              <div
+                class="message-bubble px-4 py-2 rounded-2xl text-sm leading-relaxed"
+                [class.bg-white]="message.senderId !== 'current-user'"
+                [class.text-gray-900]="message.senderId !== 'current-user'"
+                [class.shadow-sm]="message.senderId !== 'current-user'"
+                [class.border]="message.senderId !== 'current-user'"
+                [class.border-gray-200]="message.senderId !== 'current-user'"
+                [class.bg-blue-600]="message.senderId === 'current-user'"
+                [class.text-white]="message.senderId === 'current-user'"
+              >
+                {{ message.content }}
+              </div>
+              <p class="text-[10px] text-gray-400 mt-1" [class.ml-1]="message.senderId !== 'current-user'" [class.mr-1]="message.senderId === 'current-user'">
+                {{ formatTime(message.createdAt) }}
+                @if (message.senderId === 'current-user') {
+                  @if (message.status === 'read') {
+                    <mat-icon class="!text-xs text-blue-400 align-middle">done_all</mat-icon>
+                  } @else if (message.status === 'delivered') {
+                    <mat-icon class="!text-xs text-gray-400 align-middle">done_all</mat-icon>
+                  } @else {
+                    <mat-icon class="!text-xs text-gray-300 align-middle">done</mat-icon>
+                  }
+                }
+              </p>
+            </div>
+          </div>
+        }
+
+        @if (getActiveTypingUsers().length > 0) {
+          <div class="flex items-center gap-2 ml-10">
+            <div class="bg-gray-200 rounded-2xl px-4 py-2 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+              <span class="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+              <span class="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+            </div>
+            <span class="text-xs text-gray-400">{{ getActiveTypingUsers().join(', ') }} typing...</span>
+          </div>
+        }
+
+        @if (messages().length === 0) {
+          <div class="flex flex-col items-center justify-center h-full text-gray-400">
+            <mat-icon class="text-6xl">chat_bubble_outline</mat-icon>
+            <p class="mt-3">Start a conversation</p>
+          </div>
+        }
+      </div>
+
+      <!-- Message Input -->
+      <div class="px-4 py-3 border-t bg-white">
+        <div class="flex items-end gap-2">
+          <button mat-icon-button class="!text-gray-400"><mat-icon>attach_file</mat-icon></button>
+          <button mat-icon-button class="!text-gray-400"><mat-icon>emoji_emotions</mat-icon></button>
+          <mat-form-field appearance="outline" class="flex-1" subscriptSizing="dynamic">
+            <input
+              #messageInput
+              matInput
+              [(ngModel)]="newMessage"
+              (keyup.enter)="sendMessage()"
+              (input)="onTyping()"
+              placeholder="Type a message..."
+              class="!pb-0"
+            />
+          </mat-form-field>
+          <button mat-fab color="primary" class="!w-10 !h-10" (click)="sendMessage()" [disabled]="!newMessage() || sending()">
+            @if (sending()) {
+              <mat-spinner diameter="20" class="text-white"></mat-spinner>
+            } @else {
+              <mat-icon>send</mat-icon>
+            }
+          </button>
+        </div>
+      </div>
+    } @else {
+      <div class="flex-1 flex flex-col items-center justify-center text-gray-400">
+        <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+          <mat-icon class="!text-4xl">forum</mat-icon>
+        </div>
+        <h2 class="text-xl font-medium text-gray-600">Select a conversation</h2>
+        <p class="text-sm mt-1">Choose from the conversations on the left</p>
+      </div>
+    }
+  </div>
+</div>

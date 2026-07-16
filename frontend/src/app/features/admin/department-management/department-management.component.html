@@ -1,0 +1,35 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-900">Departments</h1>
+    <button mat-raised-button color="primary"><mat-icon>add</mat-icon> Add Department</button>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12"><p class="text-gray-500">Loading...</p></div>
+  } @else {
+    <mat-card>
+      <mat-card-content class="p-4">
+        <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+          <mat-nested-tree-node *matNestedTreeNodeDef="let node">
+            <li class="flex items-center py-2 px-4 hover:bg-gray-50 cursor-pointer">
+              <span class="ml-6 font-medium text-gray-900">{{ node.name }}</span>
+              <span class="ml-auto text-sm text-gray-500">{{ node.employeeCount }} employees</span>
+            </li>
+          </mat-nested-tree-node>
+          <mat-nested-tree-node *matNestedTreeNodeDef="let node; when: hasChild">
+            <li>
+              <div class="flex items-center py-2 px-4 hover:bg-gray-50 cursor-pointer" (click)="treeControl.toggle(node)">
+                <mat-icon mat-icon class="text-gray-400">{{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+                <span class="ml-2 font-semibold text-gray-900">{{ node.name }}</span>
+                <span class="ml-2 text-sm text-gray-500">({{ node.employeeCount }} employees)</span>
+              </div>
+            </li>
+          </mat-nested-tree-node>
+        </mat-tree>
+        @if (departments().length === 0) {
+          <div class="text-center py-12 text-gray-400"><mat-icon class="text-5xl">apartment</mat-icon><p class="mt-2">No departments found</p></div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

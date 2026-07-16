@@ -1,0 +1,187 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex items-center gap-3 mb-6">
+      <button mat-icon-button (click)="cancel()"><mat-icon>arrow_back</mat-icon></button>
+      <h1 class="text-2xl font-bold text-gray-900">Create Course</h1>
+    </div>
+
+    <div class="flex gap-2 mb-6">
+      @for (step of ['Basic Info', 'Modules & Lessons', 'Assessment', 'Review & Publish']; track step; let i = $index) {
+        <button mat-stroked-button [color]="currentStep === i ? 'primary' : ''"
+                (click)="currentStep = i" class="flex-1">
+          <mat-icon *ngIf="currentStep > i" class="text-green-500">check_circle</mat-icon>
+          {{ step }}
+        </button>
+      }
+    </div>
+
+    @if (currentStep === 0) {
+      <mat-card>
+        <mat-card-header><mat-card-title>Basic Information</mat-card-title></mat-card-header>
+        <mat-card-content class="p-4 space-y-4">
+          <form [formGroup]="basicForm">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Title</mat-label>
+              <input matInput formControlName="title">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Description</mat-label>
+              <textarea matInput formControlName="description" rows="4"></textarea>
+            </mat-form-field>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <mat-form-field appearance="outline">
+                <mat-label>Category</mat-label>
+                <input matInput formControlName="category" placeholder="e.g. Programming">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Difficulty</mat-label>
+                <mat-select formControlName="difficulty">
+                  <mat-option value="beginner">Beginner</mat-option>
+                  <mat-option value="intermediate">Intermediate</mat-option>
+                  <mat-option value="advanced">Advanced</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Duration (minutes)</mat-label>
+                <input matInput type="number" formControlName="duration">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Instructor</mat-label>
+                <input matInput formControlName="instructor">
+              </mat-form-field>
+            </div>
+          </form>
+        </mat-card-content>
+        <mat-card-actions class="p-4 flex justify-end">
+          <button mat-raised-button color="primary" (click)="nextStep()">Next: Modules</button>
+        </mat-card-actions>
+      </mat-card>
+    }
+
+    @if (currentStep === 1) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Modules & Lessons</mat-card-title>
+          <mat-card-actions>
+            <button mat-button color="primary" (click)="addModule()"><mat-icon>add</mat-icon> Add Module</button>
+          </mat-card-actions>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          <div formArrayName="modules" class="space-y-4">
+            @for (mod of modules.controls; track $index; let mi = $index) {
+              <div [formGroupName]="mi" class="p-4 border rounded-lg">
+                <div class="flex items-center gap-2 mb-3">
+                  <mat-form-field appearance="outline" class="flex-1">
+                    <mat-label>Module Title</mat-label>
+                    <input matInput formControlName="title">
+                  </mat-form-field>
+                  <button mat-icon-button color="warn" (click)="removeModule(mi)"><mat-icon>delete</mat-icon></button>
+                </div>
+                <div formArrayName="lessons" class="space-y-2 ml-4">
+                  @for (lesson of $any(mod.get('lessons')).controls; track $index) {
+                    <div [formGroupName]="$index" class="flex gap-2 items-start">
+                      <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Lesson Title</mat-label>
+                        <input matInput formControlName="title">
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="w-32">
+                        <mat-label>Type</mat-label>
+                        <mat-select formControlName="type">
+                          <mat-option value="video">Video</mat-option>
+                          <mat-option value="text">Text</mat-option>
+                          <mat-option value="quiz">Quiz</mat-option>
+                          <mat-option value="assignment">Assignment</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="w-24">
+                        <mat-label>Min</mat-label>
+                        <input matInput type="number" formControlName="duration">
+                      </mat-form-field>
+                      <button mat-icon-button color="warn" (click)="removeLesson(mi, $index)"><mat-icon>close</mat-icon></button>
+                    </div>
+                  }
+                </div>
+                <button mat-button color="primary" (click)="addLesson(mi)"><mat-icon>add</mat-icon> Add Lesson</button>
+              </div>
+            }
+          </div>
+          @if (modules.length === 0) {
+            <p class="text-gray-400 text-center py-8">No modules added yet</p>
+          }
+        </mat-card-content>
+        <mat-card-actions class="p-4 flex justify-between">
+          <button mat-button (click)="prevStep()">Back</button>
+          <button mat-raised-button color="primary" (click)="nextStep()">Next: Assessment</button>
+        </mat-card-actions>
+      </mat-card>
+    }
+
+    @if (currentStep === 2) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Assessment Questions</mat-card-title>
+          <mat-card-actions>
+            <button mat-button color="primary" (click)="addAssessmentQuestion()"><mat-icon>add</mat-icon> Add Question</button>
+          </mat-card-actions>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          <div formArrayName="questions" class="space-y-4">
+            @for (q of assessmentQuestions.controls; track $index; let qi = $index) {
+              <div [formGroupName]="qi" class="p-4 border rounded-lg">
+                <div class="flex items-center gap-2 mb-2">
+                  <mat-form-field appearance="outline" class="flex-1">
+                    <mat-label>Question {{ qi + 1 }}</mat-label>
+                    <input matInput formControlName="question">
+                  </mat-form-field>
+                  <button mat-icon-button color="warn" (click)="removeAssessmentQuestion(qi)"><mat-icon>delete</mat-icon></button>
+                </div>
+                <div formArrayName="options" class="grid grid-cols-2 gap-2 ml-4">
+                  @for (opt of $any(q.get('options')).controls; track $index) {
+                    <mat-form-field appearance="outline">
+                      <mat-label>Option {{ $index + 1 }}</mat-label>
+                      <input matInput [formControlName]="$index">
+                    </mat-form-field>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+        <mat-card-actions class="p-4 flex justify-between">
+          <button mat-button (click)="prevStep()">Back</button>
+          <button mat-raised-button color="primary" (click)="nextStep()">Next: Review</button>
+        </mat-card-actions>
+      </mat-card>
+    }
+
+    @if (currentStep === 3) {
+      <mat-card>
+        <mat-card-header><mat-card-title>Review & Publish</mat-card-title></mat-card-header>
+        <mat-card-content class="p-4">
+          <div class="space-y-3 text-sm">
+            <p><strong>Title:</strong> {{ basicForm.get('title')?.value }}</p>
+            <p><strong>Category:</strong> {{ basicForm.get('category')?.value }}</p>
+            <p><strong>Difficulty:</strong> {{ basicForm.get('difficulty')?.value | titlecase }}</p>
+            <p><strong>Duration:</strong> {{ basicForm.get('duration')?.value }} minutes</p>
+            <p><strong>Instructor:</strong> {{ basicForm.get('instructor')?.value }}</p>
+            <p><strong>Modules:</strong> {{ modules.length }}</p>
+            <p><strong>Assessment Questions:</strong> {{ assessmentQuestions.length }}</p>
+          </div>
+        </mat-card-content>
+        <mat-card-actions class="p-4 flex justify-between">
+          <button mat-button (click)="prevStep()">Back</button>
+          <div class="flex gap-2">
+            <button mat-stroked-button (click)="publish()" [disabled]="saving()">
+              @if (saving()) { <mat-spinner diameter="16" class="inline-block mr-2"></mat-spinner> }
+              Save as Draft
+            </button>
+            <button mat-raised-button color="primary" (click)="publish()" [disabled]="saving()">
+              @if (saving()) { <mat-spinner diameter="16" class="inline-block mr-2"></mat-spinner> }
+              Publish Course
+            </button>
+          </div>
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+</div>

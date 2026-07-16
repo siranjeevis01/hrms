@@ -1,0 +1,107 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button mat-icon-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Sprints</h1>
+        <p class="text-gray-500 mt-1">Manage project sprints</p>
+      </div>
+    </div>
+    <button mat-raised-button color="primary">
+      <mat-icon>add</mat-icon>
+      Create Sprint
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12">
+      <p class="text-gray-500">Loading sprints...</p>
+    </div>
+  } @else if (sprints().length === 0) {
+    <div class="text-center py-20 bg-white rounded-lg border">
+      <mat-icon class="text-gray-400 text-6xl">flag</mat-icon>
+      <p class="mt-4 text-gray-600 text-lg">No sprints yet</p>
+      <p class="text-gray-400 mt-1">Create your first sprint to start tracking work</p>
+    </div>
+  } @else {
+    <div class="space-y-4">
+      @for (sprint of sprints(); track sprint.id) {
+        <mat-card
+          class="cursor-pointer hover:shadow-md transition-shadow"
+          [class.ring-2]="sprint.status === 'active'"
+          [class.ring-green-500]="sprint.status === 'active'"
+          (click)="navigateToSprint(sprint.id)"
+        >
+          <mat-card-content class="p-6">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <h3 class="text-lg font-semibold text-gray-900">{{ sprint.name }}</h3>
+                  <span class="px-2 py-0.5 rounded-full text-xs font-medium" [ngClass]="getStatusColor(sprint.status)">
+                    {{ sprint.status | titlecase }}
+                  </span>
+                  @if (sprint.status === 'active') {
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 animate-pulse">
+                      Active
+                    </span>
+                  }
+                </div>
+                <p class="text-gray-500 text-sm mb-3">{{ sprint.goal }}</p>
+                <div class="flex items-center gap-4 text-sm text-gray-500">
+                  <span class="flex items-center gap-1">
+                    <mat-icon class="!text-base">calendar_today</mat-icon>
+                    {{ sprint.startDate | date:'MMM d, yyyy' }} - {{ sprint.endDate | date:'MMM d, yyyy' }}
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <mat-icon class="!text-base">task_alt</mat-icon>
+                    {{ sprint.completedTaskCount }}/{{ sprint.taskCount }} tasks
+                  </span>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="text-right">
+                  <p class="text-2xl font-bold text-gray-900">{{ sprint.completedStoryPoints }}/{{ sprint.totalStoryPoints }}</p>
+                  <p class="text-xs text-gray-500">Story Points</p>
+                </div>
+                <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  @if (sprint.status === 'planned') {
+                    <button mat-menu-item (click)="startSprint(sprint.id)">
+                      <mat-icon>play_arrow</mat-icon>
+                      <span>Start Sprint</span>
+                    </button>
+                  }
+                  @if (sprint.status === 'active') {
+                    <button mat-menu-item (click)="completeSprint(sprint.id)">
+                      <mat-icon>stop</mat-icon>
+                      <span>Complete Sprint</span>
+                    </button>
+                  }
+                  <button mat-menu-item>
+                    <mat-icon>edit</mat-icon>
+                    <span>Edit</span>
+                  </button>
+                </mat-menu>
+              </div>
+            </div>
+            <div class="mt-4">
+              <div class="flex justify-between text-sm mb-1">
+                <span class="text-gray-500">Sprint Progress</span>
+                <span class="font-medium">{{ sprint.totalStoryPoints > 0 ? ((sprint.completedStoryPoints / sprint.totalStoryPoints) * 100 | number:'1.0-0') : 0 }}%</span>
+              </div>
+              <mat-progress-bar
+                [mode]="'determinate'"
+                [value]="sprint.totalStoryPoints > 0 ? (sprint.completedStoryPoints / sprint.totalStoryPoints) * 100 : 0"
+                [color]="getProgressColor(sprint.totalStoryPoints > 0 ? (sprint.completedStoryPoints / sprint.totalStoryPoints) * 100 : 0)"
+              ></mat-progress-bar>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

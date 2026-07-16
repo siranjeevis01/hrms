@@ -1,0 +1,75 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Appraisals</h1>
+    <p class="text-gray-600 mt-1">Performance appraisals and compensation reviews</p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <mat-tab-group>
+      <mat-tab [label]="'My Appraisal (' + myAppraisals().length + ')'">
+        <div class="p-4 space-y-4">
+          @for (appraisal of myAppraisals(); track appraisal.id) {
+            <mat-card>
+              <mat-card-content class="p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 class="font-semibold">{{ appraisal.cycleName }}</h3>
+                    <p class="text-sm text-gray-500">Employee: {{ appraisal.employeeName || appraisal.employeeId }}</p>
+                  </div>
+                  <span class="px-3 py-1 rounded-full text-sm font-medium" [class]="getStatusColor(appraisal.status)">
+                    {{ appraisal.status | titlecase }}
+                  </span>
+                </div>
+                @if (appraisal.currentRating) {
+                  <div class="flex items-center gap-4 text-sm">
+                    <span class="text-gray-600">Rating: <strong>{{ appraisal.currentRating }}/5</strong></span>
+                    @if (appraisal.hikePercentage) {
+                      <span class="text-gray-600">Hike: <strong class="text-green-600">{{ appraisal.hikePercentage }}%</strong></span>
+                    }
+                    @if (appraisal.promotionRecommended) {
+                      <span class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">Promotion Recommended</span>
+                    }
+                  </div>
+                }
+                @if (appraisal.comments) {
+                  <p class="text-sm text-gray-600 mt-2">{{ appraisal.comments }}</p>
+                }
+              </mat-card-content>
+            </mat-card>
+          }
+          @if (myAppraisals().length === 0) { <p class="text-gray-500 text-center py-8">No appraisals yet</p> }
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="'Team (' + teamAppraisals().length + ')'">
+        <div class="p-4 space-y-4">
+          @for (appraisal of teamAppraisals(); track appraisal.id) {
+            <mat-card>
+              <mat-card-content class="p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 class="font-semibold">{{ appraisal.employeeName || appraisal.employeeId }}</h3>
+                    <p class="text-sm text-gray-500">{{ appraisal.cycleName }}</p>
+                  </div>
+                  <span class="px-3 py-1 rounded-full text-sm" [class]="getStatusColor(appraisal.status)">
+                    {{ appraisal.status | titlecase }}
+                  </span>
+                </div>
+                @if (appraisal.status === 'pending') {
+                  <div class="flex gap-2 mt-2">
+                    <button mat-raised-button color="primary" (click)="updateAppraisal(appraisal.id, { status: 'completed' })">
+                      Complete
+                    </button>
+                  </div>
+                }
+              </mat-card-content>
+            </mat-card>
+          }
+          @if (teamAppraisals().length === 0) { <p class="text-gray-500 text-center py-8">No team appraisals</p> }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

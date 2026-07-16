@@ -1,0 +1,36 @@
+<div class="p-6 space-y-6">
+  <h1 class="text-2xl font-bold text-gray-900">Scheduled Reports</h1>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (scheduled().length === 0) {
+    <div class="text-center py-16 bg-white rounded-lg border">
+      <mat-icon class="text-gray-400 text-6xl">schedule</mat-icon>
+      <p class="mt-4 text-gray-600 text-lg">No scheduled reports</p>
+    </div>
+  } @else {
+    <div class="space-y-3">
+      @for (report of scheduled(); track report.id) {
+        <mat-card class="p-5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center"><mat-icon class="text-blue-600">schedule</mat-icon></div>
+              <div>
+                <p class="font-medium text-gray-900">{{ report.templateName }}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getStatusColor(report.frequency)">{{ report.frequency | titlecase }}</span>
+                  <span class="text-xs text-gray-400">Format: {{ report.format | uppercase }}</span>
+                  <span class="text-xs text-gray-400">Next: {{ report.nextRunAt | date:'MMM d, y h:mm a' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <mat-slide-toggle [checked]="report.isActive" (change)="toggleActive(report.id, $event.checked)"></mat-slide-toggle>
+              <button mat-icon-button (click)="deleteReport(report.id)"><mat-icon class="!text-red-400">delete</mat-icon></button>
+            </div>
+          </div>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,54 @@
+<div class="p-6 max-w-3xl mx-auto space-y-6">
+  <div class="flex items-center gap-3">
+    <button mat-icon-button (click)="router.navigate(['/documents'])"><mat-icon>arrow_back</mat-icon></button>
+    <h1 class="text-2xl font-bold text-gray-900">Upload Files</h1>
+  </div>
+
+  <div
+    class="border-2 border-dashed rounded-lg p-12 text-center transition-colors cursor-pointer"
+    [class.border-blue-400]="isDragOver()"
+    [class.bg-blue-50]="isDragOver()"
+    [class.border-gray-300]="!isDragOver()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)"
+    (click)="fileInput.click()"
+  >
+    <input #fileInput type="file" multiple class="hidden" (change)="onFileSelect($event)" />
+    <mat-icon class="!text-5xl text-gray-400">cloud_upload</mat-icon>
+    <p class="mt-3 text-gray-600 font-medium">Drag and drop files here, or click to browse</p>
+    <p class="mt-1 text-sm text-gray-400">Supports all file types</p>
+  </div>
+
+  @if (files().length > 0) {
+    <mat-card>
+      <div class="px-6 py-4 border-b flex items-center justify-between">
+        <h2 class="font-semibold">{{ files().length }} file(s) selected</h2>
+        <button mat-raised-button color="primary" (click)="uploadAll()" [disabled]="!hasPendingFiles || uploading()">
+          @if (uploading()) { Uploading... } @else { Upload All }
+        </button>
+      </div>
+      <div class="divide-y">
+        @for (f of files(); track $index; let i = $index) {
+          <div class="px-6 py-3 flex items-center gap-3">
+            <mat-icon class="text-blue-400">insert_drive_file</mat-icon>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate">{{ f.file.name }}</p>
+              <p class="text-xs text-gray-400">{{ formatSize(f.file.size) }}</p>
+              @if (f.status === 'uploading') {
+                <mat-progress-bar mode="determinate" [value]="f.progress" class="mt-1"></mat-progress-bar>
+              }
+            </div>
+            @if (f.status === 'done') {
+              <mat-icon class="text-green-500">check_circle</mat-icon>
+            } @else if (f.status === 'error') {
+              <mat-icon class="text-red-500">error</mat-icon>
+            } @else if (f.status === 'pending') {
+              <button mat-icon-button (click)="removeFile(i)"><mat-icon class="!text-red-400">close</mat-icon></button>
+            }
+          </div>
+        }
+      </div>
+    </mat-card>
+  }
+</div>

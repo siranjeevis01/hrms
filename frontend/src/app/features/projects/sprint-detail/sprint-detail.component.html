@@ -1,0 +1,79 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center gap-3">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    @if (sprint()) {
+      <div class="flex-1">
+        <div class="flex items-center gap-3">
+          <h1 class="text-2xl font-bold text-gray-900">{{ sprint()!.name }}</h1>
+          <span class="px-2 py-0.5 rounded-full text-xs font-medium" [class]="sprint()!.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
+            {{ sprint()!.status | titlecase }}
+          </span>
+        </div>
+        <p class="text-gray-500 mt-1">{{ sprint()!.goal }}</p>
+      </div>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (sprint()) {
+    <div class="grid grid-cols-4 gap-4">
+      <mat-card class="p-4">
+        <p class="text-2xl font-bold text-gray-900">{{ sprint()!.totalStoryPoints }}</p>
+        <p class="text-sm text-gray-500">Total Points</p>
+      </mat-card>
+      <mat-card class="p-4">
+        <p class="text-2xl font-bold text-green-600">{{ sprint()!.completedStoryPoints }}</p>
+        <p class="text-sm text-gray-500">Completed</p>
+      </mat-card>
+      <mat-card class="p-4">
+        <p class="text-2xl font-bold text-blue-600">{{ sprint()!.taskCount }}</p>
+        <p class="text-sm text-gray-500">Total Tasks</p>
+      </mat-card>
+      <mat-card class="p-4">
+        <p class="text-2xl font-bold text-purple-600">{{ sprint()!.completedTaskCount }}</p>
+        <p class="text-sm text-gray-500">Tasks Done</p>
+      </mat-card>
+    </div>
+
+    <mat-card>
+      <div class="px-6 py-4 border-b">
+        <h2 class="font-semibold text-gray-900">Sprint Tasks ({{ sprint()!.tasks.length }})</h2>
+      </div>
+      <div class="divide-y">
+        @for (task of sprint()!.tasks; track task.id) {
+          <div class="flex items-center gap-4 px-6 py-4 hover:bg-gray-50">
+            <span class="text-xs font-mono text-gray-500">TSK-{{ task.id.slice(-4) }}</span>
+            <span class="px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getPriorityColor(task.priority)">
+              {{ task.priority | titlecase }}
+            </span>
+            <span class="flex-1 text-sm font-medium text-gray-900">{{ task.title }}</span>
+            <span class="px-2 py-0.5 rounded text-xs" [ngClass]="getStatusColor(task.status)">
+              {{ task.status | titlecase }}
+            </span>
+            @if (task.assignee) {
+              <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center">
+                <span class="text-xs font-medium text-blue-700">{{ task.assignee.name.charAt(0) }}</span>
+              </div>
+            }
+            @if (task.storyPoints > 0) {
+              <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 text-xs flex items-center justify-center font-medium">
+                {{ task.storyPoints }}
+              </span>
+            }
+          </div>
+        }
+        @if (sprint()!.tasks.length === 0) {
+          <div class="text-center py-12 text-gray-400">
+            <mat-icon class="text-5xl">inbox</mat-icon>
+            <p class="mt-2">No tasks in this sprint</p>
+          </div>
+        }
+      </div>
+    </mat-card>
+  }
+</div>

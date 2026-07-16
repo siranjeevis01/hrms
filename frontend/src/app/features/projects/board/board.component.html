@@ -1,0 +1,147 @@
+<div class="h-screen flex flex-col">
+  <div class="flex items-center justify-between px-6 py-3 bg-white border-b">
+    <div class="flex items-center gap-3">
+      <button mat-icon-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h2 class="text-lg font-semibold">Project Board</h2>
+    </div>
+    <div class="flex items-center gap-3">
+      <mat-form-field appearance="outline" class="!w-40" subscriptSizing="dynamic">
+        <mat-select [(ngModel)]="assigneeFilter" placeholder="Assignee">
+          <mat-option value="">All</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="!w-36" subscriptSizing="dynamic">
+        <mat-select [(ngModel)]="priorityFilter" placeholder="Priority">
+          <mat-option value="">All</mat-option>
+          <mat-option value="low">Low</mat-option>
+          <mat-option value="medium">Medium</mat-option>
+          <mat-option value="high">High</mat-option>
+          <mat-option value="critical">Critical</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex-1 flex items-center justify-center">
+      <p class="text-gray-500">Loading board...</p>
+    </div>
+  } @else {
+    <div class="flex-1 flex gap-4 p-4 overflow-x-auto">
+      @for (column of columns(); track column.id) {
+        <div class="kanban-column flex flex-col min-w-[300px] w-[300px] bg-gray-50 rounded-lg border-t-4" [ngClass]="columnColors[column.status]">
+          <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-gray-500 text-lg">{{ columnIcons[column.status] }}</mat-icon>
+              <h3 class="font-semibold text-gray-700">{{ column.title }}</h3>
+              <span class="bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full">{{ column.tasks.length }}</span>
+            </div>
+            <button mat-icon-button class="!w-8 !h-8">
+              <mat-icon class="!text-lg">more_horiz</mat-icon>
+            </button>
+          </div>
+
+          <div
+            cdkDropList
+            [id]="column.status"
+            [cdkDropListData]="column.tasks"
+            [cdkDropListConnectedTo]="getConnectedLists()"
+            (cdkDropListDropped)="onDrop($event)"
+            class="flex-1 px-2 pb-2 space-y-2 overflow-y-auto min-h-[100px]"
+          >
+            @for (task of column.tasks; track task.id) {
+              <div
+                cdkDrag
+                [cdkDragData]="task"
+                class="kanban-card bg-white rounded-lg p-3 shadow-sm border cursor-pointer hover:shadow-md transition-shadow"
+                (click)="openTaskDetail(task)"
+              >
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-mono text-gray-400">{{ task.type === 'story' ? 'US' : task.type === 'bug' ? 'BUG' : 'TSK' }}-{{ task.id.slice(-4) }}</span>
+                  <span class="px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getPriorityColor(task.priority)">
+                    {{ task.priority | titlecase }}
+                  </span>
+                </div>
+
+                <h4 class="text-sm font-medium text-gray-900 mb-2">{{ task.title }}</h4>
+
+                @if (task.tags.length > 0) {
+                  <div class="flex flex-wrap gap-1 mb-2">
+                    @for (tag of task.tags.slice(0, 3); track tag) {
+                      <span class="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{{ tag }}</span>
+                    }
+                  </div>
+                }
+
+                <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                  <div class="flex items-center gap-2">
+                    @if (task.assignee) {
+                      <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center" [matTooltip]="task.assignee.name">
+                        <span class="text-[10px] font-medium text-blue-700">{{ task.assignee.name.charAt(0) }}</span>
+                      </div>
+                    } @else {
+                      <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                        <mat-icon class="!text-xs text-gray-400">person_off</mat-icon>
+                      </div>
+                    }
+                  </div>
+                  @if (task.storyPoints > 0) {
+                    <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 text-xs flex items-center justify-center font-medium">
+                      {{ task.storyPoints }}
+                    </span>
+                  }
+                </div>
+
+                <div cdkDragPlaceholder class="kanban-placeholder"></div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (showTaskDetail() && selectedTask()) {
+    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="closeTaskDetail()">
+      <div class="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-between p-6 border-b">
+          <div class="flex items-center gap-3">
+            <span class="text-sm font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">
+              {{ selectedTask()!.type === 'story' ? 'US' : selectedTask()!.type === 'bug' ? 'BUG' : 'TSK' }}-{{ selectedTask()!.id.slice(-4) }}
+            </span>
+            <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getPriorityColor(selectedTask()!.priority)">
+              {{ selectedTask()!.priority | titlecase }}
+            </span>
+          </div>
+          <button mat-icon-button (click)="closeTaskDetail()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <h3 class="text-xl font-semibold">{{ selectedTask()!.title }}</h3>
+          <p class="text-gray-600">{{ selectedTask()!.description }}</p>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span class="text-gray-500">Status:</span>
+              <span class="ml-2 font-medium">{{ getStatusLabel(selectedTask()!.status) }}</span>
+            </div>
+            <div>
+              <span class="text-gray-500">Story Points:</span>
+              <span class="ml-2 font-medium">{{ selectedTask()!.storyPoints }}</span>
+            </div>
+            <div>
+              <span class="text-gray-500">Assignee:</span>
+              <span class="ml-2 font-medium">{{ selectedTask()!.assignee?.name || 'Unassigned' }}</span>
+            </div>
+            <div>
+              <span class="text-gray-500">Reporter:</span>
+              <span class="ml-2 font-medium">{{ selectedTask()!.reporter.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

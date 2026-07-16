@@ -1,0 +1,71 @@
+<div class="p-6 space-y-6">
+  <h1 class="text-2xl font-bold text-gray-900">Knowledge Base</h1>
+
+  <div class="flex gap-3">
+    <mat-form-field appearance="outline" class="flex-1 max-w-md">
+      <mat-label>Search articles</mat-label>
+      <input matInput [(ngModel)]="searchQuery" (keyup.enter)="loadArticles()" />
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  @if (categories().length > 0) {
+    <div class="flex flex-wrap gap-2">
+      <button mat-stroked-button [class]="!selectedCategory() ? '!bg-blue-50 !border-blue-500' : ''" (click)="selectedCategory.set(''); loadArticles()">All</button>
+      @for (cat of categories(); track cat) {
+        <button mat-stroked-button [class]="selectedCategory() === cat ? '!bg-blue-50 !border-blue-500' : ''" (click)="selectedCategory.set(cat); loadArticles()">{{ cat }}</button>
+      }
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="flex justify-center py-12"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (articles().length === 0) {
+    <div class="text-center py-16 bg-white rounded-lg border">
+      <mat-icon class="text-gray-400 text-6xl">menu_book</mat-icon>
+      <p class="mt-4 text-gray-600 text-lg">No articles found</p>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (article of articles(); track article.id) {
+        <mat-card class="p-5 cursor-pointer hover:shadow-md transition-shadow" (click)="selectArticle(article)">
+          <div class="flex items-start gap-3 mb-3">
+            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center"><mat-icon class="text-blue-600">article</mat-icon></div>
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900 text-sm">{{ article.title }}</h3>
+              <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded mt-1 inline-block">{{ article.category }}</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 text-xs text-gray-500">
+            <span class="flex items-center gap-1"><mat-icon class="!text-sm">visibility</mat-icon> {{ article.views }}</span>
+            <span class="flex items-center gap-1"><mat-icon class="!text-sm">thumb_up</mat-icon> {{ article.helpful }}</span>
+            <span>By {{ article.authorName }}</span>
+          </div>
+        </mat-card>
+      }
+    </div>
+  }
+
+  @if (selectedArticle()) {
+    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="closeArticle()">
+      <div class="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-between p-6 border-b">
+          <h2 class="text-xl font-bold">{{ selectedArticle()!.title }}</h2>
+          <button mat-icon-button (click)="closeArticle()"><mat-icon>close</mat-icon></button>
+        </div>
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">{{ selectedArticle()!.category }}</span>
+            <span class="text-sm text-gray-500">By {{ selectedArticle()!.authorName }}</span>
+            <span class="text-sm text-gray-400">{{ selectedArticle()!.updatedAt | date:'MMM d, yyyy' }}</span>
+          </div>
+          <div class="prose prose-sm max-w-none text-gray-700">{{ selectedArticle()!.content }}</div>
+          <div class="flex items-center gap-4 mt-6 pt-4 border-t text-sm text-gray-500">
+            <span>{{ selectedArticle()!.views }} views</span>
+            <span>{{ selectedArticle()!.helpful }} found helpful</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

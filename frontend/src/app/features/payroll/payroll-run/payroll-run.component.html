@@ -1,0 +1,178 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">Run Payroll</h1>
+      <p class="text-gray-500 mt-1">Process payroll for the selected period</p>
+    </div>
+
+    <!-- Period Selection -->
+    <mat-card class="mb-6">
+      <div class="p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Select Period</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <mat-form-field appearance="outline">
+            <mat-label>Month</mat-label>
+            <mat-select [(value)]="selectedMonth" [disabled]="isRunning()">
+              @for (month of months; track month.value) {
+                <mat-option [value]="month.value">{{ month.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Year</mat-label>
+            <mat-select [(value)]="selectedYear" [disabled]="isRunning()">
+              @for (year of years; track year) {
+                <mat-option [value]="year">{{ year }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Progress -->
+    @if (isRunning()) {
+      <mat-card class="mb-6">
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <mat-spinner diameter="24"></mat-spinner>
+            <h3 class="text-lg font-semibold text-gray-900">Processing Payroll...</h3>
+          </div>
+          <mat-progress-bar mode="determinate" [value]="progress()" class="!h-3 rounded-full">
+          </mat-progress-bar>
+          <p class="text-sm text-gray-500 mt-2">{{ progress() }}% complete</p>
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center gap-2 text-sm" [class]="progress() >= 30 ? 'text-emerald-600' : 'text-gray-400'">
+              <mat-icon class="!text-base">{{ progress() >= 30 ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              <span>Validating employee data</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm" [class]="progress() >= 60 ? 'text-emerald-600' : 'text-gray-400'">
+              <mat-icon class="!text-base">{{ progress() >= 60 ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              <span>Calculating salaries</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm" [class]="progress() >= 80 ? 'text-emerald-600' : 'text-gray-400'">
+              <mat-icon class="!text-base">{{ progress() >= 80 ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              <span>Generating payslips</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm" [class]="progress() >= 100 ? 'text-emerald-600' : 'text-gray-400'">
+              <mat-icon class="!text-base">{{ progress() >= 100 ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              <span>Finalizing</span>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    }
+
+    <!-- Run Button -->
+    @if (!isRunning() && !result()) {
+      <mat-card class="mb-6">
+        <div class="p-8 text-center">
+          <mat-icon class="text-5xl text-gray-300 mb-3">account_balance</mat-icon>
+          <p class="text-gray-600 mb-2">
+            Ready to process payroll for
+            <strong>{{ months[selectedMonth() - 1].label }} {{ selectedYear() }}</strong>
+          </p>
+          <p class="text-sm text-gray-500 mb-6">
+            This will calculate salaries, deductions, and generate payslips for all active employees.
+          </p>
+          <button
+            mat-flat-button
+            class="!bg-indigo-600 !text-white !px-8 !py-3 !text-lg"
+            (click)="openConfirmDialog()"
+          >
+            <mat-icon class="mr-2">play_arrow</mat-icon>
+            Run Payroll
+          </button>
+        </div>
+      </mat-card>
+    }
+
+    <!-- Confirmation Dialog -->
+    @if (showConfirmDialog()) {
+      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <mat-card class="max-w-md w-full mx-4">
+          <div class="p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                <mat-icon class="text-amber-600">warning</mat-icon>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">Confirm Payroll Run</h3>
+                <p class="text-sm text-gray-500">This action cannot be undone</p>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-6">
+              Are you sure you want to run payroll for
+              <strong>{{ months[selectedMonth() - 1].label }} {{ selectedYear() }}</strong>?
+            </p>
+            <div class="flex justify-end gap-3">
+              <button mat-stroked-button (click)="closeConfirmDialog()">Cancel</button>
+              <button mat-flat-button class="!bg-indigo-600 !text-white" (click)="executePayroll()">
+                <mat-icon class="mr-1">check</mat-icon>
+                Confirm
+              </button>
+            </div>
+          </div>
+        </mat-card>
+      </div>
+    }
+
+    <!-- Result -->
+    @if (result(); as r) {
+      <mat-card class="mb-6">
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-6">
+            <div
+              class="w-12 h-12 rounded-full flex items-center justify-center"
+              [class]="r.errors.length === 0 ? 'bg-emerald-100' : 'bg-amber-100'"
+            >
+              <mat-icon [class]="r.errors.length === 0 ? 'text-emerald-600' : 'text-amber-600'">
+                {{ r.errors.length === 0 ? 'check_circle' : 'warning' }}
+              </mat-icon>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">Payroll Processed</h3>
+              <p class="text-sm text-gray-500">
+                {{ months[selectedMonth() - 1].label }} {{ selectedYear() }}
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-gray-50 rounded-lg p-4">
+              <p class="text-sm text-gray-500">Employees Processed</p>
+              <p class="text-2xl font-bold text-gray-900">{{ r.processedCount }}</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <p class="text-sm text-gray-500">Total Amount</p>
+              <p class="text-2xl font-bold text-emerald-600">{{ formatCurrency(r.totalAmount) }}</p>
+            </div>
+          </div>
+
+          @if (r.errors.length > 0) {
+            <div class="bg-red-50 rounded-lg p-4">
+              <h4 class="font-medium text-red-800 mb-2">Errors ({{ r.errors.length }})</h4>
+              <div class="space-y-2">
+                @for (error of r.errors; track $index) {
+                  <div class="flex items-center gap-2 text-sm">
+                    <mat-icon class="!text-base text-red-500">error</mat-icon>
+                    <span class="text-red-700">
+                      <strong>{{ error.employeeName }}:</strong> {{ error.error }}
+                    </span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="flex justify-end mt-6">
+            <button mat-flat-button class="!bg-indigo-600 !text-white" routerLink="/payroll/payslips">
+              <mat-icon class="mr-1">receipt</mat-icon>
+              View Payslips
+            </button>
+          </div>
+        </div>
+      </mat-card>
+    }
+  </div>
+</div>

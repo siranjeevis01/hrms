@@ -1,0 +1,65 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Assessments</h1>
+    <p class="text-gray-600 mt-1">Test your knowledge</p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <mat-tab-group>
+      <mat-tab [label]="'Available (' + available().length + ')'">
+        <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (assessment of available(); track assessment.id) {
+            <mat-card>
+              <mat-card-content class="p-4">
+                <h3 class="font-semibold mb-1">{{ assessment.title }}</h3>
+                <p class="text-sm text-gray-500 mb-3">{{ assessment.course?.title }}</p>
+                <div class="flex items-center gap-4 text-xs text-gray-400 mb-3">
+                  <span>{{ assessment.questions.length }} questions</span>
+                  <span>{{ assessment.timeLimit }} min</span>
+                  <span>Pass: {{ assessment.passingScore }}%</span>
+                </div>
+                <button mat-raised-button color="primary" class="w-full" (click)="startAssessment(assessment.id)">
+                  Start Assessment
+                </button>
+              </mat-card-content>
+            </mat-card>
+          }
+          @if (available().length === 0) {
+            <div class="col-span-full text-center py-12">
+              <mat-icon class="text-gray-300 text-5xl">quiz</mat-icon>
+              <p class="text-gray-500 mt-3">No available assessments</p>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="'Completed (' + completed().length + ')'">
+        <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (assessment of completed(); track assessment.id) {
+            <mat-card>
+              <mat-card-content class="p-4">
+                <h3 class="font-semibold mb-1">{{ assessment.title }}</h3>
+                <p class="text-sm text-gray-500 mb-2">{{ assessment.course?.title }}</p>
+                <div class="flex items-center gap-2">
+                  <span class="text-lg font-bold"
+                        [class]="(assessment.lastScore || 0) >= assessment.passingScore ? 'text-green-600' : 'text-red-600'">
+                    {{ assessment.lastScore || 0 }}%
+                  </span>
+                  <span class="text-xs text-gray-400">({{ assessment.attempts }} attempts)</span>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+          @if (completed().length === 0) {
+            <div class="col-span-full text-center py-12">
+              <mat-icon class="text-gray-300 text-5xl">assignment_turned_in</mat-icon>
+              <p class="text-gray-500 mt-3">No completed assessments</p>
+            </div>
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

@@ -1,0 +1,85 @@
+<mat-toolbar class="header">
+  <div class="header__left">
+    <button mat-icon-button (click)="toggleSidebar.emit()" class="header__menu-btn" aria-label="Toggle sidebar">
+      <mat-icon>menu</mat-icon>
+    </button>
+  </div>
+
+  <div class="header__right">
+    <button
+      mat-icon-button
+      (click)="toggleNotificationPanel()"
+      class="header__notification-btn"
+      aria-label="Notifications"
+      [matMenuTriggerFor]="notificationMenu">
+      <mat-icon [matBadge]="unreadCount() || null" matBadgeColor="warn" matBadgeSize="small">
+        notifications
+      </mat-icon>
+    </button>
+
+    <mat-menu #notificationMenu="matMenu" class="header__notification-menu" xPosition="before">
+      <div class="notification-panel" (click)="$event.stopPropagation()">
+        <div class="notification-panel__header">
+          <span class="notification-panel__title">Notifications</span>
+          @if (unreadCount() > 0) {
+            <button mat-button color="primary" (click)="markAllAsRead()">Mark all read</button>
+          }
+        </div>
+        <mat-divider />
+        <div class="notification-panel__list">
+          @for (notification of notifications(); track notification.id) {
+            <div
+              class="notification-item"
+              [class.notification-item--unread]="!notification.isRead"
+              (click)="markAsRead(notification.id)">
+              <mat-icon class="notification-item__icon">
+                @switch (notification.type) {
+                  @case ('success') { check_circle }
+                  @case ('error') { error }
+                  @case ('warning') { warning }
+                  @default { info }
+                }
+              </mat-icon>
+              <div class="notification-item__content">
+                <p class="notification-item__title">{{ notification.title }}</p>
+                <p class="notification-item__message">{{ notification.message }}</p>
+              </div>
+            </div>
+          } @empty {
+            <div class="notification-panel__empty">
+              <mat-icon>notifications_off</mat-icon>
+              <p>No notifications</p>
+            </div>
+          }
+        </div>
+      </div>
+    </mat-menu>
+
+    <div class="header__user" [matMenuTriggerFor]="userMenu">
+      <div class="header__avatar">
+        {{ getUserInitials() }}
+      </div>
+      <div class="header__user-info">
+        <span class="header__user-name">{{ user()?.displayName || 'User' }}</span>
+        <span class="header__user-role">{{ user()?.roles?.[0] || 'Member' }}</span>
+      </div>
+      <mat-icon class="header__user-arrow">expand_more</mat-icon>
+    </div>
+
+    <mat-menu #userMenu="matMenu" xPosition="before">
+      <button mat-menu-item (click)="navigateToProfile()">
+        <mat-icon>person</mat-icon>
+        <span>Profile</span>
+      </button>
+      <button mat-menu-item (click)="navigateToSettings()">
+        <mat-icon>settings</mat-icon>
+        <span>Settings</span>
+      </button>
+      <mat-divider />
+      <button mat-menu-item (click)="logout()" class="logout-item">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </div>
+</mat-toolbar>

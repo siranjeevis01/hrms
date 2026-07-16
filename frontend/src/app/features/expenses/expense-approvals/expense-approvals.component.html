@@ -1,0 +1,63 @@
+<div class="p-6 space-y-6">
+  <h1 class="text-2xl font-bold text-gray-900">Expense Approvals</h1>
+  <p class="text-gray-500">Review and approve pending expense claims</p>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12"><p class="text-gray-500">Loading...</p></div>
+  } @else if (claims().length === 0) {
+    <div class="text-center py-16 bg-white rounded-lg border">
+      <mat-icon class="text-gray-400 text-6xl">check_circle</mat-icon>
+      <p class="mt-4 text-gray-600 text-lg">All caught up!</p>
+      <p class="text-gray-400">No pending expense claims</p>
+    </div>
+  } @else {
+    <div class="space-y-4">
+      @for (claim of claims(); track claim.id) {
+        <mat-card>
+          <mat-card-content class="p-5">
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="font-semibold text-gray-900">{{ claim.title }}</h3>
+                <p class="text-sm text-gray-500 mt-1">{{ claim.employeeName }} &middot; {{ claim.items.length }} items &middot; {{ claim.createdAt | date:'MMM d, yyyy' }}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xl font-bold text-gray-900">{{ formatCurrency(claim.totalAmount) }}</p>
+              </div>
+            </div>
+
+            <div class="mt-4 space-y-2">
+              @for (item of claim.items; track item.id) {
+                <div class="flex items-center justify-between text-sm bg-gray-50 rounded p-3">
+                  <div>
+                    <span class="font-medium text-gray-700">{{ item.category | titlecase }}</span>
+                    <span class="text-gray-400 mx-2">-</span>
+                    <span class="text-gray-600">{{ item.description }}</span>
+                  </div>
+                  <span class="font-medium">{{ formatCurrency(item.amount) }}</span>
+                </div>
+              }
+            </div>
+
+            @if (selectedClaimId() === claim.id) {
+              <div class="mt-4 p-4 bg-red-50 rounded-lg">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Rejection reason</mat-label>
+                  <textarea matInput [(ngModel)]="rejectComment" rows="2" placeholder="Enter reason"></textarea>
+                </mat-form-field>
+                <div class="flex gap-2 justify-end">
+                  <button mat-button (click)="hideRejectForm()">Cancel</button>
+                  <button mat-raised-button color="warn" (click)="reject(claim.id)" [disabled]="!rejectComment()">Confirm Reject</button>
+                </div>
+              </div>
+            } @else {
+              <div class="flex gap-2 justify-end mt-4">
+                <button mat-stroked-button color="warn" (click)="showRejectForm(claim.id)"><mat-icon>close</mat-icon> Reject</button>
+                <button mat-raised-button color="primary" (click)="approve(claim.id)"><mat-icon>check</mat-icon> Approve</button>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

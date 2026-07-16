@@ -1,0 +1,103 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center gap-3">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="flex-1">
+      <h1 class="text-2xl font-bold text-gray-900">Backlog</h1>
+      <p class="text-gray-500 mt-1">Unassigned stories and tasks</p>
+    </div>
+    <button mat-raised-button color="primary">
+      <mat-icon>add</mat-icon>
+      Create Story
+    </button>
+    <button mat-stroked-button>
+      <mat-icon>add</mat-icon>
+      Create Task
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12">
+      <p class="text-gray-500">Loading backlog...</p>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2">
+        <mat-card>
+          <div class="px-6 py-4 border-b flex items-center justify-between">
+            <h2 class="font-semibold text-gray-900">Backlog Items ({{ backlogItems().length }})</h2>
+          </div>
+          <div
+            cdkDropList
+            id="backlog"
+            [cdkDropListData]="backlogItems()"
+            [cdkDropListConnectedTo]="$any(sprints())"
+            (cdkDropListDropped)="onDrop($event)"
+            class="min-h-[200px] p-2"
+          >
+            @for (item of backlogItems(); track item.id) {
+              <div cdkDrag class="flex items-center gap-3 p-3 bg-white border rounded-lg mb-2 cursor-move hover:shadow-sm transition-shadow">
+                <mat-icon class="text-gray-400">drag_indicator</mat-icon>
+                <span class="text-xs font-mono text-gray-500">{{ getTaskTypeLabel(item.type) }}-{{ item.id.slice(-4) }}</span>
+                <span class="px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getPriorityColor(item.priority)">
+                  {{ item.priority | titlecase }}
+                </span>
+                <span class="flex-1 text-sm text-gray-900">{{ item.title }}</span>
+                @if (item.storyPoints > 0) {
+                  <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 text-xs flex items-center justify-center font-medium">
+                    {{ item.storyPoints }}
+                  </span>
+                }
+                @if (item.assignee) {
+                  <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+                    <span class="text-[10px] font-medium text-blue-700">{{ item.assignee.name.charAt(0) }}</span>
+                  </div>
+                }
+                <div cdkDragPlaceholder class="bg-blue-50 border-2 border-dashed border-blue-200 rounded-lg p-4 text-center text-blue-500">
+                  Drop here
+                </div>
+              </div>
+            }
+            @if (backlogItems().length === 0) {
+              <div class="text-center py-8 text-gray-400">
+                <mat-icon class="text-5xl">inbox</mat-icon>
+                <p class="mt-2">No items in backlog</p>
+              </div>
+            }
+          </div>
+        </mat-card>
+      </div>
+
+      <div class="space-y-4">
+        <h3 class="font-semibold text-gray-900">Sprints</h3>
+        @for (sprint of sprints(); track sprint.id) {
+          <mat-card>
+            <div class="px-4 py-3 border-b">
+              <h4 class="font-medium text-gray-900">{{ sprint.name }}</h4>
+              <p class="text-xs text-gray-500 mt-1">{{ sprint.startDate | date:'MMM d' }} - {{ sprint.endDate | date:'MMM d, yyyy' }}</p>
+            </div>
+            <div
+              cdkDropList
+              [id]="sprint.id"
+              [cdkDropListData]="sprint.tasks"
+              [cdkDropListConnectedTo]="['backlog']"
+              (cdkDropListDropped)="onDrop($event)"
+              class="min-h-[100px] p-2"
+            >
+              @for (task of sprint.tasks; track task.id) {
+                <div cdkDrag class="flex items-center gap-2 p-2 bg-gray-50 border rounded mb-1 text-sm cursor-move">
+                  <span class="font-mono text-gray-400 text-xs">{{ getTaskTypeLabel(task.type) }}-{{ task.id.slice(-4) }}</span>
+                  <span class="flex-1">{{ task.title }}</span>
+                </div>
+              }
+              @if (sprint.tasks.length === 0) {
+                <div class="text-center py-4 text-gray-400 text-sm">Drop items here</div>
+              }
+            </div>
+          </mat-card>
+        }
+      </div>
+    </div>
+  }
+</div>

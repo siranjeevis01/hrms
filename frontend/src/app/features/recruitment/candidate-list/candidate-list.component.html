@@ -1,0 +1,88 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Candidates</h1>
+    <p class="text-gray-600 mt-1">Manage your candidate pipeline</p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+    <div class="flex flex-wrap items-center gap-4">
+      <mat-form-field appearance="outline" class="flex-1 min-w-[200px]">
+        <mat-label>Search candidates</mat-label>
+        <input matInput [(ngModel)]="searchQuery" placeholder="Name, email, phone...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="w-40">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="selectedStatus">
+          <mat-option value="">All</mat-option>
+          @for (s of statuses; track s.value) { <mat-option [value]="s.value">{{ s.label }}</mat-option> }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="w-40">
+        <mat-label>Source</mat-label>
+        <mat-select [(ngModel)]="selectedSource">
+          <mat-option value="">All</mat-option>
+          @for (s of sources; track s.value) { <mat-option [value]="s.value">{{ s.label }}</mat-option> }
+        </mat-select>
+      </mat-form-field>
+      <button mat-button (click)="clearFilters()"><mat-icon>clear</mat-icon> Clear</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">{{ error() }}</div>
+  } @else if (filteredCandidates().length === 0) {
+    <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+      <mat-icon class="text-gray-300 text-6xl">people</mat-icon>
+      <p class="text-gray-500 mt-4">No candidates found</p>
+    </div>
+  } @else {
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="text-left py-3 px-4 font-medium text-gray-600">Name</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-600">Email</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-600">Phone</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-600">Source</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-600">Applied</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-600">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (candidate of filteredCandidates(); track candidate.id) {
+              <tr class="border-t hover:bg-gray-50">
+                <td class="py-3 px-4 font-medium cursor-pointer text-blue-600" (click)="viewCandidate(candidate.id)">
+                  {{ candidate.firstName }} {{ candidate.lastName }}
+                </td>
+                <td class="py-3 px-4 text-gray-600">{{ candidate.email }}</td>
+                <td class="py-3 px-4 text-gray-600">{{ candidate.phone }}</td>
+                <td class="py-3 px-4 text-gray-600">{{ getSourceLabel(candidate.source) }}</td>
+                <td class="py-3 px-4">
+                  <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getStatusColor(candidate.status)">
+                    {{ candidate.status | titlecase }}
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-gray-500">{{ candidate.appliedDate | date:'MMM d, y' }}</td>
+                <td class="py-3 px-4">
+                  <button mat-icon-button [matMenuTriggerFor]="actionMenu">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                  <mat-menu #actionMenu="matMenu">
+                    <button mat-menu-item (click)="viewCandidate(candidate.id)">
+                      <mat-icon>visibility</mat-icon> View
+                    </button>
+                  </mat-menu>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

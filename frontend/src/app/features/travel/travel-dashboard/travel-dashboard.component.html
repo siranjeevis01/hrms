@@ -1,0 +1,55 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between">
+    <div><h1 class="text-2xl font-bold text-gray-900">Travel Management</h1><p class="text-gray-500 mt-1">Manage your travel requests</p></div>
+    <button mat-raised-button color="primary" (click)="navigateTo('submit')"><mat-icon>add</mat-icon> New Request</button>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (stats()) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <mat-card class="p-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center"><mat-icon class="text-blue-600">flight</mat-icon></div>
+          <div><p class="text-2xl font-bold text-gray-900">{{ stats()!.activeTrips }}</p><p class="text-sm text-gray-500">Active Trips</p></div>
+        </div>
+      </mat-card>
+      <mat-card class="p-5 cursor-pointer hover:shadow-md" (click)="navigateTo('approvals')">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-yellow-50 flex items-center justify-center"><mat-icon class="text-yellow-600">pending_actions</mat-icon></div>
+          <div><p class="text-2xl font-bold text-gray-900">{{ stats()!.pendingApprovals }}</p><p class="text-sm text-gray-500">Pending Approvals</p></div>
+        </div>
+      </mat-card>
+      <mat-card class="p-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center"><mat-icon class="text-green-600">payments</mat-icon></div>
+          <div><p class="text-2xl font-bold text-gray-900">{{ formatCurrency(stats()!.monthlyCost) }}</p><p class="text-sm text-gray-500">This Month's Cost</p></div>
+        </div>
+      </mat-card>
+    </div>
+
+    <mat-card>
+      <div class="px-6 py-4 border-b flex items-center justify-between">
+        <h2 class="font-semibold text-gray-900">Upcoming Trips</h2>
+        <button mat-button color="primary" (click)="navigateTo('my-requests')">View All</button>
+      </div>
+      <div class="divide-y">
+        @for (trip of stats()!.upcomingTrips; track trip.id) {
+          <div class="px-6 py-4 hover:bg-gray-50 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center"><mat-icon class="text-blue-600">flight</mat-icon></div>
+              <div>
+                <p class="font-medium text-gray-900">{{ trip.purpose }}</p>
+                <p class="text-sm text-gray-500">{{ trip.destination }} &middot; {{ trip.startDate | date:'MMM d' }} - {{ trip.endDate | date:'MMM d, yyyy' }}</p>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-xs font-medium" [ngClass]="getStatusColor(trip.status)">{{ trip.status | titlecase }}</span>
+          </div>
+        }
+        @if (stats()!.upcomingTrips.length === 0) {
+          <div class="px-6 py-8 text-center text-gray-400"><p>No upcoming trips</p></div>
+        }
+      </div>
+    </mat-card>
+  }
+</div>

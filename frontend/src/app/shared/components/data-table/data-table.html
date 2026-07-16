@@ -1,0 +1,62 @@
+@if (loading) {
+  <div class="data-table__loader">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+} @else if (dataSource.length === 0) {
+  <app-empty-state
+    [icon]="emptyIcon"
+    [title]="emptyMessage"
+    message="There are no records to display at this time." />
+} @else {
+  <div class="data-table__container">
+    <table mat-table matSort (matSortChange)="onSortChange($event)" class="data-table">
+      @for (column of columns; track column.key) {
+        <ng-container [matColumnDef]="column.key">
+          <th
+            mat-header-cell
+            [mat-sort-header]="column.sortable ? column.key : ''"
+            [class]="column.class || ''">
+            {{ column.header }}
+          </th>
+          <td mat-cell [class]="column.class || ''" (click)="onRowClick(row)">
+            @switch (column.type) {
+              @case ('date') {
+                {{ formatDate(getCellValue(row, column.key)) }}
+              }
+              @case ('currency') {
+                {{ formatCurrency(getCellValue(row, column.key)) }}
+              }
+              @case ('status') {
+                <span class="status-badge" [ngClass]="getStatusClass(getCellValue(row, column.key))">
+                  {{ getCellValue(row, column.key) }}
+                </span>
+              }
+              @default {
+                {{ getCellValue(row, column.key) }}
+              }
+            }
+          </td>
+        </ng-container>
+      }
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        (click)="onRowClick(row)"
+        [class.data-table__row-clickable]="true"
+        [class]="rowClass">
+      </tr>
+    </table>
+
+    @if (showPaginator) {
+      <mat-paginator
+        [length]="totalCount"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="pageSizeOptions"
+        (page)="onPageChange($event)"
+        showFirstLastButtons>
+      </mat-paginator>
+    }
+  </div>
+}

@@ -1,0 +1,326 @@
+<div class="p-6 max-w-4xl mx-auto space-y-6">
+  <!-- Page Header -->
+  <div class="flex items-center gap-3">
+    <button mat-icon-button (click)="cancel()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Add New Employee</h1>
+      <p class="text-sm text-gray-500">Fill in the details to create a new employee record</p>
+    </div>
+  </div>
+
+  <mat-card>
+    <mat-card-content class="p-6">
+      <mat-stepper linear #stepper>
+        <!-- Step 1: Personal Info -->
+        <mat-step [stepControl]="personalForm" label="Personal Info">
+          <form [formGroup]="personalForm" class="mt-4 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>First Name *</mat-label>
+                <input matInput formControlName="firstName" />
+                @if (personalControls['firstName'].hasError('required')) {
+                  <mat-error>First name is required</mat-error>
+                }
+                @if (personalControls['firstName'].hasError('minlength')) {
+                  <mat-error>Minimum 2 characters required</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Last Name *</mat-label>
+                <input matInput formControlName="lastName" />
+                @if (personalControls['lastName'].hasError('required')) {
+                  <mat-error>Last name is required</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Email *</mat-label>
+                <input matInput formControlName="email" type="email" />
+                @if (personalControls['email'].hasError('required')) {
+                  <mat-error>Email is required</mat-error>
+                }
+                @if (personalControls['email'].hasError('email')) {
+                  <mat-error>Please enter a valid email</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Phone Number *</mat-label>
+                <input matInput formControlName="phoneNumber" />
+                @if (personalControls['phoneNumber'].hasError('required')) {
+                  <mat-error>Phone number is required</mat-error>
+                }
+                @if (personalControls['phoneNumber'].hasError('pattern')) {
+                  <mat-error>Please enter a valid phone number</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Date of Birth *</mat-label>
+                <input matInput [matDatepicker]="dobPicker" formControlName="dateOfBirth" />
+                <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                <mat-datepicker #dobPicker></mat-datepicker>
+                @if (personalControls['dateOfBirth'].hasError('required')) {
+                  <mat-error>Date of birth is required</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Gender *</mat-label>
+                <mat-select formControlName="gender">
+                  @for (g of genders; track g) {
+                    <mat-option [value]="g">{{ g }}</mat-option>
+                  }
+                </mat-select>
+                @if (personalControls['gender'].hasError('required')) {
+                  <mat-error>Gender is required</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Marital Status</mat-label>
+                <mat-select formControlName="maritalStatus">
+                  @for (ms of maritalStatuses; track ms) {
+                    <mat-option [value]="ms">{{ ms }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Blood Group</mat-label>
+                <mat-select formControlName="bloodGroup">
+                  @for (bg of bloodGroups; track bg) {
+                    <mat-option [value]="bg">{{ bg }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Nationality</mat-label>
+                <input matInput formControlName="nationality" />
+              </mat-form-field>
+            </div>
+
+            <div class="flex justify-end mt-4">
+              <button mat-flat-button color="primary" matStepperNext>
+                Next
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Step 2: Employment Details -->
+        <mat-step [stepControl]="employmentForm" label="Employment">
+          <form [formGroup]="employmentForm" class="mt-4 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Department *</mat-label>
+                <mat-select formControlName="department">
+                  @for (dept of departments; track dept) {
+                    <mat-option [value]="dept">{{ dept }}</mat-option>
+                  }
+                </mat-select>
+                @if (employmentControls['department'].hasError('required')) {
+                  <mat-error>Department is required</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Designation *</mat-label>
+                <mat-select formControlName="designation">
+                  @for (des of designations; track des) {
+                    <mat-option [value]="des">{{ des }}</mat-option>
+                  }
+                </mat-select>
+                @if (employmentControls['designation'].hasError('required')) {
+                  <mat-error>Designation is required</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Branch *</mat-label>
+                <mat-select formControlName="branch">
+                  @for (b of branches; track b) {
+                    <mat-option [value]="b">{{ b }}</mat-option>
+                  }
+                </mat-select>
+                @if (employmentControls['branch'].hasError('required')) {
+                  <mat-error>Branch is required</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Employment Type *</mat-label>
+                <mat-select formControlName="employmentType">
+                  @for (et of employmentTypes; track et) {
+                    <mat-option [value]="et">{{ et }}</mat-option>
+                  }
+                </mat-select>
+                @if (employmentControls['employmentType'].hasError('required')) {
+                  <mat-error>Employment type is required</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Join Date *</mat-label>
+                <input matInput [matDatepicker]="joinPicker" formControlName="joinDate" />
+                <mat-datepicker-toggle matIconSuffix [for]="joinPicker"></mat-datepicker-toggle>
+                <mat-datepicker #joinPicker></mat-datepicker>
+                @if (employmentControls['joinDate'].hasError('required')) {
+                  <mat-error>Join date is required</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Reporting Manager</mat-label>
+                <input matInput formControlName="reportingManager" />
+              </mat-form-field>
+            </div>
+
+            <div class="flex justify-between mt-4">
+              <button mat-stroked-button matStepperPrevious>
+                <mat-icon>arrow_back</mat-icon>
+                Previous
+              </button>
+              <button mat-flat-button color="primary" matStepperNext>
+                Next
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Step 3: Documents -->
+        <mat-step [stepControl]="documentsForm" label="Documents">
+          <form [formGroup]="documentsForm" class="mt-4 space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <!-- Photo Upload -->
+              <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                <mat-icon class="text-4xl text-gray-400">add_a_photo</mat-icon>
+                <p class="mt-2 text-sm font-medium text-gray-700">Upload Photo</p>
+                <p class="text-xs text-gray-500 mt-1">JPG, PNG up to 5MB</p>
+                <button mat-stroked-button class="mt-3" type="button">Choose File</button>
+              </div>
+
+              <!-- ID Proof Upload -->
+              <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                <mat-icon class="text-4xl text-gray-400">badge</mat-icon>
+                <p class="mt-2 text-sm font-medium text-gray-700">Upload ID Proof</p>
+                <p class="text-xs text-gray-500 mt-1">PDF, JPG up to 10MB</p>
+                <button mat-stroked-button class="mt-3" type="button">Choose File</button>
+              </div>
+
+              <!-- Resume Upload -->
+              <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                <mat-icon class="text-4xl text-gray-400">description</mat-icon>
+                <p class="mt-2 text-sm font-medium text-gray-700">Upload Resume</p>
+                <p class="text-xs text-gray-500 mt-1">PDF, DOC up to 10MB</p>
+                <button mat-stroked-button class="mt-3" type="button">Choose File</button>
+              </div>
+            </div>
+
+            <div class="flex justify-between mt-4">
+              <button mat-stroked-button matStepperPrevious>
+                <mat-icon>arrow_back</mat-icon>
+                Previous
+              </button>
+              <button mat-flat-button color="primary" matStepperNext>
+                Next
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Step 4: Review & Submit -->
+        <mat-step label="Review & Submit">
+          <div class="mt-4 space-y-6">
+            <!-- Personal Info Summary -->
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-3">Personal Information</h3>
+              <div class="bg-gray-50 rounded-lg p-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div>
+                  <p class="text-xs text-gray-500">Name</p>
+                  <p class="text-sm font-medium">{{ personalForm.value.firstName }} {{ personalForm.value.lastName }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Email</p>
+                  <p class="text-sm font-medium">{{ personalForm.value.email }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Phone</p>
+                  <p class="text-sm font-medium">{{ personalForm.value.phoneNumber }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Date of Birth</p>
+                  <p class="text-sm font-medium">{{ personalForm.value.dateOfBirth | date:'mediumDate' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Gender</p>
+                  <p class="text-sm font-medium">{{ personalForm.value.gender }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Nationality</p>
+                  <p class="text-sm font-medium">{{ personalForm.value.nationality || 'N/A' }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Employment Summary -->
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-3">Employment Details</h3>
+              <div class="bg-gray-50 rounded-lg p-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div>
+                  <p class="text-xs text-gray-500">Department</p>
+                  <p class="text-sm font-medium">{{ employmentForm.value.department }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Designation</p>
+                  <p class="text-sm font-medium">{{ employmentForm.value.designation }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Branch</p>
+                  <p class="text-sm font-medium">{{ employmentForm.value.branch }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Employment Type</p>
+                  <p class="text-sm font-medium">{{ employmentForm.value.employmentType }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Join Date</p>
+                  <p class="text-sm font-medium">{{ employmentForm.value.joinDate | date:'mediumDate' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500">Reporting Manager</p>
+                  <p class="text-sm font-medium">{{ employmentForm.value.reportingManager || 'N/A' }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-between mt-6">
+              <button mat-stroked-button matStepperPrevious>
+                <mat-icon>arrow_back</mat-icon>
+                Previous
+              </button>
+              <div class="flex gap-3">
+                <button mat-stroked-button (click)="cancel()">Cancel</button>
+                <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="loading()">
+                  @if (loading()) {
+                    <mat-spinner diameter="20" class="inline-block"></mat-spinner>
+                  } @else {
+                    <mat-icon>save</mat-icon>
+                  }
+                  <span class="ml-1">Create Employee</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-step>
+      </mat-stepper>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,98 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-900">Documents</h1>
+    <button mat-raised-button color="primary" (click)="router.navigate(['/documents/upload'])"><mat-icon>cloud_upload</mat-icon> Upload</button>
+  </div>
+
+  <!-- Breadcrumbs -->
+  <nav class="flex items-center gap-1 text-sm">
+    @for (bc of breadcrumbs(); track bc.id; let i = $index) {
+      @if (i > 0) { <mat-icon class="!text-sm text-gray-400">chevron_right</mat-icon> }
+      <button class="text-blue-600 hover:underline" (click)="navigateToBreadcrumb(i)">{{ bc.name }}</button>
+    }
+  </nav>
+
+  <div class="flex items-center gap-3">
+    <mat-form-field appearance="outline" class="flex-1 max-w-md" subscriptSizing="dynamic">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [(ngModel)]="searchQuery" (keyup.enter)="loadData()" placeholder="Search files..." />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="w-40" subscriptSizing="dynamic">
+      <mat-select [(ngModel)]="sortBy" (selectionChange)="loadData()">
+        <mat-option value="name">Name</mat-option>
+        <mat-option value="date">Date</mat-option>
+        <mat-option value="size">Size</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button mat-icon-button [class]="viewMode() === 'grid' ? 'bg-blue-50' : ''" (click)="viewMode.set('grid')"><mat-icon>grid_view</mat-icon></button>
+    <button mat-icon-button [class]="viewMode() === 'list' ? 'bg-blue-50' : ''" (click)="viewMode.set('list')"><mat-icon>view_list</mat-icon></button>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (folders().length === 0 && documents().length === 0) {
+    <div class="text-center py-16 bg-white rounded-lg border">
+      <mat-icon class="text-gray-400 text-6xl">folder_open</mat-icon>
+      <p class="mt-4 text-gray-600 text-lg">No files or folders</p>
+    </div>
+  } @else {
+    <!-- Folders -->
+    @if (folders().length > 0) {
+      <div class="mb-6">
+        <h3 class="text-sm font-medium text-gray-500 mb-3">Folders</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          @for (folder of folders(); track folder.id) {
+            <div class="p-3 rounded-lg border hover:bg-gray-50 cursor-pointer transition-colors" (click)="navigateToFolder(folder)">
+              <div class="flex items-center gap-2 mb-2">
+                <mat-icon class="text-amber-500">folder</mat-icon>
+                <span class="text-sm font-medium text-gray-900 truncate">{{ folder.name }}</span>
+              </div>
+              <p class="text-xs text-gray-400">{{ folder.itemCount }} items</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Files -->
+    @if (documents().length > 0) {
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 mb-3">Files</h3>
+        @if (viewMode() === 'grid') {
+          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            @for (doc of documents(); track doc.id) {
+              <div class="p-3 rounded-lg border hover:bg-gray-50 cursor-pointer transition-colors group">
+                <mat-icon class="!text-3xl text-blue-400 mb-2">{{ getFileIcon(doc) }}</mat-icon>
+                <p class="text-sm font-medium text-gray-900 truncate">{{ doc.name }}</p>
+                <p class="text-xs text-gray-400 mt-1">{{ formatSize(doc.size) }}</p>
+                <div class="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button mat-icon-button class="!w-7 !h-7" (click)="downloadDocument(doc.id); $event.stopPropagation()"><mat-icon class="!text-base">download</mat-icon></button>
+                  <button mat-icon-button class="!w-7 !h-7" [matMenuTriggerFor]="fileMenu" (click)="$event.stopPropagation()"><mat-icon class="!text-base">more_vert</mat-icon></button>
+                </div>
+                <mat-menu #fileMenu="matMenu">
+                  <button mat-menu-item (click)="downloadDocument(doc.id)"><mat-icon>download</mat-icon><span>Download</span></button>
+                  <button mat-menu-item><mat-icon>share</mat-icon><span>Share</span></button>
+                  <button mat-menu-item class="!text-red-600" (click)="deleteDocument(doc.id)"><mat-icon>delete</mat-icon><span>Delete</span></button>
+                </mat-menu>
+              </div>
+            }
+          </div>
+        } @else {
+          <mat-card>
+            <div class="divide-y">
+              @for (doc of documents(); track doc.id) {
+                <div class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50">
+                  <mat-icon class="text-blue-400">{{ getFileIcon(doc) }}</mat-icon>
+                  <span class="flex-1 text-sm font-medium text-gray-900">{{ doc.name }}</span>
+                  <span class="text-xs text-gray-400">{{ formatSize(doc.size) }}</span>
+                  <span class="text-xs text-gray-400">{{ doc.updatedAt | date:'MMM d, y' }}</span>
+                  <button mat-icon-button class="!w-8 !h-8" (click)="downloadDocument(doc.id)"><mat-icon class="!text-base">download</mat-icon></button>
+                </div>
+              }
+            </div>
+          </mat-card>
+        }
+      </div>
+    }
+  }
+</div>

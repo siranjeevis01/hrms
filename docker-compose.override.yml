@@ -1,0 +1,746 @@
+version: '3.8'
+
+# Development overrides - use with: docker-compose -f docker-compose.yml -f docker-compose.override.yml up
+
+services:
+  mysql:
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: Root@123456
+      MYSQL_DATABASE: hrms_identity
+      MYSQL_USER: hrms_admin
+      MYSQL_PASSWORD: Hrms@123456
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+      - ./docker/mysql/conf.d:/etc/mysql/conf.d
+    command: --default-authentication-plugin=mysql_native_password
+
+  redis:
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass Redis@123456
+
+  rabbitmq:
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: hrms_rabbitmq
+      RABBITMQ_DEFAULT_PASS: Rabbit@123456
+      RABBITMQ_DEFAULT_VHOST: hrms_vhost
+
+  elasticsearch:
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - bootstrap.memory_lock=true
+
+  kibana:
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+
+  jaeger:
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+      - "4317:4317"
+      - "4318:4318"
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+      LOG_LEVEL: debug
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: src/ApiGateway/Dockerfile
+      target: build
+    ports:
+      - "5000:8080"
+      - "5001:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      JWT_SECRET_KEY: DevSuperSecretKeyForDevelopmentOnly32Chars!
+      JWT_ISSUER: HRMS-Pro-Dev
+      JWT_AUDIENCE: HRMS-Pro-Dev-Users
+      JWT_EXPIRY_MINUTES: "1440"
+      IdentityService__BaseUrl: http://identity-service:8080
+      OrganizationService__BaseUrl: http://organization-service:8080
+      EmployeeService__BaseUrl: http://employee-service:8080
+      AttendanceService__BaseUrl: http://attendance-service:8080
+      LeaveService__BaseUrl: http://leave-service:8080
+      PayrollService__BaseUrl: http://payroll-service:8080
+      NotificationService__BaseUrl: http://notification-service:8080
+      RecruitmentService__BaseUrl: http://recruitment-service:8080
+      ProjectTaskService__BaseUrl: http://projecttask-service:8080
+      PerformanceService__BaseUrl: http://performance-service:8080
+      TrainingService__BaseUrl: http://training-service:8080
+      AuditService__BaseUrl: http://audit-service:8080
+      ReportService__BaseUrl: http://report-service:8080
+      DashboardService__BaseUrl: http://dashboard-service:8080
+      ExpenseService__BaseUrl: http://expense-service:8080
+      TravelService__BaseUrl: http://travel-service:8080
+      HelpdeskService__BaseUrl: http://helpdesk-service:8080
+      ChatService__BaseUrl: http://chat-service:8080
+      DocumentService__BaseUrl: http://document-service:8080
+      WorkflowService__BaseUrl: http://workflow-service:8080
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-api-gateway
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+      Serilog__MinimumLevel__Override__Microsoft: Warning
+      Serilog__MinimumLevel__Override__System: Warning
+    volumes:
+      - ./src/ApiGateway:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/api-gateway:/app/logs
+    networks:
+      - hrms-network
+
+  identity-service:
+    build:
+      context: .
+      dockerfile: src/Services/Identity/Dockerfile
+      target: build
+    ports:
+      - "5001:8080"
+      - "5011:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_identity;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Jwt__SecretKey: DevSuperSecretKeyForDevelopmentOnly32Chars!
+      Jwt__Issuer: HRMS-Pro-Dev
+      Jwt__Audience: HRMS-Pro-Dev-Users
+      Jwt__ExpiryMinutes: "1440"
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-identity-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Identity:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/identity-service:/app/logs
+    networks:
+      - hrms-network
+
+  organization-service:
+    build:
+      context: .
+      dockerfile: src/Services/Organization/Dockerfile
+      target: build
+    ports:
+      - "5002:8080"
+      - "5012:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_organization;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-organization-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Organization:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/organization-service:/app/logs
+    networks:
+      - hrms-network
+
+  employee-service:
+    build:
+      context: .
+      dockerfile: src/Services/Employee/Dockerfile
+      target: build
+    ports:
+      - "5003:8080"
+      - "5013:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_employee;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-employee-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Employee:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/employee-service:/app/logs
+    networks:
+      - hrms-network
+
+  attendance-service:
+    build:
+      context: .
+      dockerfile: src/Services/Attendance/Dockerfile
+      target: build
+    ports:
+      - "5004:8080"
+      - "5014:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_attendance;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-attendance-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Attendance:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/attendance-service:/app/logs
+    networks:
+      - hrms-network
+
+  leave-service:
+    build:
+      context: .
+      dockerfile: src/Services/Leave/Dockerfile
+      target: build
+    ports:
+      - "5005:8080"
+      - "5015:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_leave;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-leave-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Leave:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/leave-service:/app/logs
+    networks:
+      - hrms-network
+
+  payroll-service:
+    build:
+      context: .
+      dockerfile: src/Services/Payroll/Dockerfile
+      target: build
+    ports:
+      - "5006:8080"
+      - "5016:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_payroll;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-payroll-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Payroll:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/payroll-service:/app/logs
+    networks:
+      - hrms-network
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: src/Services/Notification/Dockerfile
+      target: build
+    ports:
+      - "5007:8080"
+      - "5017:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_notification;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      SMTP__Host: smtp.gmail.com
+      SMTP__Port: "587"
+      SMTP__Username: dev@example.com
+      SMTP__Password: dev-password
+      SMTP__FromEmail: hrms-dev@example.com
+      SMTP__EnableSsl: "true"
+      FCM__ServerKey: dev-fcm-key
+      FCM__SenderId: dev-fcm-sender-id
+      OpenTelemetry__ServiceName: hrms-notification-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Notification:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/notification-service:/app/logs
+    networks:
+      - hrms-network
+
+  recruitment-service:
+    build:
+      context: .
+      dockerfile: src/Services/Recruitment/Dockerfile
+      target: build
+    ports:
+      - "5008:8080"
+      - "5018:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_recruitment;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-recruitment-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Recruitment:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/recruitment-service:/app/logs
+    networks:
+      - hrms-network
+
+  projecttask-service:
+    build:
+      context: .
+      dockerfile: src/Services/ProjectTask/Dockerfile
+      target: build
+    ports:
+      - "5009:8080"
+      - "5029:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_projecttask;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-projecttask-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/ProjectTask:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/projecttask-service:/app/logs
+    networks:
+      - hrms-network
+
+  performance-service:
+    build:
+      context: .
+      dockerfile: src/Services/Performance/Dockerfile
+      target: build
+    ports:
+      - "5010:8080"
+      - "5030:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_performance;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-performance-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Performance:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/performance-service:/app/logs
+    networks:
+      - hrms-network
+
+  training-service:
+    build:
+      context: .
+      dockerfile: src/Services/Training/Dockerfile
+      target: build
+    ports:
+      - "5011:8080"
+      - "5031:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_training;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-training-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Training:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/training-service:/app/logs
+    networks:
+      - hrms-network
+
+  audit-service:
+    build:
+      context: .
+      dockerfile: src/Services/Audit/Dockerfile
+      target: build
+    ports:
+      - "5012:8080"
+      - "5032:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_audit;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-audit-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Audit:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/audit-service:/app/logs
+    networks:
+      - hrms-network
+
+  report-service:
+    build:
+      context: .
+      dockerfile: src/Services/Report/Dockerfile
+      target: build
+    ports:
+      - "5013:8080"
+      - "5033:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_report;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-report-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Report:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/report-service:/app/logs
+    networks:
+      - hrms-network
+
+  dashboard-service:
+    build:
+      context: .
+      dockerfile: src/Services/Dashboard/Dockerfile
+      target: build
+    ports:
+      - "5014:8080"
+      - "5034:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_dashboard;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-dashboard-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Dashboard:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/dashboard-service:/app/logs
+    networks:
+      - hrms-network
+
+  expense-service:
+    build:
+      context: .
+      dockerfile: src/Services/Expense/Dockerfile
+      target: build
+    ports:
+      - "5015:8080"
+      - "5035:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_expense;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-expense-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Expense:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/expense-service:/app/logs
+    networks:
+      - hrms-network
+
+  travel-service:
+    build:
+      context: .
+      dockerfile: src/Services/Travel/Dockerfile
+      target: build
+    ports:
+      - "5016:8080"
+      - "5036:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_travel;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-travel-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Travel:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/travel-service:/app/logs
+    networks:
+      - hrms-network
+
+  helpdesk-service:
+    build:
+      context: .
+      dockerfile: src/Services/Helpdesk/Dockerfile
+      target: build
+    ports:
+      - "5017:8080"
+      - "5037:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_helpdesk;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-helpdesk-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Helpdesk:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/helpdesk-service:/app/logs
+    networks:
+      - hrms-network
+
+  chat-service:
+    build:
+      context: .
+      dockerfile: src/Services/Chat/Dockerfile
+      target: build
+    ports:
+      - "5018:8080"
+      - "5038:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_chat;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-chat-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Chat:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/chat-service:/app/logs
+    networks:
+      - hrms-network
+
+  document-service:
+    build:
+      context: .
+      dockerfile: src/Services/Document/Dockerfile
+      target: build
+    ports:
+      - "5019:8080"
+      - "5039:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_document;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-document-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Document:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/document-service:/app/logs
+    networks:
+      - hrms-network
+
+  workflow-service:
+    build:
+      context: .
+      dockerfile: src/Services/Workflow/Dockerfile
+      target: build
+    ports:
+      - "5020:8080"
+      - "5040:5001"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      DOTNET_EnableDiagnostics: "1"
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=mysql;Port=3306;Database=hrms_workflow;User=hrms_admin;Password=Hrms@123456;SslMode=None;
+      Redis__ConnectionString: redis:6379,password=Redis@123456
+      RabbitMQ__HostName: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__UserName: hrms_rabbitmq
+      RabbitMQ__Password: Rabbit@123456
+      RabbitMQ__VirtualHost: hrms_vhost
+      OpenTelemetry__ServiceName: hrms-workflow-service
+      OpenTelemetry__Endpoint: http://jaeger:4317
+      Serilog__MinimumLevel__Default: Debug
+    volumes:
+      - ./src/Services/Workflow:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+      - ./logs/workflow-service:/app/logs
+    networks:
+      - hrms-network
+
+  frontend:
+    build:
+      context: ./frontend/angular
+      dockerfile: Dockerfile
+      target: build
+    ports:
+      - "4200:4200"
+      - "4201:49153"
+    environment:
+      NODE_ENV: development
+      API_BASE_URL: http://localhost:5000
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ./frontend/angular:/app
+      - /app/node_modules
+      - ./frontend/angular/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - hrms-network
+    command: ng serve --host 0.0.0.0 --port 4200 --disable-host-check --poll 2000

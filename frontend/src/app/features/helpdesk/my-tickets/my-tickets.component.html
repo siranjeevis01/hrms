@@ -1,0 +1,43 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-900">My Tickets</h1>
+    <button mat-raised-button color="primary" (click)="router.navigate(['/helpdesk/create'])"><mat-icon>add</mat-icon> New Ticket</button>
+  </div>
+
+  <mat-tab-group (selectedIndexChange)="onTabChange($event)">
+    <mat-tab label="All"></mat-tab><mat-tab label="Open"></mat-tab><mat-tab label="In Progress"></mat-tab><mat-tab label="Resolved"></mat-tab><mat-tab label="Closed"></mat-tab>
+  </mat-tab-group>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (tickets().length === 0) {
+    <div class="text-center py-16 bg-white rounded-lg border">
+      <mat-icon class="text-gray-400 text-6xl">confirmation_number</mat-icon>
+      <p class="mt-4 text-gray-600 text-lg">No tickets found</p>
+      <button mat-raised-button color="primary" class="mt-4" (click)="router.navigate(['/helpdesk/create'])">Create Ticket</button>
+    </div>
+  } @else {
+    <div class="space-y-3">
+      @for (ticket of tickets(); track ticket.id) {
+        <mat-card class="hover:shadow-md transition-shadow cursor-pointer">
+          <div class="p-5 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <span class="text-xs font-mono text-gray-400">TKT-{{ ticket.id.slice(-4) }}</span>
+              <span class="px-2 py-0.5 rounded text-xs font-medium" [ngClass]="getPriorityColor(ticket.priority)">{{ ticket.priority | titlecase }}</span>
+              <div>
+                <p class="font-medium text-gray-900">{{ ticket.subject }}</p>
+                <p class="text-sm text-gray-500 mt-0.5">{{ ticket.category.name }} &middot; {{ ticket.createdAt | date:'MMM d, h:mm a' }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="px-2 py-0.5 rounded-full text-xs font-medium" [ngClass]="getStatusColor(ticket.status)">{{ ticket.status | titlecase }}</span>
+              @if (ticket.assignedToName) {
+                <span class="text-sm text-gray-500">{{ ticket.assignedToName }}</span>
+              }
+            </div>
+          </div>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

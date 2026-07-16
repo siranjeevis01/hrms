@@ -1,0 +1,81 @@
+<div class="p-6 max-w-4xl mx-auto space-y-6">
+  <div class="flex items-center gap-3">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Employee History</h1>
+      <p class="text-sm text-gray-500">Timeline of all employee changes</p>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <mat-card>
+    <mat-card-content class="p-4">
+      <mat-form-field appearance="outline" class="w-64">
+        <mat-label>Filter by Action</mat-label>
+        <mat-select [(ngModel)]="selectedAction" (ngModelChange)="filterByAction()">
+          <mat-option value="">All Actions</mat-option>
+          @for (action of actionTypes; track action) {
+            <mat-option [value]="action">{{ action }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (filteredHistory().length === 0) {
+    <div class="text-center py-12 text-gray-400">
+      <mat-icon class="text-5xl">history</mat-icon>
+      <p class="mt-3">No history records found</p>
+    </div>
+  } @else {
+    <!-- Timeline -->
+    <div class="relative pl-8">
+      <!-- Timeline Line -->
+      <div class="absolute left-3.5 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+
+      <div class="space-y-8">
+        @for (item of filteredHistory(); track item.id) {
+          <div class="relative">
+            <!-- Timeline Dot -->
+            <div class="absolute -left-[22px] top-3 w-3 h-3 rounded-full border-2 border-white shadow"
+                 [ngClass]="getActionColor(item.action)"></div>
+
+            <mat-card class="hover:shadow-md transition-shadow">
+              <mat-card-content class="p-4">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                         [ngClass]="getActionColor(item.action)">
+                      <mat-icon class="text-white text-lg">{{ getActionIcon(item.action) }}</mat-icon>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                          {{ item.action }}
+                        </span>
+                      </div>
+                      <p class="text-sm font-medium text-gray-900 mt-1">{{ item.description }}</p>
+                      @if (item.details) {
+                        <p class="text-sm text-gray-500 mt-1">{{ item.details }}</p>
+                      }
+                      <p class="text-xs text-gray-400 mt-2">By {{ item.performedBy }}</p>
+                    </div>
+                  </div>
+                  <span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
+                    {{ item.performedOn | date:'medium' }}
+                  </span>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

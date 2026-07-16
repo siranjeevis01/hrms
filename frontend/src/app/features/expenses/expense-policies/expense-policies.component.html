@@ -1,0 +1,38 @@
+<div class="p-6 space-y-6">
+  <h1 class="text-2xl font-bold text-gray-900">Expense Policies</h1>
+  <p class="text-gray-500">Company expense policies and limits</p>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12"><p class="text-gray-500">Loading...</p></div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (policy of policies(); track policy.id) {
+        <mat-card class="p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+              <mat-icon class="text-blue-600">policy</mat-icon>
+            </div>
+            @if (policy.isActive) {
+              <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Active</span>
+            } @else {
+              <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">Inactive</span>
+            }
+          </div>
+          <h3 class="font-semibold text-gray-900 mb-1">{{ policy.name }}</h3>
+          <p class="text-sm text-gray-500 mb-3">{{ policy.description }}</p>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between"><span class="text-gray-500">Max Amount:</span><span class="font-medium">{{ formatCurrency(policy.maxAmount) }}</span></div>
+            <div class="flex justify-between"><span class="text-gray-500">Category:</span><span class="font-medium">{{ policy.category | titlecase }}</span></div>
+            <div class="flex justify-between"><span class="text-gray-500">Receipt Required:</span><span class="font-medium">{{ policy.requiresReceipt ? 'Yes' : 'No' }}</span></div>
+          </div>
+        </mat-card>
+      }
+      @if (policies().length === 0) {
+        <div class="col-span-full text-center py-12 text-gray-400">
+          <mat-icon class="text-5xl">policy</mat-icon>
+          <p class="mt-2">No policies configured</p>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,68 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Onboarding</h1>
+    <p class="text-gray-600 mt-1">Track new hire onboarding progress</p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (checklists().length === 0) {
+    <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+      <mat-icon class="text-gray-300 text-6xl">assignment</mat-icon>
+      <p class="text-gray-500 mt-4">No onboarding checklists</p>
+    </div>
+  } @else {
+    <div class="space-y-4">
+      @for (checklist of checklists(); track checklist.id) {
+        <mat-card>
+          <mat-card-content class="p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="font-semibold text-lg">{{ checklist.employeeName }}</h3>
+                <p class="text-sm text-gray-500">{{ checklist.position }} &bull; Joining: {{ checklist.joiningDate | date:'MMM d, y' }}</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-sm font-medium" [class]="getStatusColor(checklist.status)">
+                {{ checklist.status | titlecase }}
+              </span>
+            </div>
+
+            <div class="mb-3">
+              <div class="flex items-center justify-between text-sm mb-1">
+                <span class="text-gray-600">Progress</span>
+                <span class="font-medium">{{ checklist.progress }}%</span>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="checklist.progress" color="primary">
+              </mat-progress-bar>
+              <p class="text-xs text-gray-400 mt-1">{{ getCompletedCount(checklist.tasks) }} of {{ checklist.tasks.length }} tasks completed</p>
+            </div>
+
+            <mat-accordion>
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>Checklist Items</mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="space-y-2">
+                  @for (task of checklist.tasks; track task.id) {
+                    <div class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50"
+                         [class]="task.completed ? 'bg-green-50' : ''">
+                      <div class="flex items-center gap-3">
+                        <mat-checkbox [checked]="task.completed"
+                                      (change)="toggleTask(checklist.id, task.id, $event.checked)"
+                                      color="primary">
+                          <span [class]="task.completed ? 'line-through text-gray-400' : ''">{{ task.title }}</span>
+                        </mat-checkbox>
+                      </div>
+                      @if (task.dueDate) {
+                        <span class="text-xs text-gray-400">Due: {{ task.dueDate | date:'MMM d' }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </mat-expansion-panel>
+            </mat-accordion>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

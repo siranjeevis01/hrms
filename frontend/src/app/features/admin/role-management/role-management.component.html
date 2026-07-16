@@ -1,0 +1,29 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between"><h1 class="text-2xl font-bold text-gray-900">Roles</h1><button mat-raised-button color="primary"><mat-icon>add</mat-icon> Create Role</button></div>
+  @if (loading()) { <div class="flex justify-center py-12"><p class="text-gray-500">Loading...</p></div> }
+  @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (role of roles(); track role.id) {
+        <mat-card class="p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center" [style.background-color]="role.color + '20'">
+              <mat-icon [style.color]="role.color">admin_panel_settings</mat-icon>
+            </div>
+            <button mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item><mat-icon>edit</mat-icon><span>Edit</span></button>
+              @if (!role.isSystem) { <button mat-menu-item class="!text-red-600"><mat-icon>delete</mat-icon><span>Delete</span></button> }
+            </mat-menu>
+          </div>
+          <h3 class="font-semibold text-gray-900">{{ role.name }}</h3>
+          <p class="text-sm text-gray-500 mt-1">{{ role.description }}</p>
+          <div class="flex items-center gap-3 mt-3 text-sm text-gray-500">
+            <span>{{ role.permissionCount }} permissions</span>
+            <span>{{ role.userCount }} users</span>
+          </div>
+          @if (role.isSystem) { <span class="inline-block mt-2 px-2 py-0.5 rounded text-xs bg-blue-50 text-blue-700">System Role</span> }
+        </mat-card>
+      }
+    </div>
+  }
+</div>

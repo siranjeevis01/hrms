@@ -1,0 +1,178 @@
+<div class="p-6 max-w-4xl mx-auto space-y-6">
+  <div class="flex items-center gap-3">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="flex-1">
+      <h1 class="text-2xl font-bold text-gray-900">Salary Structure</h1>
+      <p class="text-sm text-gray-500">View and manage employee salary details</p>
+    </div>
+    @if (!editing()) {
+      <button mat-stroked-button (click)="startEdit()">
+        <mat-icon>edit</mat-icon>
+        <span class="ml-1">Edit Salary</span>
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (editing()) {
+    <!-- Edit Mode -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Edit Salary Structure</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-6">
+          <h4 class="text-sm font-semibold text-gray-700 uppercase mb-3">Earnings</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Basic Salary</mat-label>
+              <input matInput type="number" formControlName="basicSalary" />
+              @if (controls['basicSalary'].hasError('required')) {
+                <mat-error>Required</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>HRA</mat-label>
+              <input matInput type="number" formControlName="hra" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Transport Allowance</mat-label>
+              <input matInput type="number" formControlName="transportAllowance" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Medical Allowance</mat-label>
+              <input matInput type="number" formControlName="medicalAllowance" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Special Allowance</mat-label>
+              <input matInput type="number" formControlName="specialAllowance" />
+            </mat-form-field>
+          </div>
+
+          <h4 class="text-sm font-semibold text-gray-700 uppercase mb-3">Deductions</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>PF</mat-label>
+              <input matInput type="number" formControlName="pf" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>ESI</mat-label>
+              <input matInput type="number" formControlName="esi" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Professional Tax</mat-label>
+              <input matInput type="number" formControlName="professionalTax" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Income Tax</mat-label>
+              <input matInput type="number" formControlName="incomeTax" />
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+        <div class="flex justify-end gap-3 p-6 pt-0">
+          <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+          <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+            @if (saving()) {
+              <mat-spinner diameter="20" class="inline-block"></mat-spinner>
+            } @else {
+              <mat-icon>save</mat-icon>
+            }
+            <span class="ml-1">Save</span>
+          </button>
+        </div>
+      </mat-card>
+    </form>
+  } @else if (salary(); as s) {
+    <!-- View Mode -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title class="text-green-700">Earnings</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4 space-y-3">
+          <div class="flex justify-between border-b border-gray-100 pb-2">
+            <span class="text-sm text-gray-600">Basic Salary</span>
+            <span class="text-sm font-semibold">${{ s.basicSalary | number }}</span>
+          </div>
+          <div class="flex justify-between border-b border-gray-100 pb-2">
+            <span class="text-sm text-gray-600">HRA</span>
+            <span class="text-sm font-medium">${{ s.hra | number }}</span>
+          </div>
+          <div class="flex justify-between border-b border-gray-100 pb-2">
+            <span class="text-sm text-gray-600">Transport Allowance</span>
+            <span class="text-sm font-medium">${{ s.transportAllowance | number }}</span>
+          </div>
+          <div class="flex justify-between border-b border-gray-100 pb-2">
+            <span class="text-sm text-gray-600">Medical Allowance</span>
+            <span class="text-sm font-medium">${{ s.medicalAllowance | number }}</span>
+          </div>
+          <div class="flex justify-between border-b border-gray-100 pb-2">
+            <span class="text-sm text-gray-600">Special Allowance</span>
+            <span class="text-sm font-medium">${{ s.specialAllowance | number }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title class="text-red-700">Deductions</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="p-4 space-y-3">
+          <div class="flex justify-between border-b border-gray-100 pb-2">
+            <span class="text-sm text-gray-600">PF</span>
+            <span class="text-sm font-medium text-red-600">-${{ s.pf | number }}</span>
+          </div>
+          <div class="flex justify-between border-b border-gray-100 pb-2">
+            <span class="text-sm text-gray-600">ESI</span>
+            <span class="text-sm font-medium text-red-600">-${{ s.esi | number }}</span>
+          </div>
+          <div class="flex justify-between border-b border-gray-100 pb-2">
+            <span class="text-sm text-gray-600">Professional Tax</span>
+            <span class="text-sm font-medium text-red-600">-${{ s.professionalTax | number }}</span>
+          </div>
+          <div class="flex justify-between border-b border-gray-100 pb-2">
+            <span class="text-sm text-gray-600">Income Tax</span>
+            <span class="text-sm font-medium text-red-600">-${{ s.incomeTax | number }}</span>
+          </div>
+          <div class="flex justify-between pt-3 border-t-2 border-gray-300">
+            <span class="font-bold text-lg">Net Salary</span>
+            <span class="font-bold text-lg text-green-600">${{ s.netSalary | number }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <mat-card>
+      <mat-card-content class="p-4">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div>
+            <p class="text-xs text-gray-500 uppercase">Total Deductions</p>
+            <p class="text-xl font-bold text-red-600">${{ s.totalDeductions | number }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 uppercase">Net Salary</p>
+            <p class="text-xl font-bold text-green-600">${{ s.netSalary | number }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 uppercase">Annual CTC</p>
+            <p class="text-xl font-bold text-gray-900">${{ (s.netSalary * 12) | number }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 uppercase">Gross Earnings</p>
+            <p class="text-xl font-bold text-blue-600">${{ (s.basicSalary + s.hra + s.transportAllowance + s.medicalAllowance + s.specialAllowance) | number }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <div class="text-center py-12 text-gray-400">
+      <mat-icon class="text-5xl">payments</mat-icon>
+      <p class="mt-3">No salary information available</p>
+    </div>
+  }
+</div>

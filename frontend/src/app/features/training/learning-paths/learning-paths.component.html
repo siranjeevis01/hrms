@@ -1,0 +1,78 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Learning Paths</h1>
+    <p class="text-gray-600 mt-1">Structured learning journeys</p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="space-y-3">
+        @for (path of paths(); track path.id) {
+          <mat-card class="cursor-pointer hover:shadow-md transition-shadow"
+                    [class]="selectedPath()?.id === path.id ? 'ring-2 ring-blue-500' : ''"
+                    (click)="selectPath(path)">
+            <mat-card-content class="p-4">
+              <h3 class="font-semibold mb-1">{{ path.title }}</h3>
+              <p class="text-sm text-gray-500 mb-2">{{ path.courses.length }} courses &bull; {{ path.totalDuration }} min</p>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-400">{{ path.enrolledCount }} enrolled</span>
+                @if (path.enrolled && path.progress !== undefined) {
+                  <span class="text-xs text-blue-600 font-medium">{{ path.progress }}%</span>
+                }
+              </div>
+              @if (path.enrolled && path.progress !== undefined) {
+                <mat-progress-bar mode="determinate" [value]="path.progress" color="primary" class="mt-2"></mat-progress-bar>
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+        @if (paths().length === 0) {
+          <p class="text-gray-500 text-center py-8">No learning paths available</p>
+        }
+      </div>
+
+      <div class="lg:col-span-2">
+        @if (selectedPath(); as path) {
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>{{ path.title }}</mat-card-title>
+              <mat-card-subtitle>{{ path.description }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content class="p-4">
+              <h4 class="font-semibold mb-3">Course Sequence</h4>
+              <div class="space-y-3">
+                @for (item of path.courses; track item.courseId; let i = $index) {
+                  <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
+                      {{ i + 1 }}
+                    </div>
+                    <div class="flex-1">
+                      <p class="font-medium text-sm">{{ item.course?.title || 'Course ' + (i + 1) }}</p>
+                      <p class="text-xs text-gray-400">{{ item.course?.duration || 0 }} min</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+            <mat-card-actions class="p-4">
+              @if (!path.enrolled) {
+                <button mat-raised-button color="primary" (click)="enroll(path.id)">Enroll in Path</button>
+              } @else {
+                <span class="text-green-600 text-sm font-medium flex items-center gap-1">
+                  <mat-icon class="text-base">check_circle</mat-icon> Enrolled
+                </span>
+              }
+            </mat-card-actions>
+          </mat-card>
+        } @else {
+          <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+            <mat-icon class="text-gray-300 text-6xl">route</mat-icon>
+            <p class="text-gray-500 mt-4">Select a learning path to view details</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

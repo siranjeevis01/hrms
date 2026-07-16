@@ -1,0 +1,73 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/Properties/serviceDependencies.json
+
+## VS / Rider
+.vs/
+.idea/
+*.swp
+*~
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## NuGet
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+nuget.exe
+
+## Build results
+[Dd]ebugPublic/
+[Rr]eleases/
+*.VisualState.xml
+TestResult.xml
+
+## Node / Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.sass-cache/
+frontend/connect.lock
+frontend/libpeerconnection.log
+frontend/npm-debug.log
+frontend/test-output.log
+frontend/.env.local
+
+## OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+## IDE
+*.code-workspace
+.vscode/settings.json
+
+## Secrets
+*.pfx
+*.key
+appsettings.Development.json
+appsettings.Local.json
+.env
+.env.local

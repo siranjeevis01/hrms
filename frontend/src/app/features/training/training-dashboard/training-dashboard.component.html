@@ -1,0 +1,147 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Training Dashboard</h1>
+    <p class="text-gray-600 mt-1">Your learning progress and recommendations</p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 flex items-center gap-2">
+      <mat-icon>error</mat-icon><span>{{ error() }}</span>
+      <button mat-button color="warn" (click)="loadDashboard()">Retry</button>
+    </div>
+  } @else if (stats(); as s) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <mat-card class="cursor-pointer hover:shadow-lg" (click)="navigateTo('my-learning')" matRipple>
+        <mat-card-content class="p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Enrolled</p>
+              <p class="text-2xl font-bold text-blue-600">{{ s.enrolledCourses }}</p>
+            </div>
+            <mat-icon class="text-blue-500 bg-blue-50 p-2 rounded-full">school</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="cursor-pointer hover:shadow-lg" matRipple>
+        <mat-card-content class="p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">In Progress</p>
+              <p class="text-2xl font-bold text-amber-600">{{ s.inProgressCourses }}</p>
+            </div>
+            <mat-icon class="text-amber-500 bg-amber-50 p-2 rounded-full">pending</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="cursor-pointer hover:shadow-lg" matRipple>
+        <mat-card-content class="p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Completed</p>
+              <p class="text-2xl font-bold text-green-600">{{ s.completedCourses }}</p>
+            </div>
+            <mat-icon class="text-green-500 bg-green-50 p-2 rounded-full">check_circle</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="cursor-pointer hover:shadow-lg" (click)="navigateTo('certificates')" matRipple>
+        <mat-card-content class="p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Certificates</p>
+              <p class="text-2xl font-bold text-purple-600">{{ s.certificatesEarned }}</p>
+            </div>
+            <mat-icon class="text-purple-500 bg-purple-50 p-2 rounded-full">emoji_events</mat-icon>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    @if (s.courseProgress.length > 0) {
+      <mat-card class="mb-8">
+        <mat-card-header>
+          <mat-card-title>Course Progress</mat-card-title>
+          <mat-card-actions>
+            <button mat-button color="primary" (click)="navigateTo('my-learning')">View All</button>
+          </mat-card-actions>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          <div class="space-y-4">
+            @for (enrollment of s.courseProgress; track enrollment.id) {
+              <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                <div class="flex-1">
+                  <p class="font-medium text-sm">{{ enrollment.course?.title }}</p>
+                  <mat-progress-bar mode="determinate" [value]="enrollment.progress" color="primary" class="mt-1">
+                  </mat-progress-bar>
+                </div>
+                <span class="text-sm font-medium text-gray-600 w-12 text-right">{{ enrollment.progress }}%</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Upcoming Training</mat-card-title>
+          <mat-card-actions>
+            <button mat-button color="primary" (click)="navigateTo('schedule')">View All</button>
+          </mat-card-actions>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          @if (s.upcomingSchedules.length > 0) {
+            <div class="space-y-3">
+              @for (schedule of s.upcomingSchedules; track schedule.id) {
+                <div class="p-3 border rounded-lg">
+                  <p class="font-medium text-sm">{{ schedule.title }}</p>
+                  <p class="text-xs text-gray-500">{{ schedule.startDate | date:'MMM d, y h:mm a' }}</p>
+                  <p class="text-xs text-gray-400">{{ schedule.type | titlecase }} &bull; {{ schedule.instructor }}</p>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-gray-500 text-center py-8">No upcoming training</p>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Recommended Courses</mat-card-title>
+          <mat-card-actions>
+            <button mat-button color="primary" (click)="navigateTo('courses')">Browse All</button>
+          </mat-card-actions>
+        </mat-card-header>
+        <mat-card-content class="p-4">
+          @if (s.recommendedCourses.length > 0) {
+            <div class="space-y-3">
+              @for (course of s.recommendedCourses; track course.id) {
+                <div class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+                     (click)="navigateTo('courses/' + course.id)">
+                  <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <mat-icon class="text-blue-600">play_circle</mat-icon>
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-medium text-sm">{{ course.title }}</p>
+                    <p class="text-xs text-gray-500">{{ course.instructor }} &bull; {{ course.duration }} min</p>
+                  </div>
+                  <div class="text-amber-500 text-sm">
+                    @for (star of getRatingStars(course.rating); track $index) {
+                      <mat-icon class="text-base">{{ star ? 'star' : 'star_border' }}</mat-icon>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-gray-500 text-center py-8">No recommendations yet</p>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>

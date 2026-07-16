@@ -1,0 +1,34 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Certificates</h1>
+    <p class="text-gray-600 mt-1">Your earned certificates</p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (certificates().length === 0) {
+    <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+      <mat-icon class="text-gray-300 text-6xl">emoji_events</mat-icon>
+      <p class="text-gray-500 mt-4">No certificates earned yet</p>
+      <p class="text-gray-400 text-sm mt-1">Complete courses to earn certificates</p>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (cert of certificates(); track cert.id) {
+        <mat-card class="hover:shadow-lg transition-shadow">
+          <div class="h-32 bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+            <mat-icon class="text-white text-5xl">emoji_events</mat-icon>
+          </div>
+          <mat-card-content class="p-4">
+            <h3 class="font-semibold mb-1">{{ cert.course?.title }}</h3>
+            <p class="text-sm text-gray-500">{{ cert.userName }}</p>
+            <p class="text-xs text-gray-400 mt-1">Issued: {{ cert.issuedDate | date:'MMM d, y' }}</p>
+            <button mat-raised-button color="primary" class="w-full mt-3" (click)="downloadCertificate(cert.certificateUrl)">
+              <mat-icon>download</mat-icon> Download
+            </button>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

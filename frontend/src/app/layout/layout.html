@@ -1,0 +1,24 @@
+<mat-sidenav-container class="layout-container">
+  <mat-sidenav
+    #sidenav
+    [opened]="sidebarOpened()"
+    [mode]="isMobile() ? 'over' : 'side'"
+    class="layout-sidenav"
+    (closedStart)="closeSidebar()">
+    <app-sidebar (closeSidebar)="closeSidebar()" />
+  </mat-sidenav>
+
+  <mat-sidenav-content class="layout-content">
+    <app-header (toggleSidebar)="toggleSidebar()" />
+
+    @if (loadingService.isLoading()) {
+      <div class="layout-loading-bar">
+        <div class="layout-loading-bar__indicator"></div>
+      </div>
+    }
+
+    <main class="layout-main">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

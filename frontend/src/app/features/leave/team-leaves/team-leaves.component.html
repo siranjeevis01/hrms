@@ -1,0 +1,148 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">Team Leaves</h1>
+      <p class="text-gray-500 mt-1">Review and manage team leave requests</p>
+    </div>
+
+    <!-- Pending Approvals -->
+    @if (pendingLeaves().length > 0) {
+      <mat-card class="mb-6 border-l-4 border-l-amber-400">
+        <div class="p-5">
+          <div class="flex items-center gap-2 mb-4">
+            <mat-icon class="text-amber-600">pending_actions</mat-icon>
+            <h2 class="text-lg font-semibold text-gray-900">
+              Pending Approvals ({{ pendingLeaves().length }})
+            </h2>
+          </div>
+
+          <div class="space-y-4">
+            @for (leave of pendingLeaves(); track leave.id) {
+              <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex items-start justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <span class="text-sm font-medium text-indigo-700">
+                        {{ getInitials(leave.employeeName) }}
+                      </span>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900">{{ leave.employeeName }}</p>
+                      <p class="text-sm text-gray-500">
+                        {{ leave.leaveType }} &middot; {{ leave.totalDays }} day(s) &middot;
+                        {{ formatDateRange(leave.startDate, leave.endDate) }}
+                      </p>
+                      <p class="text-sm text-gray-600 mt-1">Reason: {{ leave.reason }}</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    @if (processingId() === leave.id) {
+                      <mat-spinner diameter="20"></mat-spinner>
+                    } @else {
+                      <button
+                        mat-flat-button
+                        class="!bg-emerald-500 !text-white !text-xs"
+                        (click)="approveLeave(leave.id)"
+                      >
+                        <mat-icon class="!text-base mr-1">check</mat-icon>Approve
+                      </button>
+                      <button
+                        mat-stroked-button
+                        color="warn"
+                        class="!text-xs"
+                        (click)="rejectLeave(leave.id)"
+                      >
+                        <mat-icon class="!text-base mr-1">close</mat-icon>Reject
+                      </button>
+                    }
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                    <mat-label>Comments (optional)</mat-label>
+                    <input matInput [value]="actionComments()" (input)="actionComments.set($any($event.target).value)" />
+                  </mat-form-field>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </mat-card>
+    }
+
+    <!-- All Leaves -->
+    <mat-card>
+      <div class="p-5 flex items-center justify-between mb-3">
+        <h3 class="text-lg font-semibold text-gray-900">All Leave Requests</h3>
+        <mat-form-field appearance="outline" class="!w-40" subscriptSizing="dynamic">
+          <mat-label>Status</mat-label>
+          <mat-select [(value)]="filterStatus" (selectionChange)="loadAllLeaves()">
+            <mat-option value="">All</mat-option>
+            @for (status of statuses; track status) {
+              <mat-option [value]="status">{{ status }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      @if (loading()) {
+        <div class="flex items-center justify-center py-12">
+          <mat-spinner diameter="36"></mat-spinner>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table mat-table [dataSource]="allLeaves()" class="w-full">
+            <ng-container matColumnDef="employeeName">
+              <th mat-header-cell *matHeaderCellDef class="!text-gray-500">Employee</th>
+              <td mat-cell *matCellDef="let row" class="!py-3 font-medium">{{ row.employeeName }}</td>
+            </ng-container>
+            <ng-container matColumnDef="leaveType">
+              <th mat-header-cell *matHeaderCellDef class="!text-gray-500">Type</th>
+              <td mat-cell *matCellDef="let row" class="!py-3">{{ row.leaveType }}</td>
+            </ng-container>
+            <ng-container matColumnDef="dates">
+              <th mat-header-cell *matHeaderCellDef class="!text-gray-500">Dates</th>
+              <td mat-cell *matCellDef="let row" class="!py-3 text-gray-600">
+                {{ formatDateRange(row.startDate, row.endDate) }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="days">
+              <th mat-header-cell *matHeaderCellDef class="!text-gray-500">Days</th>
+              <td mat-cell *matCellDef="let row" class="!py-3 font-medium">{{ row.totalDays }}</td>
+            </ng-container>
+            <ng-container matColumnDef="reason">
+              <th mat-header-cell *matHeaderCellDef class="!text-gray-500">Reason</th>
+              <td mat-cell *matCellDef="let row" class="!py-3 text-gray-600 max-w-[200px] truncate">
+                {{ row.reason }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef class="!text-gray-500">Status</th>
+              <td mat-cell *matCellDef="let row" class="!py-3">
+                <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getStatusClass(row.status)">
+                  {{ row.status }}
+                </span>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="!text-gray-500">Actions</th>
+              <td mat-cell *matCellDef="let row" class="!py-3">
+                <button mat-icon-button class="!text-gray-400">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-50"></tr>
+          </table>
+          @if (allLeaves().length === 0) {
+            <div class="p-8 text-center text-gray-500">
+              <mat-icon class="text-4xl text-gray-300 mb-2">inbox</mat-icon>
+              <p>No leave requests found</p>
+            </div>
+          }
+        </div>
+      }
+    </mat-card>
+  </div>
+</div>

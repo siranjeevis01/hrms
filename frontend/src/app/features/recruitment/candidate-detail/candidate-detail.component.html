@@ -1,0 +1,134 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex items-center gap-3 mb-6">
+      <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+      <h1 class="text-2xl font-bold text-gray-900">Candidate Profile</h1>
+    </div>
+
+    @if (loading()) {
+      <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+    } @else if (candidate(); as c) {
+      <mat-card class="mb-6">
+        <mat-card-content class="p-6">
+          <div class="flex items-start gap-4">
+            <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xl font-bold">
+              {{ c.firstName.charAt(0) }}{{ c.lastName.charAt(0) }}
+            </div>
+            <div class="flex-1">
+              <h2 class="text-xl font-bold">{{ c.firstName }} {{ c.lastName }}</h2>
+              <p class="text-gray-600">{{ c.currentJobTitle || 'Not specified' }}</p>
+              <div class="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                <span class="flex items-center gap-1"><mat-icon class="text-base">email</mat-icon> {{ c.email }}</span>
+                <span class="flex items-center gap-1"><mat-icon class="text-base">phone</mat-icon> {{ c.phone }}</span>
+              </div>
+              <div class="flex flex-wrap gap-2 mt-3">
+                <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getStatusColor(c.status)">
+                  {{ c.status | titlecase }}
+                </span>
+                <span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700">Source: {{ c.source | titlecase }}</span>
+              </div>
+            </div>
+          </div>
+
+          @if (c.skills.length > 0) {
+            <div class="mt-4">
+              <h4 class="font-medium text-gray-700 mb-2">Skills</h4>
+              <div class="flex flex-wrap gap-2">
+                @for (skill of c.skills; track skill) {
+                  <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm">{{ skill }}</span>
+                }
+              </div>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-tab-group>
+        <mat-tab label="Applications">
+          <div class="p-4">
+            @if (applications().length > 0) {
+              <div class="space-y-3">
+                @for (app of applications(); track app.id) {
+                  <mat-card>
+                    <mat-card-content class="p-4 flex items-center justify-between">
+                      <div>
+                        <p class="font-medium">{{ app.job?.title }}</p>
+                        <p class="text-sm text-gray-500">Applied {{ app.appliedDate | date:'MMM d, y' }}</p>
+                      </div>
+                      <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getStatusColor(app.status)">
+                        {{ app.status | titlecase }}
+                      </span>
+                    </mat-card-content>
+                  </mat-card>
+                }
+              </div>
+            } @else {
+              <p class="text-gray-500 text-center py-8">No applications found</p>
+            }
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Interviews">
+          <div class="p-4">
+            @if (interviews().length > 0) {
+              <div class="space-y-3">
+                @for (interview of interviews(); track interview.id) {
+                  <mat-card>
+                    <mat-card-content class="p-4">
+                      <div class="flex items-center justify-between">
+                        <div>
+                          <p class="font-medium">{{ interview.job?.title }}</p>
+                          <p class="text-sm text-gray-500">{{ interview.scheduledDate | date:'MMM d, y h:mm a' }}</p>
+                          <p class="text-sm text-gray-400">{{ interview.type | titlecase }} - {{ interview.duration }} min</p>
+                        </div>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getInterviewStatusColor(interview.status)">
+                          {{ interview.status | titlecase }}
+                        </span>
+                      </div>
+                      @if (interview.feedback) {
+                        <div class="mt-3 p-3 bg-gray-50 rounded-lg">
+                          <p class="text-sm font-medium text-gray-700">Feedback</p>
+                          <p class="text-sm text-gray-600">{{ interview.feedback }}</p>
+                        </div>
+                      }
+                    </mat-card-content>
+                  </mat-card>
+                }
+              </div>
+            } @else {
+              <p class="text-gray-500 text-center py-8">No interviews scheduled</p>
+            }
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Timeline">
+          <div class="p-4">
+            <div class="space-y-4">
+              @for (app of applications(); track app.id) {
+                <div class="flex gap-3">
+                  <div class="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0"></div>
+                  <div>
+                    <p class="font-medium text-sm">Applied for {{ app.job?.title }}</p>
+                    <p class="text-xs text-gray-500">{{ app.appliedDate | date:'MMM d, y h:mm a' }}</p>
+                  </div>
+                </div>
+              }
+              @for (interview of interviews(); track interview.id) {
+                <div class="flex gap-3">
+                  <div class="w-2 h-2 rounded-full bg-purple-500 mt-2 flex-shrink-0"></div>
+                  <div>
+                    <p class="font-medium text-sm">Interview - {{ interview.type | titlecase }}</p>
+                    <p class="text-xs text-gray-500">{{ interview.scheduledDate | date:'MMM d, y h:mm a' }}</p>
+                  </div>
+                </div>
+              }
+              @if (applications().length === 0 && interviews().length === 0) {
+                <p class="text-gray-500 text-center py-8">No activity yet</p>
+              }
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    }
+  </div>
+</div>

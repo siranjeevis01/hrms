@@ -1,0 +1,14 @@
+.page-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+
+  &__text {
+    font-size: 14px;
+    color: #6B7280;
+    font-weight: 500;
+  }
+}

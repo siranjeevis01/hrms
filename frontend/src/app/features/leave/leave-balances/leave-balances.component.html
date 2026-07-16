@@ -1,0 +1,119 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">Leave Balances</h1>
+      <p class="text-gray-500 mt-1">View your leave entitlements and usage</p>
+    </div>
+
+    @if (loading()) {
+      <div class="flex items-center justify-center py-20">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      <!-- Summary Row -->
+      <div class="grid grid-cols-3 gap-4 mb-8">
+        <mat-card>
+          <div class="p-5 text-center">
+            <p class="text-sm text-gray-500 mb-1">Total Entitled</p>
+            <p class="text-3xl font-bold text-indigo-600">
+              {{ getTotalEntitled() }}
+            </p>
+          </div>
+        </mat-card>
+        <mat-card>
+          <div class="p-5 text-center">
+            <p class="text-sm text-gray-500 mb-1">Total Taken</p>
+            <p class="text-3xl font-bold text-red-600">
+              {{ getTotalTaken() }}
+            </p>
+          </div>
+        </mat-card>
+        <mat-card>
+          <div class="p-5 text-center">
+            <p class="text-sm text-gray-500 mb-1">Total Remaining</p>
+            <p class="text-3xl font-bold text-emerald-600">
+              {{ getTotalBalance() }}
+            </p>
+          </div>
+        </mat-card>
+      </div>
+
+      <!-- Leave Balance Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (balance of balances(); track balance.leaveType) {
+          <mat-card class="overflow-hidden hover:shadow-lg transition-shadow">
+            <div class="p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ balance.leaveType }}</h3>
+
+              <!-- Circular Progress -->
+              <div class="flex justify-center mb-6">
+                <div class="relative w-32 h-32">
+                  <svg class="w-32 h-32 -rotate-90" viewBox="0 0 128 128">
+                    <circle cx="64" cy="64" r="56" fill="none" stroke="#e5e7eb" stroke-width="8" />
+                    <circle
+                      cx="64" cy="64" r="56"
+                      fill="none"
+                      [attr.stroke]="getProgressPercent(balance) >= 90 ? '#ef4444' : getProgressPercent(balance) >= 70 ? '#f59e0b' : '#10b981'"
+                      stroke-width="8"
+                      stroke-linecap="round"
+                      [attr.stroke-dasharray]="351.86"
+                      [attr.stroke-dashoffset]="351.86 - (351.86 * getProgressPercent(balance) / 100)"
+                    />
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="text-2xl font-bold text-gray-900">{{ balance.balance }}</span>
+                    <span class="text-xs text-gray-500">remaining</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Details -->
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Entitled</span>
+                  <span class="font-semibold text-gray-900">{{ balance.entitled }} days</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Taken</span>
+                  <span class="font-semibold text-red-600">{{ balance.taken }} days</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Pending</span>
+                  <span class="font-semibold text-amber-600">{{ balance.pending }} days</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Carried Forward</span>
+                  <span class="font-semibold text-blue-600">{{ balance.carried }} days</span>
+                </div>
+              </div>
+
+              <!-- Usage Bar -->
+              <div class="mt-4">
+                <div class="flex justify-between text-xs text-gray-500 mb-1">
+                  <span>Usage</span>
+                  <span>{{ getProgressPercent(balance) }}%</span>
+                </div>
+                <div class="w-full h-2 rounded-full" [class]="getBarBg(balance)">
+                  <div
+                    class="h-2 rounded-full transition-all duration-500"
+                    [class]="getBarColor(balance)"
+                    [style.width.%]="getProgressPercent(balance)"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+        } @empty {
+          <div class="col-span-full">
+            <mat-card>
+              <div class="p-12 text-center text-gray-500">
+                <mat-icon class="text-5xl text-gray-300 mb-3">account_balance_wallet</mat-icon>
+                <p class="text-lg">No leave balances available</p>
+              </div>
+            </mat-card>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

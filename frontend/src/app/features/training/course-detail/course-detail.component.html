@@ -1,0 +1,68 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex items-center gap-3 mb-6">
+      <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+      <h1 class="text-2xl font-bold text-gray-900">Course Details</h1>
+    </div>
+
+    @if (loading()) {
+      <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+    } @else if (course(); as c) {
+      <div class="h-48 bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl flex items-center justify-center">
+        <mat-icon class="text-white text-7xl">play_circle</mat-icon>
+      </div>
+
+      <mat-card class="rounded-t-none">
+        <mat-card-content class="p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <h2 class="text-xl font-bold">{{ c.title }}</h2>
+              <p class="text-gray-600 mt-1">By {{ c.instructor }}</p>
+              <div class="flex items-center gap-3 mt-2">
+                <div class="flex items-center gap-1 text-amber-500 text-sm">
+                  @for (star of getRatingStars(c.rating); track $index) {
+                    <mat-icon class="text-base">{{ star ? 'star' : 'star_border' }}</mat-icon>
+                  }
+                  <span class="text-gray-500 ml-1">({{ c.rating }})</span>
+                </div>
+                <span class="text-sm text-gray-500">{{ c.enrollmentCount }} enrolled</span>
+                <span class="text-sm text-gray-500">{{ c.duration }} min</span>
+              </div>
+            </div>
+            <button mat-raised-button color="primary" (click)="enroll()">Enroll Now</button>
+          </div>
+
+          <p class="text-gray-600 mb-6">{{ c.description }}</p>
+
+          <h3 class="font-semibold text-lg mb-3">Course Content</h3>
+          @if (c.modules.length > 0) {
+            <mat-accordion>
+              @for (mod of c.modules; track mod.id) {
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>{{ mod.title }}</mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div class="space-y-2">
+                    @for (lesson of mod.lessons; track lesson.id) {
+                      <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                        <div class="flex items-center gap-2">
+                          <mat-icon class="text-gray-400 text-base">
+                            {{ lesson.type === 'video' ? 'play_circle' : lesson.type === 'quiz' ? 'quiz' : 'article' }}
+                          </mat-icon>
+                          <span class="text-sm">{{ lesson.title }}</span>
+                        </div>
+                        <span class="text-xs text-gray-400">{{ lesson.duration }} min</span>
+                      </div>
+                    }
+                  </div>
+                </mat-expansion-panel>
+              }
+            </mat-accordion>
+          } @else {
+            <p class="text-gray-400">No modules available yet</p>
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+</div>

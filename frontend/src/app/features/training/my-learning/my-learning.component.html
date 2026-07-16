@@ -1,0 +1,85 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">My Learning</h1>
+    <p class="text-gray-600 mt-1">Track your learning progress</p>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <mat-tab-group [(selectedIndex)]="activeTab">
+      <mat-tab [label]="'In Progress (' + inProgress().length + ')'">
+        <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (enrollment of inProgress(); track enrollment.id) {
+            <mat-card class="cursor-pointer hover:shadow-lg" (click)="continueLearning(enrollment.courseId)">
+              <mat-card-content class="p-4">
+                <h3 class="font-semibold mb-1">{{ enrollment.course?.title }}</h3>
+                <p class="text-sm text-gray-500 mb-3">{{ enrollment.course?.instructor }}</p>
+                <mat-progress-bar mode="determinate" [value]="enrollment.progress" color="primary"></mat-progress-bar>
+                <div class="flex items-center justify-between mt-2">
+                  <span class="text-xs text-gray-500">{{ enrollment.progress }}% complete</span>
+                  <button mat-button color="primary" class="!p-0 !min-h-0">
+                    Continue <mat-icon class="text-base">arrow_forward</mat-icon>
+                  </button>
+                </div>
+                @if (enrollment.lastAccessedAt) {
+                  <p class="text-xs text-gray-400 mt-2">Last accessed: {{ enrollment.lastAccessedAt | date:'MMM d, h:mm a' }}</p>
+                }
+              </mat-card-content>
+            </mat-card>
+          }
+          @if (inProgress().length === 0) {
+            <div class="col-span-full text-center py-12">
+              <mat-icon class="text-gray-300 text-5xl">school</mat-icon>
+              <p class="text-gray-500 mt-3">No courses in progress</p>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="'Completed (' + completed().length + ')'">
+        <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (enrollment of completed(); track enrollment.id) {
+            <mat-card>
+              <mat-card-content class="p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <mat-icon class="text-green-500">check_circle</mat-icon>
+                  <h3 class="font-semibold">{{ enrollment.course?.title }}</h3>
+                </div>
+                <p class="text-sm text-gray-500">{{ enrollment.course?.instructor }}</p>
+                @if (enrollment.completedAt) {
+                  <p class="text-xs text-gray-400 mt-2">Completed: {{ enrollment.completedAt | date:'MMM d, y' }}</p>
+                }
+              </mat-card-content>
+            </mat-card>
+          }
+          @if (completed().length === 0) {
+            <div class="col-span-full text-center py-12">
+              <mat-icon class="text-gray-300 text-5xl">emoji_events</mat-icon>
+              <p class="text-gray-500 mt-3">No completed courses yet</p>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="'Bookmarks (' + bookmarks().length + ')'">
+        <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (enrollment of bookmarks(); track enrollment.id) {
+            <mat-card class="cursor-pointer hover:shadow-lg" (click)="continueLearning(enrollment.courseId)">
+              <mat-card-content class="p-4">
+                <h3 class="font-semibold mb-1">{{ enrollment.course?.title }}</h3>
+                <p class="text-sm text-gray-500">{{ enrollment.course?.instructor }}</p>
+              </mat-card-content>
+            </mat-card>
+          }
+          @if (bookmarks().length === 0) {
+            <div class="col-span-full text-center py-12">
+              <mat-icon class="text-gray-300 text-5xl">bookmark_border</mat-icon>
+              <p class="text-gray-500 mt-3">No bookmarked courses</p>
+            </div>
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

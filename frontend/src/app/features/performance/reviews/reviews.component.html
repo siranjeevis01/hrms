@@ -1,0 +1,85 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Reviews</h1>
+      <p class="text-gray-600 mt-1">Performance reviews and feedback</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="startReview()">
+      <mat-icon>add</mat-icon> Start Review
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <mat-tab-group>
+      <mat-tab [label]="'Review Cycles (' + reviewCycles().length + ')'">
+        <div class="p-4 space-y-4">
+          @for (cycle of reviewCycles(); track cycle.id) {
+            <mat-card>
+              <mat-card-content class="p-4 flex items-center justify-between">
+                <div>
+                  <h3 class="font-semibold">{{ cycle.name }}</h3>
+                  <p class="text-sm text-gray-500">{{ cycle.startDate | date:'MMM d' }} - {{ cycle.endDate | date:'MMM d, y' }}</p>
+                  <p class="text-xs text-gray-400 mt-1">Type: {{ cycle.type | titlecase }}</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm font-medium" [class]="getStatusColor(cycle.status)">
+                  {{ cycle.status | titlecase }}
+                </span>
+              </mat-card-content>
+            </mat-card>
+          }
+          @if (reviewCycles().length === 0) {
+            <p class="text-gray-500 text-center py-8">No review cycles</p>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="'Pending (' + pendingReviews().length + ')'">
+        <div class="p-4 space-y-4">
+          @for (review of pendingReviews(); track review.id) {
+            <mat-card class="cursor-pointer hover:shadow-md" (click)="openReview(review.id)">
+              <mat-card-content class="p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="font-medium">Review for {{ review.employeeId }}</p>
+                    <p class="text-sm text-gray-500">By {{ review.reviewerId }}</p>
+                  </div>
+                  <span class="px-3 py-1 rounded-full text-sm" [class]="getStatusColor(review.status)">
+                    {{ review.status | titlecase }}
+                  </span>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+          @if (pendingReviews().length === 0) {
+            <p class="text-gray-500 text-center py-8">No pending reviews</p>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="'My Reviews (' + myReviews().length + ')'">
+        <div class="p-4 space-y-4">
+          @for (review of myReviews(); track review.id) {
+            <mat-card class="cursor-pointer hover:shadow-md" (click)="openReview(review.id)">
+              <mat-card-content class="p-4 flex items-center justify-between">
+                <div>
+                  <p class="font-medium">{{ review.reviewCycle?.name || 'Review' }}</p>
+                  @if (review.overallRating) {
+                    <p class="text-sm text-gray-500">Rating: {{ review.overallRating }}/5</p>
+                  }
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm" [class]="getStatusColor(review.status)">
+                  {{ review.status | titlecase }}
+                </span>
+              </mat-card-content>
+            </mat-card>
+          }
+          @if (myReviews().length === 0) {
+            <p class="text-gray-500 text-center py-8">No reviews yet</p>
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

@@ -1,0 +1,137 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-2xl mx-auto">
+    <div class="text-center mb-8">
+      <h1 class="text-2xl font-bold text-gray-900">Mark Attendance</h1>
+      <p class="text-gray-500 mt-1">{{ currentTime() | date:'EEEE, MMMM d, y' }}</p>
+    </div>
+
+    <!-- Current Time -->
+    <mat-card class="mb-6">
+      <div class="p-8 text-center">
+        <p class="text-6xl font-bold text-gray-900 tracking-tight">
+          {{ currentTime() | date:'HH:mm:ss' }}
+        </p>
+        <p class="text-lg text-gray-500 mt-2">Current Time</p>
+      </div>
+    </mat-card>
+
+    <!-- Check In / Out Button -->
+    <mat-card class="mb-6">
+      <div class="p-8">
+        @if (error()) {
+          <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 text-center">
+            <p class="text-red-700 text-sm">{{ error() }}</p>
+          </div>
+        }
+        @if (success()) {
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 mb-4 text-center">
+            <p class="text-emerald-700 text-sm">{{ success() }}</p>
+          </div>
+        }
+
+        <div class="text-center mb-6">
+          @if (isCheckedIn()) {
+            <p class="text-lg text-gray-600 mb-1">You are checked in</p>
+            <p class="text-sm text-gray-500">
+              Since {{ todayRecord()?.checkIn | date:'HH:mm' }}
+            </p>
+          } @else {
+            <p class="text-lg text-gray-600">Ready to start your day?</p>
+          }
+        </div>
+
+        <div class="text-center mb-8">
+          <p class="text-5xl font-bold" [class]="isCheckedIn() ? 'text-emerald-600' : 'text-gray-300'">
+            {{ workDuration() }}
+          </p>
+          <p class="text-sm text-gray-500 mt-1">Work Duration</p>
+        </div>
+
+        <div class="flex justify-center">
+          <button
+            mat-flat-button
+            class="w-48 h-48 rounded-full text-xl"
+            [class]="isCheckedIn()
+              ? 'bg-red-500 hover:bg-red-600 !text-white'
+              : 'bg-emerald-500 hover:bg-emerald-600 !text-white'"
+            [disabled]="loading()"
+            (click)="isCheckedIn() ? handleCheckOut() : handleCheckIn()"
+          >
+            @if (loading()) {
+              <mat-spinner diameter="32" class="!mx-auto"></mat-spinner>
+            } @else {
+              <mat-icon class="!text-4xl !mb-2 block mx-auto">
+                {{ isCheckedIn() ? 'logout' : 'login' }}
+              </mat-icon>
+              <span class="block">{{ isCheckedIn() ? 'Check Out' : 'Check In' }}</span>
+            }
+          </button>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Work Mode -->
+    <mat-card class="mb-6">
+      <div class="p-5">
+        <h3 class="text-sm font-medium text-gray-700 mb-3">Work Mode</h3>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Select work mode</mat-label>
+          <mat-select [(value)]="workMode" [disabled]="isCheckedIn()">
+            @for (mode of workModes; track mode) {
+              <mat-option [value]="mode">{{ mode }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card>
+
+    <!-- Location -->
+    <mat-card class="mb-6">
+      <div class="p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-medium text-gray-700">Location</h3>
+          <button
+            mat-stroked-button
+            class="!text-xs"
+            [disabled]="capturingLocation()"
+            (click)="captureLocation()"
+          >
+            <mat-icon class="!text-base mr-1">my_location</mat-icon>
+            {{ capturingLocation() ? 'Capturing...' : 'Capture Location' }}
+          </button>
+        </div>
+        @if (location()) {
+          <div class="bg-gray-50 rounded-lg p-3 flex items-center gap-2">
+            <mat-icon class="text-gray-400">location_on</mat-icon>
+            <span class="text-sm text-gray-700">{{ location() }}</span>
+          </div>
+        } @else {
+          <p class="text-sm text-gray-400">No location captured yet</p>
+        }
+      </div>
+    </mat-card>
+
+    <!-- Today's Log -->
+    @if (todayRecord(); as record) {
+      <mat-card>
+        <div class="p-5">
+          <h3 class="text-sm font-medium text-gray-700 mb-3">Today's Log</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-gray-50 rounded-lg p-3">
+              <p class="text-xs text-gray-500">Check In</p>
+              <p class="text-lg font-semibold text-gray-900">
+                {{ record.checkIn ? (record.checkIn | date:'HH:mm:ss') : '--:--:--' }}
+              </p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3">
+              <p class="text-xs text-gray-500">Check Out</p>
+              <p class="text-lg font-semibold text-gray-900">
+                {{ record.checkOut ? (record.checkOut | date:'HH:mm:ss') : '--:--:--' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    }
+  </div>
+</div>

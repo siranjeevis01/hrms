@@ -1,0 +1,139 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Salary Structures</h1>
+        <p class="text-gray-500 mt-1">Define and manage salary structures</p>
+      </div>
+      <button mat-flat-button class="!bg-indigo-600 !text-white" (click)="openForm()">
+        <mat-icon class="mr-1">add</mat-icon>
+        New Structure
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="flex items-center justify-center py-20">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else {
+      <div class="space-y-4">
+        @for (structure of structures(); track structure.id) {
+          <mat-card>
+            <div class="p-5">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-semibold text-gray-900">{{ structure.name }}</h3>
+                <button mat-icon-button class="!text-gray-400">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </div>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                @for (comp of structure.components; track comp.id) {
+                  <div
+                    class="rounded-lg p-3"
+                    [class]="comp.type === 'Earning' ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'"
+                  >
+                    <p class="text-xs text-gray-500 mb-1">{{ comp.type }}</p>
+                    <p class="font-medium text-gray-900">{{ comp.name }}</p>
+                    <p class="text-sm" [class]="comp.type === 'Earning' ? 'text-emerald-600' : 'text-red-600'">
+                      {{ comp.calculationType === 'Fixed' ? formatCurrency(comp.value) : comp.value + '%' }}
+                    </p>
+                  </div>
+                }
+              </div>
+            </div>
+          </mat-card>
+        } @empty {
+          <mat-card>
+            <div class="p-12 text-center text-gray-500">
+              <mat-icon class="text-5xl text-gray-300 mb-3">account_balance</mat-icon>
+              <p class="text-lg">No salary structures defined</p>
+              <p class="text-sm text-gray-400 mt-1">Create a structure to get started</p>
+            </div>
+          </mat-card>
+        }
+      </div>
+    }
+
+    <!-- Create Form Modal -->
+    @if (showForm()) {
+      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <mat-card class="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-bold text-gray-900">New Salary Structure</h2>
+              <button mat-icon-button (click)="closeForm()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
+            <mat-form-field appearance="outline" class="w-full mb-4">
+              <mat-label>Structure Name</mat-label>
+              <input matInput [value]="structureName()" (input)="structureName.set($any($event.target).value)" />
+            </mat-form-field>
+
+            <div class="mb-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-medium text-gray-900">Components</h3>
+                <button mat-stroked-button class="!text-xs" (click)="addComponent()">
+                  <mat-icon class="!text-base mr-1">add</mat-icon>
+                  Add Component
+                </button>
+              </div>
+
+              <div class="space-y-3">
+                @for (comp of components(); track $index; let i = $index) {
+                  <div class="flex items-center gap-3 bg-gray-50 rounded-lg p-3">
+                    <mat-form-field appearance="outline" class="flex-1" subscriptSizing="dynamic">
+                      <mat-label>Name</mat-label>
+                      <input matInput [value]="comp.name" (input)="updateComponent(i, 'name', $any($event.target).value)" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="!w-32" subscriptSizing="dynamic">
+                      <mat-label>Type</mat-label>
+                      <mat-select [value]="comp.type" (selectionChange)="updateComponent(i, 'type', $event.value)">
+                        @for (t of componentTypes; track t) {
+                          <mat-option [value]="t">{{ t }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="!w-36" subscriptSizing="dynamic">
+                      <mat-label>Calculation</mat-label>
+                      <mat-select [value]="comp.calculationType" (selectionChange)="updateComponent(i, 'calculationType', $event.value)">
+                        @for (ct of calculationTypes; track ct) {
+                          <mat-option [value]="ct">{{ ct }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="!w-28" subscriptSizing="dynamic">
+                      <mat-label>Value</mat-label>
+                      <input matInput type="number" [value]="comp.value" (input)="updateComponent(i, 'value', +$any($event.target).value)" />
+                    </mat-form-field>
+                    <button mat-icon-button class="!text-gray-400 hover:!text-red-500" (click)="removeComponent(i)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-3">
+              <button mat-stroked-button (click)="closeForm()">Cancel</button>
+              <button
+                mat-flat-button
+                class="!bg-indigo-600 !text-white"
+                [disabled]="submitting()"
+                (click)="saveStructure()"
+              >
+                @if (submitting()) {
+                  <mat-spinner diameter="18" class="!inline-block"></mat-spinner>
+                } @else {
+                  <mat-icon class="mr-1">save</mat-icon>
+                }
+                Save
+              </button>
+            </div>
+          </div>
+        </mat-card>
+      </div>
+    }
+  </div>
+</div>

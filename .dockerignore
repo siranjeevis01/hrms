@@ -1,0 +1,176 @@
+# ============================================
+# Build artifacts
+# ============================================
+**/bin/
+**/obj/
+**/Debug/
+**/Release/
+**/x64/
+**/x86/
+**/[Bb]uild/
+**/[Dd]ebug/
+**/[Rr]elease/
+**/[Pp]ublish/
+
+# ============================================
+# .NET related
+# ============================================
+**/*.csproj.user
+**/*.suo
+**/*.user
+**/*.userosscache
+**/*.sln.docstates
+**/.vs/
+**/*.DotSettings.user
+**/project.lock.json
+**/project.fragment.lock.json
+**/artifacts/
+
+# ============================================
+# NuGet
+# ============================================
+**/*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+**/NuGet.config
+
+# ============================================
+# Angular / Node.js
+# ============================================
+frontend/angular/node_modules/
+frontend/angular/dist/
+frontend/angular/.angular/
+frontend/angular/tmp/
+frontend/angular/out-tsc/
+frontend/angular/.cache/
+frontend/angular/coverage/
+frontend/angular/.sass-cache/
+frontend/angular/connect.lock
+frontend/angular/libpeerconnection.log
+frontend/angular/npm-debug.log*
+frontend/angular/yarn-error.log
+frontend/angular/testem.log
+frontend/angular/.env
+frontend/angular/.env.local
+frontend/angular/.env.*.local
+
+# ============================================
+# IDEs
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.vs/
+*.dbmdl
+*.jfm
+*.pfx
+*.publishsettings
+orleans.codegen.cs
+Generated_Code/
+
+# ============================================
+# OS files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+*.tmp
+
+# ============================================
+# Docker
+# ============================================
+docker-compose.override.yml
+docker-compose.prod.yml
+.env
+.env.local
+.env.production
+
+# ============================================
+# Logs
+# ============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.pid
+*.seed
+
+# ============================================
+# Test results
+# ============================================
+TestResults/
+coverage/
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# ============================================
+# Database files
+# ============================================
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================
+# Build & deployment
+# ============================================
+deploy/
+k8s/
+helm/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# ============================================
+# Documentation
+# ============================================
+docs/
+*.md
+!README.md
+LICENSE
+
+# ============================================
+# Miscellaneous
+# ============================================
+.cache/
+.npm/
+.eslintcache
+.webpack/
+*.tgz
+*.tar.gz
+*.zip
+*.rar
+*.7z
+.env.bak
+*.bak
+*.orig
+*.rej
+*.pyc
+__pycache__/
+
+# ============================================
+# GitHub Actions
+# ============================================
+.github/workflows/*.env
+
+# ============================================
+# Seed data (large files)
+# ============================================
+docker/mysql/seed-data/
+docker/seed/

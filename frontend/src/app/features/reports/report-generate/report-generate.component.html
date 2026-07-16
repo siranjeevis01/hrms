@@ -1,0 +1,84 @@
+<div class="p-6 max-w-3xl mx-auto space-y-6">
+  <div class="flex items-center gap-3">
+    <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+    <h1 class="text-2xl font-bold text-gray-900">{{ template()?.name || 'Generate Report' }}</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (template()) {
+    <mat-card>
+      <mat-card-content class="p-6">
+        <p class="text-gray-500 mb-6">{{ template()!.description }}</p>
+
+        @if (!generatedReport()) {
+          <form [formGroup]="paramForm" class="space-y-4">
+            @for (param of template()!.parameters; track param.key) {
+              @if (param.type === 'select') {
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>{{ param.label }}</mat-label>
+                  <mat-select [formControlName]="param.key">
+                    @for (opt of param.options; track opt.value) { <mat-option [value]="opt.value">{{ opt.label }}</mat-option> }
+                  </mat-select>
+                </mat-form-field>
+              } @else if (param.type === 'dateRange') {
+                <div class="grid grid-cols-2 gap-4">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ param.label }} From</mat-label>
+                    <input matInput [matDatepicker]="dp" [formControlName]="param.key + '_from'" />
+                    <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+                    <mat-datepicker #dp></mat-datepicker>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ param.label }} To</mat-label>
+                    <input matInput [matDatepicker]="dp2" [formControlName]="param.key + '_to'" />
+                    <mat-datepicker-toggle matSuffix [for]="dp2"></mat-datepicker-toggle>
+                    <mat-datepicker #dp2></mat-datepicker>
+                  </mat-form-field>
+                </div>
+              } @else if (param.type === 'date') {
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>{{ param.label }}</mat-label>
+                  <input matInput [matDatepicker]="dp3" [formControlName]="param.key" />
+                  <mat-datepicker-toggle matSuffix [for]="dp3"></mat-datepicker-toggle>
+                  <mat-datepicker #dp3></mat-datepicker>
+                </mat-form-field>
+              } @else {
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>{{ param.label }}</mat-label>
+                  <input matInput [formControlName]="param.key" [type]="param.type === 'text' ? 'text' : 'text'" />
+                </mat-form-field>
+              }
+            }
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Format</mat-label>
+              <mat-select [(ngModel)]="format" [ngModelOptions]="{standalone: true}">
+                <mat-option value="pdf">PDF</mat-option>
+                <mat-option value="excel">Excel</mat-option>
+                <mat-option value="csv">CSV</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="flex justify-end">
+              <button mat-raised-button color="primary" (click)="generate()" [disabled]="generating()">
+                @if (generating()) { <mat-spinner diameter="20" class="inline-block"></mat-spinner> }
+                @else { <mat-icon>play_arrow</mat-icon> Generate Report }
+              </button>
+            </div>
+          </form>
+        } @else {
+          <div class="text-center py-8">
+            <mat-icon class="!text-5xl text-green-500">check_circle</mat-icon>
+            <p class="mt-4 text-lg font-medium text-gray-900">Report Generated Successfully</p>
+            <p class="text-gray-500 mt-1">Generated at {{ generatedReport()!.generatedAt | date:'MMM d, y h:mm a' }}</p>
+            <div class="flex gap-3 justify-center mt-6">
+              <button mat-stroked-button (click)="generatedReport.set(null)"><mat-icon>refresh</mat-icon> Generate Again</button>
+              <button mat-raised-button color="primary" (click)="download()"><mat-icon>download</mat-icon> Download</button>
+            </div>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

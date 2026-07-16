@@ -1,0 +1,58 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-900">My Expenses</h1>
+    <button mat-raised-button color="primary" (click)="router.navigate(['/expenses/submit'])">
+      <mat-icon>add</mat-icon> New Expense
+    </button>
+  </div>
+
+  <mat-tab-group (selectedIndexChange)="onTabChange(['draft','submitted','approved','rejected','reimbursed'][$event])">
+    <mat-tab label="Draft"></mat-tab>
+    <mat-tab label="Submitted"></mat-tab>
+    <mat-tab label="Approved"></mat-tab>
+    <mat-tab label="Rejected"></mat-tab>
+  </mat-tab-group>
+
+  @if (loading()) {
+    <div class="flex justify-center py-12"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (expenses().length === 0) {
+    <div class="text-center py-16 bg-white rounded-lg border">
+      <mat-icon class="text-gray-400 text-6xl">receipt_long</mat-icon>
+      <p class="mt-4 text-gray-600 text-lg">No expenses found</p>
+      <p class="text-gray-400">No expenses in this category</p>
+    </div>
+  } @else {
+    <div class="space-y-3">
+      @for (expense of expenses(); track expense.id) {
+        <mat-card class="hover:shadow-md transition-shadow">
+          <div class="p-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <mat-icon class="text-blue-600">receipt</mat-icon>
+              </div>
+              <div>
+                <p class="font-medium text-gray-900">{{ expense.title }}</p>
+                <p class="text-sm text-gray-500">{{ expense.items.length }} items &middot; Submitted {{ expense.createdAt | date:'MMM d, yyyy' }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <p class="text-lg font-bold text-gray-900">{{ formatCurrency(expense.totalAmount) }}</p>
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium" [ngClass]="getStatusColor(expense.status)">{{ expense.status | titlecase }}</span>
+              </div>
+              <button mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item><mat-icon>visibility</mat-icon><span>View</span></button>
+                @if (expense.status === 'draft') {
+                  <button mat-menu-item><mat-icon>edit</mat-icon><span>Edit</span></button>
+                  <button mat-menu-item><mat-icon>send</mat-icon><span>Submit</span></button>
+                  <button mat-menu-item class="!text-red-600" (click)="cancelExpense(expense.id)"><mat-icon>delete</mat-icon><span>Delete</span></button>
+                }
+              </mat-menu>
+            </div>
+          </div>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

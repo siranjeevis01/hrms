@@ -1,0 +1,166 @@
+<div class="p-6 space-y-6">
+  @if (loading()) {
+    <div class="flex justify-center items-center py-20">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (project()) {
+    <div class="bg-white rounded-lg border p-6">
+      <div class="flex items-start justify-between">
+        <div class="flex items-start gap-4">
+          <button mat-icon-button (click)="router.navigate(['/projects'])">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{{ project()!.code }}</span>
+              <span class="px-2 py-0.5 rounded-full text-xs font-medium" [ngClass]="getStatusColor(project()!.status)">
+                {{ project()!.status | titlecase }}
+              </span>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 mt-2">{{ project()!.name }}</h1>
+            <p class="text-gray-500 mt-1 max-w-2xl">{{ project()!.description }}</p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button mat-stroked-button (click)="openAddTaskDialog()">
+            <mat-icon>add_task</mat-icon>
+            Add Task
+          </button>
+          <button mat-stroked-button (click)="openLogTimeDialog()">
+            <mat-icon>schedule</mat-icon>
+            Log Time
+          </button>
+          <button mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item><mat-icon>edit</mat-icon><span>Edit Project</span></button>
+            <button mat-menu-item><mat-icon>settings</mat-icon><span>Settings</span></button>
+            <button mat-menu-item class="!text-red-600"><mat-icon>delete</mat-icon><span>Delete</span></button>
+          </mat-menu>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <mat-card class="p-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+            <mat-icon class="text-blue-600">trending_up</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-gray-900">{{ project()!.progress }}%</p>
+            <p class="text-sm text-gray-500">Progress</p>
+          </div>
+        </div>
+      </mat-card>
+      <mat-card class="p-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+            <mat-icon class="text-green-600">task_alt</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-gray-900">{{ stats()?.completedTasks || 0 }}/{{ stats()?.totalTasks || 0 }}</p>
+            <p class="text-sm text-gray-500">Tasks</p>
+          </div>
+        </div>
+      </mat-card>
+      <mat-card class="p-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
+            <mat-icon class="text-red-600">bug_report</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-gray-900">{{ stats()?.openBugs || 0 }}</p>
+            <p class="text-sm text-gray-500">Open Bugs</p>
+          </div>
+        </div>
+      </mat-card>
+      <mat-card class="p-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+            <mat-icon class="text-purple-600">people</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-gray-900">{{ stats()?.teamSize || 0 }}</p>
+            <p class="text-sm text-gray-500">Team Size</p>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
+    <mat-card>
+      <mat-tab-group class="project-tabs">
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="mr-2">dashboard</mat-icon>
+            Board
+          </ng-template>
+          <div class="p-4">
+            <a [routerLink]="['/projects', projectId, 'board']" mat-stroked-button color="primary">
+              Open Kanban Board
+              <mat-icon>open_in_new</mat-icon>
+            </a>
+          </div>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="mr-2">list</mat-icon>
+            Backlog
+          </ng-template>
+          <div class="p-4">
+            <a [routerLink]="['/projects', projectId, 'backlog']" mat-stroked-button color="primary">
+              Open Backlog
+              <mat-icon>open_in_new</mat-icon>
+            </a>
+          </div>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="mr-2">flag</mat-icon>
+            Sprints
+          </ng-template>
+          <div class="p-4">
+            <a [routerLink]="['/projects', projectId, 'sprints']" mat-stroked-button color="primary">
+              View Sprints
+              <mat-icon>open_in_new</mat-icon>
+            </a>
+          </div>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="mr-2">people</mat-icon>
+            Members
+          </ng-template>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              @for (member of project()!.team; track member.id) {
+                <div class="flex items-center gap-3 p-3 rounded-lg border hover:bg-gray-50">
+                  <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <span class="text-sm font-medium text-blue-700">{{ member.name.charAt(0) }}</span>
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-900">{{ member.name }}</p>
+                    <p class="text-sm text-gray-500">{{ member.role }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="mr-2">schedule</mat-icon>
+            Time Log
+          </ng-template>
+          <div class="p-6">
+            <div class="text-center py-8">
+              <mat-icon class="text-gray-400 text-5xl">schedule</mat-icon>
+              <p class="mt-4 text-gray-600">Time logging feature</p>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card>
+  }
+</div>

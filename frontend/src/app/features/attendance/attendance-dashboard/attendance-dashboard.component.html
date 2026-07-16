@@ -1,0 +1,205 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-gray-900">Attendance</h1>
+      <p class="text-gray-500 mt-1">Track and manage your daily attendance</p>
+    </div>
+
+    @if (loading()) {
+      <div class="flex items-center justify-center py-20">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    } @else if (error()) {
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div class="flex items-center">
+          <mat-icon class="text-red-500 mr-2">error</mat-icon>
+          <span class="text-red-700">{{ error() }}</span>
+        </div>
+      </div>
+    }
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Today Status Card -->
+      <mat-card class="lg:col-span-2 overflow-hidden">
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900">Today's Attendance</h2>
+              <p class="text-sm text-gray-500">{{ currentTime() | date:'EEEE, MMMM d, y' }}</p>
+            </div>
+            <div
+              class="px-3 py-1 rounded-full text-sm font-medium"
+              [class]="getStatusClass(todayAttendance()?.status || 'No Data')"
+            >
+              {{ todayAttendance()?.status || 'Not Marked' }}
+            </div>
+          </div>
+
+          <div class="flex items-center gap-8 mb-6">
+            <div class="text-center">
+              <p class="text-4xl font-bold text-gray-900">{{ currentTime() | date:'HH:mm:ss' }}</p>
+              <p class="text-sm text-gray-500 mt-1">Current Time</p>
+            </div>
+            <div class="h-16 w-px bg-gray-200"></div>
+            <div class="text-center">
+              <p class="text-4xl font-bold" [class]="isCheckedIn() ? 'text-emerald-600' : 'text-gray-400'">
+                {{ workDuration() }}
+              </p>
+              <p class="text-sm text-gray-500 mt-1">Work Duration</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-gray-50 rounded-lg p-3">
+              <p class="text-xs text-gray-500 uppercase tracking-wide">Check In</p>
+              <p class="text-lg font-semibold text-gray-900 mt-1">
+                {{ todayAttendance()?.checkIn ? (todayAttendance()!.checkIn | date:'HH:mm') : '--:--' }}
+              </p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3">
+              <p class="text-xs text-gray-500 uppercase tracking-wide">Check Out</p>
+              <p class="text-lg font-semibold text-gray-900 mt-1">
+                {{ todayAttendance()?.checkOut ? (todayAttendance()!.checkOut | date:'HH:mm') : '--:--' }}
+              </p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3">
+              <p class="text-xs text-gray-500 uppercase tracking-wide">Work Mode</p>
+              <p class="text-lg font-semibold text-gray-900 mt-1">
+                {{ todayAttendance()?.workMode || '--' }}
+              </p>
+            </div>
+          </div>
+
+          <button
+            mat-flat-button
+            class="w-full py-6 text-lg"
+            [class]="isCheckedIn() ? 'bg-red-500 hover:bg-red-600' : 'bg-emerald-500 hover:bg-emerald-600'"
+            [style.color]="'white'"
+            (click)="isCheckedIn() ? handleCheckOut() : handleCheckIn()"
+          >
+            <mat-icon class="mr-2">{{ isCheckedIn() ? 'logout' : 'login' }}</mat-icon>
+            {{ isCheckedIn() ? 'Check Out' : 'Check In' }}
+          </button>
+        </div>
+      </mat-card>
+
+      <!-- Monthly Summary -->
+      <mat-card>
+        <div class="p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Monthly Summary</h3>
+          @if (summary(); as s) {
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Working Days</span>
+                <span class="font-semibold text-gray-900">{{ s.totalWorkingDays }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Present</span>
+                <span class="font-semibold text-emerald-600">{{ s.present }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Absent</span>
+                <span class="font-semibold text-red-600">{{ s.absent }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Late</span>
+                <span class="font-semibold text-amber-600">{{ s.late }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Early Exit</span>
+                <span class="font-semibold text-orange-600">{{ s.earlyExit }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">WFH</span>
+                <span class="font-semibold text-blue-600">{{ s.wfh }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Half Day</span>
+                <span class="font-semibold text-purple-600">{{ s.halfDay }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Overtime</span>
+                <span class="font-semibold text-indigo-600">{{ s.overtime }}h</span>
+              </div>
+            </div>
+          } @else {
+            <p class="text-sm text-gray-500">No summary data available</p>
+          }
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Weekly Calendar -->
+    <mat-card class="mb-8">
+      <div class="p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">This Week</h3>
+        <div class="grid grid-cols-7 gap-3">
+          @for (day of weekDays(); track day.day) {
+            <div
+              class="text-center p-3 rounded-xl transition-all duration-200"
+              [class]="day.isToday
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
+                : day.isPast
+                  ? 'bg-white border border-gray-200'
+                  : 'bg-gray-50 border border-gray-100'"
+            >
+              <p class="text-xs font-medium uppercase tracking-wide"
+                 [class]="day.isToday ? 'text-indigo-200' : 'text-gray-500'">
+                {{ day.day }}
+              </p>
+              <p class="text-xl font-bold mt-1"
+                 [class]="day.isToday ? 'text-white' : 'text-gray-900'">
+                {{ day.date }}
+              </p>
+              <div class="mt-2">
+                <span
+                  class="inline-block w-2 h-2 rounded-full"
+                  [class]="{
+                    'bg-emerald-400': day.status === 'Present',
+                    'bg-amber-400': day.status === 'Late',
+                    'bg-blue-400': day.status === 'WFH',
+                    'bg-red-400': day.status === 'Absent',
+                    'bg-gray-300': day.status === 'No Data' || day.status === 'WeekOff',
+                    'bg-purple-400': day.status === 'Holiday'
+                  }"
+                ></span>
+              </div>
+              @if (day.record?.totalHours) {
+                <p class="text-[10px] mt-1"
+                   [class]="day.isToday ? 'text-indigo-200' : 'text-gray-500'">
+                  {{ day.record!.totalHours }}h
+                </p>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <mat-card>
+        <div class="p-6 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+            <mat-icon class="text-indigo-600">schedule</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-gray-900">{{ averageHours() | number:'1.1-1' }}h</p>
+            <p class="text-sm text-gray-500">Average Daily Hours</p>
+          </div>
+        </div>
+      </mat-card>
+      <mat-card>
+        <div class="p-6 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+            <mat-icon class="text-emerald-600">check_circle</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-gray-900">{{ onTimePercentage() }}%</p>
+            <p class="text-sm text-gray-500">On-Time Percentage</p>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</div>

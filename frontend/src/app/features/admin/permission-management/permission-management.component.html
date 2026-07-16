@@ -1,0 +1,26 @@
+<div class="p-6 space-y-6">
+  <div class="flex items-center justify-between"><h1 class="text-2xl font-bold text-gray-900">Permissions</h1></div>
+  @if (loading()) { <div class="flex justify-center py-12"><p class="text-gray-500">Loading...</p></div> }
+  @else {
+    <mat-card>
+      <mat-card-content class="p-4">
+        <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+          <mat-nested-tree-node *matNestedTreeNodeDef="let node">
+            <li class="flex items-center py-2 px-4 hover:bg-gray-50">
+              <mat-checkbox class="ml-8">{{ node.name }}</mat-checkbox>
+              <span class="ml-auto text-xs text-gray-400 font-mono">{{ node.code }}</span>
+            </li>
+          </mat-nested-tree-node>
+          <mat-nested-tree-node *matNestedTreeNodeDef="let node; when: hasChild">
+            <li>
+              <div class="flex items-center py-2 px-4 hover:bg-gray-50 cursor-pointer" (click)="treeControl.toggle(node)">
+                <mat-icon class="text-gray-400">{{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+                <mat-checkbox class="ml-2">{{ node.module }}</mat-checkbox>
+              </div>
+            </li>
+          </mat-nested-tree-node>
+        </mat-tree>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

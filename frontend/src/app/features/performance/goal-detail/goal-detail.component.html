@@ -1,0 +1,75 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex items-center gap-3 mb-6">
+      <button mat-icon-button (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+      <h1 class="text-2xl font-bold text-gray-900">Goal Details</h1>
+    </div>
+
+    @if (loading()) {
+      <div class="flex justify-center items-center h-64"><mat-spinner diameter="48"></mat-spinner></div>
+    } @else if (goal(); as g) {
+      <mat-card class="mb-6">
+        <mat-card-content class="p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <h2 class="text-xl font-bold">{{ g.title }}</h2>
+              <p class="text-gray-600 mt-1">{{ g.description }}</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-sm font-medium" [class]="getStatusColor(g.status)">
+              {{ g.status | titlecase }}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-sm">
+            <div><span class="text-gray-500">Category:</span> <span class="font-medium ml-1">{{ g.category | titlecase }}</span></div>
+            <div><span class="text-gray-500">Priority:</span> <span class="font-medium ml-1">{{ g.priority | titlecase }}</span></div>
+            <div><span class="text-gray-500">Weight:</span> <span class="font-medium ml-1">{{ g.weight }}%</span></div>
+            <div><span class="text-gray-500">Due:</span> <span class="font-medium ml-1">{{ g.endDate | date:'MMM d, y' }}</span></div>
+          </div>
+
+          <div class="mb-6">
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-gray-600">Overall Progress</span>
+              <span class="font-bold">{{ g.progress }}%</span>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="g.progress" color="primary"></mat-progress-bar>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header><mat-card-title>Key Results</mat-card-title></mat-card-header>
+        <mat-card-content class="p-4">
+          @if (g.keyResults.length > 0) {
+            <div class="space-y-4">
+              @for (kr of g.keyResults; track kr.id) {
+                <div class="p-4 bg-gray-50 rounded-lg">
+                  <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-medium">{{ kr.title }}</h4>
+                    <span class="text-sm text-gray-500">{{ kr.current }} / {{ kr.target }} {{ kr.unit }}</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <mat-progress-bar mode="determinate" [value]="kr.progress" color="primary" class="flex-1"></mat-progress-bar>
+                    <span class="text-sm font-medium w-12 text-right">{{ kr.progress }}%</span>
+                  </div>
+                  <div class="flex items-center gap-2 mt-2">
+                    <mat-form-field appearance="outline" class="w-32">
+                      <mat-label>Update</mat-label>
+                      <input matInput type="number" #krInput [value]="kr.current">
+                    </mat-form-field>
+                    <button mat-raised-button color="primary" (click)="updateKeyResultProgress(kr, krInput.valueAsNumber)"
+                            [disabled]="updatingKr() === kr.id">
+                      Update
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-gray-500 text-center py-8">No key results defined</p>
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+</div>
