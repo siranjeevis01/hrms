@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Identity.API.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/identity/[controller]")]
 [Produces("application/json")]
 public class AuthController : ControllerBase
 {

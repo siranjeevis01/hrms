@@ -34,13 +34,13 @@ export class AuthService {
   login(email: string, password: string): Observable<AuthResponse> {
     const request: LoginRequest = { email, password };
     return this.http
-      .post<AuthResponse>(`${environment.apiUrl}/auth/login`, request)
+      .post<AuthResponse>(`${environment.apiUrl}/api/identity/auth/login`, request)
       .pipe(tap((response) => this.storeAuthData(response)));
   }
 
   register(request: RegisterRequest): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${environment.apiUrl}/auth/register`, request)
+      .post<AuthResponse>(`${environment.apiUrl}/api/identity/auth/register`, request)
       .pipe(tap((response) => this.storeAuthData(response)));
   }
 
@@ -56,7 +56,7 @@ export class AuthService {
   refreshToken(): Observable<AuthResponse> {
     const refreshToken = this.getRefreshToken();
     return this.http
-      .post<AuthResponse>(`${environment.apiUrl}/auth/refresh`, { refreshToken })
+      .post<AuthResponse>(`${environment.apiUrl}/api/identity/auth/refresh`, { refreshToken })
       .pipe(tap((response) => this.storeAuthData(response)));
   }
 
@@ -151,22 +151,22 @@ export class AuthService {
   }
 
   changePassword(request: ChangePasswordRequest): Observable<void> {
-    return this.http.post<void>(`${environment.apiUrl}/auth/change-password`, request);
+    return this.http.post<void>(`${environment.apiUrl}/api/identity/auth/change-password`, request);
   }
 
   requestPasswordReset(email: string): Observable<void> {
-    return this.http.post<void>(`${environment.apiUrl}/auth/forgot-password`, { email });
+    return this.http.post<void>(`${environment.apiUrl}/api/identity/auth/forgot-password`, { email });
   }
 
   resetPassword(request: PasswordResetRequest): Observable<void> {
-    return this.http.post<void>(`${environment.apiUrl}/auth/reset-password`, request);
+    return this.http.post<void>(`${environment.apiUrl}/api/identity/auth/reset-password`, request);
   }
 
   private handleFirebaseResult(result: UserCredential): Promise<AuthResponse> {
     return new Promise((resolve, reject) => {
       result.user.getIdToken().then((idToken) => {
         this.http
-          .post<AuthResponse>(`${environment.apiUrl}/auth/firebase`, { idToken })
+          .post<AuthResponse>(`${environment.apiUrl}/api/identity/auth/firebase`, { idToken })
           .subscribe({
             next: (response) => {
               this.storeAuthData(response);
