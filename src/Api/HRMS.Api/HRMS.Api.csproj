@@ -175,4 +175,16 @@
     <ProjectReference Include="..\..\Services\Workflow\HRMS.Services.Workflow.Application\HRMS.Services.Workflow.Application.csproj" />
   </ItemGroup>
 
+  <!-- Exclude service API appsettings.json files from publish to avoid NETSDK1152 conflicts -->
+  <Target Name="ExcludeServiceContentFiles" BeforeTargets="GetCopyToOutputDirectoryItems">
+    <ItemGroup>
+      <ContentWithTargetPath
+        Remove="@(ContentWithTargetPath)"
+        Condition="%(TargetPath) == 'appsettings.json' AND $([System.String]::new('%(FullPath)').Contains('Services\'))" />
+      <ContentWithTargetPath
+        Remove="@(ContentWithTargetPath)"
+        Condition="%(TargetPath) == 'appsettings.Development.json' AND $([System.String]::new('%(FullPath)').Contains('Services\'))" />
+    </ItemGroup>
+  </Target>
+
 </Project>
