@@ -47,6 +47,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
             request.TenantId);
 
         user.SetFirebaseUid(Guid.NewGuid().ToString("N"));
+        user.VerifyEmail();
 
         _context.AddUser(user);
 
