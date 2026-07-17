@@ -244,11 +244,6 @@ try
         app.UseSwagger();
         app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HRMS Pro API v1"));
     }
-    else
-    {
-        app.UseExceptionHandler("/error");
-        app.UseHsts();
-    }
 
     app.UseForwardedHeaders();
     app.UseResponseCompression();
@@ -257,6 +252,30 @@ try
 
     var corsPolicy = app.Environment.IsDevelopment() ? "AllowAll" : "AllowConfigured";
     app.UseCors(corsPolicy);
+
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHsts();
+        app.UseExceptionHandler(errorApp =>
+        {
+            errorApp.Run(async context =>
+            {
+                var exceptionHandlerFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+                var exception = exceptionHandlerFeature?.Error;
+                Log.Error(exception, "Unhandled exception on {Method} {Path}", context.Request.Method, context.Request.Path);
+
+                context.Response.StatusCode = 500;
+                context.Response.ContentType = "application/json";
+                var response = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    statusCode = 500,
+                    message = "An unexpected error occurred.",
+                    detail = exception?.Message
+                }, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
+                await context.Response.WriteAsync(response);
+            });
+        });
+    }
 
     app.UseAuthentication();
     app.UseAuthorization();
