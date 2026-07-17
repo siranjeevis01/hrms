@@ -266,11 +266,14 @@ try
 
                 context.Response.StatusCode = 500;
                 context.Response.ContentType = "application/json";
+                var inner = exception?.InnerException;
                 var response = System.Text.Json.JsonSerializer.Serialize(new
                 {
                     statusCode = 500,
                     message = "An unexpected error occurred.",
-                    detail = exception?.Message
+                    detail = exception?.Message,
+                    innerDetail = inner?.Message,
+                    innerType = inner?.GetType().Name
                 }, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
                 await context.Response.WriteAsync(response);
             });
