@@ -31,6 +31,26 @@ try
     builder.Host.UseSerilog();
 
     builder.Services.AddControllers()
+        .AddApplicationPart(typeof(HRMS.Services.Identity.API.Controllers.AuthController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Attendance.API.Controllers.AttendanceController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Audit.API.Controllers.AuditLogsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Chat.API.Controllers.ChannelsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Dashboard.API.Controllers.DashboardsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Document.API.Controllers.DocumentsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Employee.API.Controllers.EmployeesController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Expense.API.Controllers.ExpenseClaimsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Helpdesk.API.Controllers.TicketsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Leave.API.Controllers.LeaveApplicationsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Notification.API.Controllers.NotificationsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Organization.API.Controllers.CompanyController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Payroll.API.Controllers.PayrollController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Performance.API.Controllers.PerformanceReviewsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.ProjectTask.API.Controllers.ProjectsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Recruitment.API.Controllers.CandidatesController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Report.API.Controllers.ReportTemplatesController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Training.API.Controllers.CoursesController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Travel.API.Controllers.TravelRequestsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Workflow.API.Controllers.WorkflowDefinitionsController).Assembly)
         .AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
