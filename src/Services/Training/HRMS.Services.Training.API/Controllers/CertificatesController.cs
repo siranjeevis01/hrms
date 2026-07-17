@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Training.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/training/[controller]")]
 public class CertificatesController : ControllerBase
 {
     private readonly IMediator _mediator;

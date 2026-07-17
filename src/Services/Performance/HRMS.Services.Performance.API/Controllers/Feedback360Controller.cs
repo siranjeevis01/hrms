@@ -3,13 +3,14 @@ using HRMS.Services.Performance.Application.Commands.CreateFeedback360;
 using HRMS.Services.Performance.Application.Commands.SubmitFeedback360;
 using HRMS.Services.Performance.Application.Queries.GetFeedback360;
 using HRMS.Services.Performance.Application.Queries.GetFeedback360ByEmployee;
+using HRMS.Services.Performance.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Performance.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/performance/[controller]")]
 public class Feedback360Controller : ControllerBase
 {
     private readonly IMediator _mediator;

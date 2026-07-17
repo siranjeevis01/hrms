@@ -1,13 +1,14 @@
 using HRMS.Services.Helpdesk.Application.Commands.CreateTicketCategory;
 using HRMS.Services.Helpdesk.Application.Commands.UpdateTicketCategory;
 using HRMS.Services.Helpdesk.Application.Queries.GetTicketCategories;
+using HRMS.Services.Helpdesk.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Helpdesk.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/helpdesk/[controller]")]
 public class TicketCategoriesController : ControllerBase
 {
     private readonly IMediator _mediator;

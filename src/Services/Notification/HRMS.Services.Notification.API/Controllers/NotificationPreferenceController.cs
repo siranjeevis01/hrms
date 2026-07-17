@@ -3,12 +3,13 @@ using HRMS.Services.Notification.Application.Commands.DeleteTemplate;
 using HRMS.Services.Notification.Application.Commands.UpdateTemplate;
 using HRMS.Services.Notification.Application.Queries.GetTemplates;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Notification.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/notifications/[controller]")]
 [Authorize]
 public class NotificationTemplateController : ControllerBase
 {

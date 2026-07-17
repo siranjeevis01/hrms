@@ -11,9 +11,15 @@ import {
 export class TrainingService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/api/training`;
+  private coursesUrl = `${this.apiUrl}/Courses`;
+  private enrollmentsUrl = `${this.apiUrl}/Enrollments`;
+  private assessmentsUrl = `${this.apiUrl}/Assessments`;
+  private certificatesUrl = `${this.apiUrl}/Certificates`;
+  private pathsUrl = `${this.apiUrl}/LearningPaths`;
+  private schedulesUrl = `${this.apiUrl}/TrainingSchedules`;
 
   getDashboardStats(): Observable<TrainingDashboardStats> {
-    return this.http.get<TrainingDashboardStats>(`${this.apiUrl}/dashboard`);
+    return this.http.get<TrainingDashboardStats>(`${this.coursesUrl}`);
   }
 
   // Courses
@@ -24,28 +30,28 @@ export class TrainingService {
         if (filters[key]) params = params.set(key, filters[key]);
       });
     }
-    return this.http.get<Course[]>(`${this.apiUrl}/courses`, { params });
+    return this.http.get<Course[]>(`${this.coursesUrl}`, { params });
   }
 
   getCourse(id: string): Observable<Course> {
-    return this.http.get<Course>(`${this.apiUrl}/courses/${id}`);
+    return this.http.get<Course>(`${this.coursesUrl}/${id}`);
   }
 
   createCourse(course: Partial<Course>): Observable<Course> {
-    return this.http.post<Course>(`${this.apiUrl}/courses`, course);
+    return this.http.post<Course>(`${this.coursesUrl}`, course);
   }
 
   updateCourse(id: string, course: Partial<Course>): Observable<Course> {
-    return this.http.put<Course>(`${this.apiUrl}/courses/${id}`, course);
+    return this.http.put<Course>(`${this.coursesUrl}/${id}`, course);
   }
 
   deleteCourse(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/courses/${id}`);
+    return this.http.delete<void>(`${this.coursesUrl}/${id}`);
   }
 
   // Enrollments
   enrollInCourse(courseId: string): Observable<Enrollment> {
-    return this.http.post<Enrollment>(`${this.apiUrl}/enrollments`, { courseId });
+    return this.http.post<Enrollment>(`${this.enrollmentsUrl}`, { courseId });
   }
 
   getMyEnrollments(filters?: any): Observable<Enrollment[]> {
@@ -55,15 +61,15 @@ export class TrainingService {
         if (filters[key]) params = params.set(key, filters[key]);
       });
     }
-    return this.http.get<Enrollment[]>(`${this.apiUrl}/enrollments`, { params });
+    return this.http.get<Enrollment[]>(`${this.enrollmentsUrl}`, { params });
   }
 
   updateLessonProgress(enrollmentId: string, lessonId: string): Observable<Enrollment> {
-    return this.http.patch<Enrollment>(`${this.apiUrl}/enrollments/${enrollmentId}/progress`, { lessonId });
+    return this.http.patch<Enrollment>(`${this.enrollmentsUrl}/${enrollmentId}/progress`, { lessonId });
   }
 
   bookmarkCourse(courseId: string): Observable<Enrollment> {
-    return this.http.post<Enrollment>(`${this.apiUrl}/enrollments/bookmark`, { courseId });
+    return this.http.post<Enrollment>(`${this.enrollmentsUrl}/bookmark`, { courseId });
   }
 
   // Assessments
@@ -74,33 +80,33 @@ export class TrainingService {
         if (filters[key]) params = params.set(key, filters[key]);
       });
     }
-    return this.http.get<Assessment[]>(`${this.apiUrl}/assessments`, { params });
+    return this.http.get<Assessment[]>(`${this.assessmentsUrl}`, { params });
   }
 
   startAssessment(id: string): Observable<Assessment> {
-    return this.http.post<Assessment>(`${this.apiUrl}/assessments/${id}/start`, {});
+    return this.http.post<Assessment>(`${this.assessmentsUrl}/${id}/start`, {});
   }
 
   submitAssessment(id: string, answers: { questionId: string; answer: number }[]): Observable<{ score: number; passed: boolean }> {
-    return this.http.post<{ score: number; passed: boolean }>(`${this.apiUrl}/assessments/${id}/submit`, { answers });
+    return this.http.post<{ score: number; passed: boolean }>(`${this.assessmentsUrl}/${id}/submit`, { answers });
   }
 
   // Certificates
   getCertificates(): Observable<Certificate[]> {
-    return this.http.get<Certificate[]>(`${this.apiUrl}/certificates`);
+    return this.http.get<Certificate[]>(`${this.certificatesUrl}`);
   }
 
   // Learning Paths
   getLearningPaths(): Observable<LearningPath[]> {
-    return this.http.get<LearningPath[]>(`${this.apiUrl}/learning-paths`);
+    return this.http.get<LearningPath[]>(`${this.pathsUrl}`);
   }
 
   getLearningPath(id: string): Observable<LearningPath> {
-    return this.http.get<LearningPath>(`${this.apiUrl}/learning-paths/${id}`);
+    return this.http.get<LearningPath>(`${this.pathsUrl}/${id}`);
   }
 
   enrollInPath(pathId: string): Observable<LearningPath> {
-    return this.http.post<LearningPath>(`${this.apiUrl}/learning-paths/${pathId}/enroll`, {});
+    return this.http.post<LearningPath>(`${this.pathsUrl}/${pathId}/enroll`, {});
   }
 
   // Training Schedule
@@ -111,10 +117,10 @@ export class TrainingService {
         if (filters[key]) params = params.set(key, filters[key]);
       });
     }
-    return this.http.get<TrainingSchedule[]>(`${this.apiUrl}/schedules`, { params });
+    return this.http.get<TrainingSchedule[]>(`${this.schedulesUrl}`, { params });
   }
 
   createSchedule(schedule: Partial<TrainingSchedule>): Observable<TrainingSchedule> {
-    return this.http.post<TrainingSchedule>(`${this.apiUrl}/schedules`, schedule);
+    return this.http.post<TrainingSchedule>(`${this.schedulesUrl}`, schedule);
   }
 }

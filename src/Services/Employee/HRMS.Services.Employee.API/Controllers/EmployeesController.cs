@@ -19,13 +19,14 @@ using HRMS.Services.Employee.Application.Queries.GetEmployee;
 using HRMS.Services.Employee.Application.Queries.GetEmployees;
 using HRMS.Services.Employee.Application.Queries.GetEmployeesLeaving;
 using HRMS.Services.Employee.Application.Queries.GetNewHires;
+using HRMS.Services.Employee.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Employee.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/employees/[controller]")]
 public class EmployeesController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -154,7 +155,7 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpGet("department-headcount")]
-    [ProducesResponseType(typeof(List<DepartmentHeadCountDto>), 200)]
+    [ProducesResponseType(typeof(List<HRMS.Services.Employee.Application.Queries.GetDepartmentHeadCount.DepartmentHeadCountDto>), 200)]
     public async Task<IActionResult> GetDepartmentHeadCount([FromQuery] Guid? companyId = null)
     {
         var result = await _mediator.Send(new GetDepartmentHeadCountQuery { CompanyId = companyId });

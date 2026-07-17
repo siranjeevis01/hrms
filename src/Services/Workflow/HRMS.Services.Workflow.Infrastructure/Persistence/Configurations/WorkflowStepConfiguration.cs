@@ -37,7 +37,5 @@ public class WorkflowStepConfiguration : IEntityTypeConfiguration<WorkflowStep>
 
         builder.HasIndex(e => e.WorkflowDefinitionId);
         builder.HasIndex(e => e.TenantId);
-
-        builder.Ignore(e => e.DomainEvents);
     }
 }

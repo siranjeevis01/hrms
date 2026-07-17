@@ -1,6 +1,5 @@
 using System.Text;
 using FluentValidation;
-using FluentValidation.DependencyInjectionExtensions;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using HRMS.Services.Organization.Application;
-using HRMS.Services.Organization.Application.Behaviors;
 using HRMS.Services.Organization.Infrastructure.Extensions;
 using HRMS.Services.Organization.Infrastructure.Persistence;
 

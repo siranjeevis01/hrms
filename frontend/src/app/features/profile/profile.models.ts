@@ -91,9 +91,8 @@ export interface ProfileSettings {
 }
 
 export interface ChangePasswordRequest {
-  currentPassword: string;
+  oldPassword: string;
   newPassword: string;
-  confirmPassword: string;
 }
 
 export interface UpdateProfileRequest {

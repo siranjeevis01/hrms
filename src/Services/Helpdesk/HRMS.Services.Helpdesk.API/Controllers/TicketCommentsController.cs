@@ -1,5 +1,6 @@
 using HRMS.Services.Helpdesk.Application.Commands.AddTicketComment;
 using HRMS.Services.Helpdesk.Application.Queries.GetTicketComments;
+using HRMS.Services.Helpdesk.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

@@ -15,7 +15,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class AttendanceService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/api/attendance`;
+  private apiUrl = `${environment.apiUrl}/api/attendance/Attendance`;
 
   getAttendance(filters: AttendanceFilters): Observable<PagedResult<AttendanceRecord>> {
     let params = new HttpParams()
@@ -66,6 +66,6 @@ export class AttendanceService {
       .set('reportType', filters.reportType);
     if (filters.departmentId) params = params.set('departmentId', filters.departmentId);
     if (filters.employeeId) params = params.set('employeeId', filters.employeeId);
-    return this.http.get<AttendanceReport[]>(`${this.apiUrl}/reports`, { params });
+    return this.http.get<AttendanceReport[]>(`${this.apiUrl}/report`, { params });
   }
 }

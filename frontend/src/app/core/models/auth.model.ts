@@ -1,14 +1,14 @@
 export interface User {
   id: string;
   email: string;
-  displayName: string;
-  photoUrl: string | null;
+  firstName: string;
+  lastName: string;
   phoneNumber: string | null;
+  profilePictureUrl: string | null;
+  isMfaEnabled: boolean;
   roles: string[];
   permissions: string[];
-  tenantId: string;
-  departmentId: string | null;
-  employeeId: string | null;
+  createdAt: string;
 }
 
 export interface LoginRequest {
@@ -36,9 +36,8 @@ export interface RefreshTokenRequest {
 }
 
 export interface ChangePasswordRequest {
-  currentPassword: string;
+  oldPassword: string;
   newPassword: string;
-  confirmPassword: string;
 }
 
 export interface PasswordResetRequest {

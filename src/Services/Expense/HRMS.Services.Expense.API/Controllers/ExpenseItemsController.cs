@@ -2,6 +2,7 @@ using HRMS.Services.Expense.Application.Commands.AddExpenseItem;
 using HRMS.Services.Expense.Application.Commands.RemoveExpenseItem;
 using HRMS.Services.Expense.Application.Commands.UpdateExpenseItem;
 using HRMS.Services.Expense.Application.Queries.GetExpenseItems;
+using HRMS.Services.Expense.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Document.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/documents/[controller]")]
 public class FoldersController : ControllerBase
 {
     private readonly IMediator _mediator;

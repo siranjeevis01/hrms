@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
+import { environment } from '../../../environments/environment';
 import {
   Conversation,
   Message,
@@ -13,7 +14,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/chat';
+  private apiUrl = `${environment.apiUrl}/api/chat/Conversations`;
   private hubConnection: signalR.HubConnection | null = null;
 
   private messageReceived$ = new Subject<Message>();

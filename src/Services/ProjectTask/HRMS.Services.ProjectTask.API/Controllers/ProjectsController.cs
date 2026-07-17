@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.ProjectTask.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/projects/[controller]")]
 public class ProjectsController : ControllerBase
 {
     private readonly IMediator _mediator;

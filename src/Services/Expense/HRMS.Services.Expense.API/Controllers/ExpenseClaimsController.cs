@@ -7,13 +7,14 @@ using HRMS.Services.Expense.Application.Queries.GetExpenseClaim;
 using HRMS.Services.Expense.Application.Queries.GetExpenseClaims;
 using HRMS.Services.Expense.Application.Queries.GetEmployeeExpenseClaims;
 using HRMS.Services.Expense.Application.Queries.GetExpenseStats;
+using HRMS.Services.Expense.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Expense.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/expenses/[controller]")]
 public class ExpenseClaimsController : ControllerBase
 {
     private readonly IMediator _mediator;

@@ -1,7 +1,8 @@
 .stat-card {
+  background: var(--hrms-card-bg, #FFFFFF);
   padding: 20px;
   border-radius: 12px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--hrms-border);
   box-shadow: none !important;
 
   &__content {
@@ -17,7 +18,7 @@
   &__title {
     font-size: 13px;
     font-weight: 500;
-    color: #6B7280;
+    color: var(--hrms-text-secondary);
     margin: 0 0 8px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -26,7 +27,7 @@
   &__value {
     font-size: 28px;
     font-weight: 700;
-    color: #1F2937;
+    color: var(--hrms-text);
     margin: 0 0 8px;
     line-height: 1.2;
   }
@@ -39,15 +40,15 @@
     font-weight: 500;
 
     &.trend-up {
-      color: #059669;
+      color: var(--hrms-success);
     }
 
     &.trend-down {
-      color: #DC2626;
+      color: var(--hrms-danger);
     }
 
     &.trend-neutral {
-      color: #6B7280;
+      color: var(--hrms-text-secondary);
     }
   }
 

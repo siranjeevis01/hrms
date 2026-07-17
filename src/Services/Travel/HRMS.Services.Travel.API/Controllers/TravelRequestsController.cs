@@ -9,13 +9,14 @@ using HRMS.Services.Travel.Application.Queries.GetEmployeeTravelRequests;
 using HRMS.Services.Travel.Application.Queries.GetTravelRequest;
 using HRMS.Services.Travel.Application.Queries.GetTravelRequests;
 using HRMS.Services.Travel.Application.Queries.GetTravelStats;
+using HRMS.Services.Travel.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Travel.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/travel/[controller]")]
 public class TravelRequestsController : ControllerBase
 {
     private readonly IMediator _mediator;

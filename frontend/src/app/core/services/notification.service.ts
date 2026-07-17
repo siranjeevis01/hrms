@@ -48,22 +48,22 @@ export class NotificationService {
     this.notifications.update((notifications) =>
       notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n))
     );
-    this.http.put(`${environment.apiUrl}/notifications/${id}/read`, {}).subscribe();
+    this.http.put(`${environment.apiUrl}/api/notifications/Notifications/${id}/read`, {}).subscribe();
   }
 
   markAllAsRead(): void {
     this.notifications.update((notifications) =>
       notifications.map((n) => ({ ...n, isRead: true }))
     );
-    this.http.put(`${environment.apiUrl}/notifications/read-all`, {}).subscribe();
+    this.http.put(`${environment.apiUrl}/api/notifications/Notifications/read-all`, {}).subscribe();
   }
 
   getNotifications(): Observable<AppNotification[]> {
-    return this.http.get<AppNotification[]>(`${environment.apiUrl}/notifications`);
+    return this.http.get<AppNotification[]>(`${environment.apiUrl}/api/notifications/Notifications`);
   }
 
   deleteNotification(id: string): void {
     this.notifications.update((notifications) => notifications.filter((n) => n.id !== id));
-    this.http.delete(`${environment.apiUrl}/notifications/${id}`).subscribe();
+    this.http.delete(`${environment.apiUrl}/api/notifications/Notifications/${id}`).subscribe();
   }
 }

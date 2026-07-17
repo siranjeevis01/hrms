@@ -84,7 +84,7 @@ public class AuthController : ControllerBase
         return Ok(result.Value);
     }
 
-    [HttpPost("refresh-token")]
+    [HttpPost("refresh")]
     [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RefreshToken(
@@ -280,6 +280,23 @@ public class AuthController : ControllerBase
         return Ok(new { verified = result.Value });
     }
 
+    [HttpPost("firebase")]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> FirebaseLogin(
+        [FromBody] FirebaseLoginRequest request,
+        CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Firebase login attempt");
+
+        return Unauthorized(new ApiErrorResponse
+        {
+            StatusCode = StatusCodes.Status401Unauthorized,
+            Message = "Firebase authentication is not yet configured on the server.",
+            Details = "Contact administrator to configure Firebase Admin SDK."
+        });
+    }
+
     [HttpPost("change-password")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -344,5 +361,7 @@ public record VerifyEmailRequest(string Token);
 public record VerifyMfaRequest(string Code);
 
 public record ChangePasswordRequest(string OldPassword, string NewPassword);
+
+public record FirebaseLoginRequest(string IdToken);
 
 #endregion

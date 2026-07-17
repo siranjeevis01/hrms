@@ -1,13 +1,14 @@
 using HRMS.Services.Travel.Application.Commands.CreateVisaRequest;
 using HRMS.Services.Travel.Application.Commands.UpdateVisaRequest;
 using HRMS.Services.Travel.Application.Queries.GetVisaRequests;
+using HRMS.Services.Travel.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Travel.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/travel/[controller]")]
 public class VisaRequestsController : ControllerBase
 {
     private readonly IMediator _mediator;

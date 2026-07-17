@@ -14,8 +14,8 @@
 
   th.mat-mdc-header-cell {
     font-weight: 600;
-    color: #374151;
-    background-color: #F9FAFB;
+    color: var(--hrms-sidebar-text);
+    background-color: var(--hrms-bg);
     font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -23,7 +23,7 @@
 
   td.mat-mdc-cell {
     font-size: 14px;
-    color: #4B5563;
+    color: var(--hrms-text-secondary);
   }
 
   &__row-clickable {
@@ -31,7 +31,7 @@
     transition: background-color 0.15s ease;
 
     &:hover {
-      background-color: #F3F4F6;
+      background-color: var(--hrms-surface-hover);
     }
   }
 }
@@ -82,11 +82,11 @@
 }
 
 .status-draft {
-  background-color: #F3F4F6;
-  color: #374151;
+  background-color: var(--hrms-surface-hover);
+  color: var(--hrms-sidebar-text);
 }
 
 .status-default {
-  background-color: #F3F4F6;
-  color: #374151;
+  background-color: var(--hrms-surface-hover);
+  color: var(--hrms-sidebar-text);
 }

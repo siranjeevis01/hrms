@@ -1,3 +1,4 @@
+using HRMS.Services.Workflow.API.DTOs;
 using HRMS.Services.Workflow.Application.Commands.CreateDelegate;
 using HRMS.Services.Workflow.Application.Commands.DeleteDelegate;
 using HRMS.Services.Workflow.Application.Commands.UpdateDelegate;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Workflow.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/workflow/[controller]")]
 public class DelegatesController : ControllerBase
 {
     private readonly IMediator _mediator;

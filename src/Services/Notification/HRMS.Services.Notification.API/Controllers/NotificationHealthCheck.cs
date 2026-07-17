@@ -1,5 +1,6 @@
 using HRMS.Services.Notification.Application.Queries.GetNotificationStats;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Notification.API.Controllers;

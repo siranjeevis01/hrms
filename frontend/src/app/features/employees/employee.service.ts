@@ -19,7 +19,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class EmployeeService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/api/employees`;
+  private apiUrl = `${environment.apiUrl}/api/employees/Employees`;
 
   getEmployees(params: {
     page?: number;
@@ -75,20 +75,20 @@ export class EmployeeService {
   }
 
   getEmployeeDocuments(id: string): Observable<DocumentDto[]> {
-    return this.http.get<DocumentDto[]>(`${this.apiUrl}/${id}/documents`);
+    return this.http.get<DocumentDto[]>(`${environment.apiUrl}/api/employees/EmployeeDocuments/employee/${id}`);
   }
 
   uploadDocument(id: string, file: File): Observable<void> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<void>(`${this.apiUrl}/${id}/documents`, formData);
+    return this.http.post<void>(`${environment.apiUrl}/api/employees/EmployeeDocuments/employee/${id}`, formData);
   }
 
   getEmployeeHistory(id: string): Observable<HistoryDto[]> {
-    return this.http.get<HistoryDto[]>(`${this.apiUrl}/${id}/history`);
+    return this.http.get<HistoryDto[]>(`${environment.apiUrl}/api/employees/EmployeeHistory/employee/${id}`);
   }
 
   getEmployeeSalary(id: string): Observable<SalaryStructure> {
-    return this.http.get<SalaryStructure>(`${this.apiUrl}/${id}/salary`);
+    return this.http.get<SalaryStructure>(`${environment.apiUrl}/api/employees/EmployeeSalary/employee/${id}`);
   }
 }

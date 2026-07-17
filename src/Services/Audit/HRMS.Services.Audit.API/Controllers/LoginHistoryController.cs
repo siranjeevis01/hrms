@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Audit.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/audit/[controller]")]
 public class LoginHistoryController : ControllerBase
 {
     private readonly IMediator _mediator;

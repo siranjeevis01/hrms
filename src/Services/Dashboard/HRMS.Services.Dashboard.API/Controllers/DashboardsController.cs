@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Dashboard.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/dashboard/[controller]")]
 public class DashboardsController : ControllerBase
 {
     private readonly IMediator _mediator;

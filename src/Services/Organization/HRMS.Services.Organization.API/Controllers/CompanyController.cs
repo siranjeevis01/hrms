@@ -8,7 +8,7 @@ using HRMS.Services.Organization.Application.Queries.GetCompany;
 namespace HRMS.Services.Organization.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/organization/[controller]")]
 [Produces("application/json")]
 public class CompanyController : ControllerBase
 {

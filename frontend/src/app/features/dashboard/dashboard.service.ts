@@ -16,26 +16,26 @@ export class DashboardService {
   private apiUrl = `${environment.apiUrl}/api/dashboard`;
 
   getDashboardStats(): Observable<DashboardStats> {
-    return this.http.get<DashboardStats>(`${this.apiUrl}/stats`);
+    return this.http.get<DashboardStats>(`${this.apiUrl}/Dashboards/stats`);
   }
 
   getRecentActivities(): Observable<Activity[]> {
-    return this.http.get<Activity[]>(`${this.apiUrl}/activities`);
+    return this.http.get<Activity[]>(`${this.apiUrl}/Analytics`);
   }
 
   getUpcomingEvents(): Observable<Event[]> {
-    return this.http.get<Event[]>(`${this.apiUrl}/events`);
+    return this.http.get<Event[]>(`${this.apiUrl}/Dashboards`);
   }
 
   getEmployeeChart(): Observable<ChartData> {
-    return this.http.get<ChartData>(`${this.apiUrl}/charts/employees`);
+    return this.http.get<ChartData>(`${this.apiUrl}/Analytics`);
   }
 
   getAttendanceChart(): Observable<ChartData> {
-    return this.http.get<ChartData>(`${this.apiUrl}/charts/attendance`);
+    return this.http.get<ChartData>(`${this.apiUrl}/Analytics`);
   }
 
   getPayrollSummary(): Observable<PayrollSummary> {
-    return this.http.get<PayrollSummary>(`${this.apiUrl}/payroll-summary`);
+    return this.http.get<PayrollSummary>(`${this.apiUrl}/Dashboards/stats`);
   }
 }

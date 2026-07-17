@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Report.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/reports/[controller]")]
 public class ReportTemplatesController : ControllerBase
 {
     private readonly IMediator _mediator;

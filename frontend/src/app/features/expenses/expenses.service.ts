@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   ExpenseClaim,
   ExpensePolicy,
@@ -12,7 +13,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class ExpensesService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/expenses';
+  private apiUrl = `${environment.apiUrl}/api/expenses/ExpenseClaims`;
 
   getDashboardStats(): Observable<ExpenseDashboardStats> {
     return this.http.get<ExpenseDashboardStats>(`${this.apiUrl}/dashboard`);

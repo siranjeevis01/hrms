@@ -1,3 +1,4 @@
+using HRMS.Services.Workflow.API.DTOs;
 using HRMS.Services.Workflow.Application.Commands.CreateApprovalMatrix;
 using HRMS.Services.Workflow.Application.Commands.UpdateApprovalMatrix;
 using HRMS.Services.Workflow.Application.Queries.GetApprovalMatrices;
@@ -7,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Workflow.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/workflow/[controller]")]
 public class ApprovalMatricesController : ControllerBase
 {
     private readonly IMediator _mediator;

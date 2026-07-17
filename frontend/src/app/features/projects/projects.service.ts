@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   Project,
   ProjectTask,
@@ -16,33 +17,33 @@ import {
 @Injectable({ providedIn: 'root' })
 export class ProjectsService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/projects';
+  private apiUrl = `${environment.apiUrl}/api/projects`;
 
   getProjects(search?: string, status?: string): Observable<Project[]> {
     let params = new HttpParams();
     if (search) params = params.set('search', search);
     if (status) params = params.set('status', status);
-    return this.http.get<Project[]>(this.apiUrl, { params });
+    return this.http.get<Project[]>(`${environment.apiUrl}/api/projects/Projects`, { params });
   }
 
   getProject(id: string): Observable<Project> {
-    return this.http.get<Project>(`${this.apiUrl}/${id}`);
+    return this.http.get<Project>(`${environment.apiUrl}/api/projects/Projects/${id}`);
   }
 
   createProject(request: CreateProjectRequest): Observable<Project> {
-    return this.http.post<Project>(this.apiUrl, request);
+    return this.http.post<Project>(`${environment.apiUrl}/api/projects/Projects`, request);
   }
 
   updateProject(id: string, request: Partial<CreateProjectRequest>): Observable<Project> {
-    return this.http.put<Project>(`${this.apiUrl}/${id}`, request);
+    return this.http.put<Project>(`${environment.apiUrl}/api/projects/Projects/${id}`, request);
   }
 
   deleteProject(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${environment.apiUrl}/api/projects/Projects/${id}`);
   }
 
   getProjectStats(id: string): Observable<ProjectStats> {
-    return this.http.get<ProjectStats>(`${this.apiUrl}/${id}/stats`);
+    return this.http.get<ProjectStats>(`${environment.apiUrl}/api/projects/Projects/${id}/stats`);
   }
 
   getTasks(projectId: string, sprintId?: string, status?: string): Observable<ProjectTask[]> {
@@ -53,26 +54,26 @@ export class ProjectsService {
   }
 
   getTask(taskId: string): Observable<ProjectTask> {
-    return this.http.get<ProjectTask>(`/api/tasks/${taskId}`);
+    return this.http.get<ProjectTask>(`${environment.apiUrl}/api/projects/projects/${taskId}`);
   }
 
   createTask(request: CreateTaskRequest): Observable<ProjectTask> {
-    return this.http.post<ProjectTask>('/api/tasks', request);
+    return this.http.post<ProjectTask>(`${environment.apiUrl}/api/projects/projects`, request);
   }
 
   updateTask(taskId: string, request: Partial<CreateTaskRequest>): Observable<ProjectTask> {
-    return this.http.put<ProjectTask>(`/api/tasks/${taskId}`, request);
+    return this.http.put<ProjectTask>(`${environment.apiUrl}/api/projects/projects/${taskId}`, request);
   }
 
   updateTaskStatus(request: UpdateTaskStatusRequest): Observable<void> {
-    return this.http.patch<void>(`/api/tasks/${request.taskId}/status`, {
+    return this.http.patch<void>(`${environment.apiUrl}/api/projects/projects/${request.taskId}/status`, {
       status: request.status,
       position: request.position,
     });
   }
 
   deleteTask(taskId: string): Observable<void> {
-    return this.http.delete<void>(`/api/tasks/${taskId}`);
+    return this.http.delete<void>(`${environment.apiUrl}/api/projects/projects/${taskId}`);
   }
 
   getBoard(projectId: string): Observable<BoardColumn[]> {
@@ -124,6 +125,6 @@ export class ProjectsService {
   }
 
   logTime(taskId: string, hours: number, description: string): Observable<void> {
-    return this.http.post<void>(`/api/tasks/${taskId}/time-log`, { hours, description });
+    return this.http.post<void>(`${environment.apiUrl}/api/projects/projects/${taskId}/time-log`, { hours, description });
   }
 }

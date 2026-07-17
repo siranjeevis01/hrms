@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   CompanySettings,
   Department,
@@ -17,7 +18,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/admin';
+  private apiUrl = `${environment.apiUrl}/api/identity`;
 
   getDashboardStats(): Observable<AdminDashboardStats> {
     return this.http.get<AdminDashboardStats>(`${this.apiUrl}/dashboard`);

@@ -4,13 +4,15 @@ using HRMS.Services.Performance.Application.Commands.UpdateKPIValue;
 using HRMS.Services.Performance.Application.Queries.GetEmployeeKPIs;
 using HRMS.Services.Performance.Application.Queries.GetKPI;
 using HRMS.Services.Performance.Application.Queries.GetKPIs;
+using HRMS.Services.Performance.Application.DTOs;
+using HRMS.Services.Performance.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Performance.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/performance/[controller]")]
 public class KPIsController : ControllerBase
 {
     private readonly IMediator _mediator;

@@ -14,6 +14,7 @@ public class ApplicationUser
     public bool IsPhoneVerified { get; private set; }
     public bool IsMfaEnabled { get; private set; }
     public string? MfaSecret { get; private set; }
+    public string? PasswordHash { get; private set; }
     public DateTime? LastLoginAt { get; private set; }
     public string? LastLoginIp { get; private set; }
     public DateTime CreatedAt { get; private set; }
@@ -130,6 +131,12 @@ public class ApplicationUser
             throw new ArgumentException("Firebase UID cannot be empty.", nameof(firebaseUid));
 
         FirebaseUid = firebaseUid;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void SetPasswordHash(string hashedPassword)
+    {
+        PasswordHash = hashedPassword;
         UpdatedAt = DateTime.UtcNow;
     }
 

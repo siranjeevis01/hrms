@@ -7,12 +7,13 @@ using HRMS.Services.Notification.Application.Commands.SendPushNotification;
 using HRMS.Services.Notification.Application.Commands.SendSms;
 using HRMS.Services.Notification.Application.DTOs;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Notification.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/notifications/[controller]")]
 [Authorize]
 public class NotificationSendController : ControllerBase
 {

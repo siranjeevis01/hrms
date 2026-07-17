@@ -80,6 +80,48 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'employees',
+        loadChildren: () =>
+          import('./features/employees/employees.routes').then(
+            (m) => m.EMPLOYEES_ROUTES,
+          ),
+      },
+      {
+        path: 'attendance',
+        loadChildren: () =>
+          import('./features/attendance/attendance.routes').then(
+            (m) => m.ATTENDANCE_ROUTES,
+          ),
+      },
+      {
+        path: 'payroll',
+        loadChildren: () =>
+          import('./features/payroll/payroll.routes').then(
+            (m) => m.PAYROLL_ROUTES,
+          ),
+      },
+      {
+        path: 'recruitment',
+        loadChildren: () =>
+          import('./features/recruitment/recruitment.routes').then(
+            (m) => m.RECRUITMENT_ROUTES,
+          ),
+      },
+      {
+        path: 'training',
+        loadChildren: () =>
+          import('./features/training/training.routes').then(
+            (m) => m.TRAINING_ROUTES,
+          ),
+      },
+      {
+        path: 'performance',
+        loadChildren: () =>
+          import('./features/performance/performance.routes').then(
+            (m) => m.PERFORMANCE_ROUTES,
+          ),
+      },
+      {
         path: 'admin',
         loadChildren: () =>
           import('./features/admin/admin.routes').then(

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   ReportTemplate,
   ReportInstance,
@@ -12,7 +13,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class ReportsService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/reports';
+  private apiUrl = `${environment.apiUrl}/api/reports/ReportTemplates`;
 
   getTemplates(): Observable<ReportTemplate[]> {
     return this.http.get<ReportTemplate[]>(`${this.apiUrl}/templates`);

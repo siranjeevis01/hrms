@@ -1,11 +1,12 @@
 using HRMS.Services.Expense.Application.Queries.GetExpenseCategories;
+using HRMS.Services.Expense.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Expense.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/expenses/[controller]")]
 public class ExpenseCategoriesController : ControllerBase
 {
     private readonly IMediator _mediator;

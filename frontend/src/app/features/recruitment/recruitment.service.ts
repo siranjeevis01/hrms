@@ -11,9 +11,15 @@ import {
 export class RecruitmentService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/api/recruitment`;
+  private jobsUrl = `${environment.apiUrl}/api/recruitment/JobPostings`;
+  private candidatesUrl = `${environment.apiUrl}/api/recruitment/Candidates`;
+  private applicationsUrl = `${environment.apiUrl}/api/recruitment/JobApplications`;
+  private interviewsUrl = `${environment.apiUrl}/api/recruitment/Interviews`;
+  private offersUrl = `${environment.apiUrl}/api/recruitment/OfferLetters`;
+  private onboardingUrl = `${environment.apiUrl}/api/recruitment/OnboardingChecklists`;
 
   getDashboardStats(): Observable<RecruitmentDashboardStats> {
-    return this.http.get<RecruitmentDashboardStats>(`${this.apiUrl}/dashboard`);
+    return this.http.get<RecruitmentDashboardStats>(`${this.jobsUrl}`);
   }
 
   // Jobs
@@ -25,27 +31,27 @@ export class RecruitmentService {
       if (filters.status) params = params.set('status', filters.status);
       if (filters.employmentType) params = params.set('employmentType', filters.employmentType);
     }
-    return this.http.get<Job[]>(`${this.apiUrl}/jobs`, { params });
+    return this.http.get<Job[]>(`${this.jobsUrl}`, { params });
   }
 
   getJob(id: string): Observable<Job> {
-    return this.http.get<Job>(`${this.apiUrl}/jobs/${id}`);
+    return this.http.get<Job>(`${this.jobsUrl}/${id}`);
   }
 
   createJob(job: Partial<Job>): Observable<Job> {
-    return this.http.post<Job>(`${this.apiUrl}/jobs`, job);
+    return this.http.post<Job>(`${this.jobsUrl}`, job);
   }
 
   updateJob(id: string, job: Partial<Job>): Observable<Job> {
-    return this.http.put<Job>(`${this.apiUrl}/jobs/${id}`, job);
+    return this.http.put<Job>(`${this.jobsUrl}/${id}`, job);
   }
 
   deleteJob(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/jobs/${id}`);
+    return this.http.delete<void>(`${this.jobsUrl}/${id}`);
   }
 
   updateJobStatus(id: string, status: string): Observable<Job> {
-    return this.http.patch<Job>(`${this.apiUrl}/jobs/${id}/status`, { status });
+    return this.http.patch<Job>(`${this.jobsUrl}/${id}/status`, { status });
   }
 
   // Candidates
@@ -56,42 +62,42 @@ export class RecruitmentService {
       if (filters.status) params = params.set('status', filters.status);
       if (filters.source) params = params.set('source', filters.source);
     }
-    return this.http.get<Candidate[]>(`${this.apiUrl}/candidates`, { params });
+    return this.http.get<Candidate[]>(`${this.candidatesUrl}`, { params });
   }
 
   getCandidate(id: string): Observable<Candidate> {
-    return this.http.get<Candidate>(`${this.apiUrl}/candidates/${id}`);
+    return this.http.get<Candidate>(`${this.candidatesUrl}/${id}`);
   }
 
   createCandidate(candidate: Partial<Candidate>): Observable<Candidate> {
-    return this.http.post<Candidate>(`${this.apiUrl}/candidates`, candidate);
+    return this.http.post<Candidate>(`${this.candidatesUrl}`, candidate);
   }
 
   updateCandidate(id: string, candidate: Partial<Candidate>): Observable<Candidate> {
-    return this.http.put<Candidate>(`${this.apiUrl}/candidates/${id}`, candidate);
+    return this.http.put<Candidate>(`${this.candidatesUrl}/${id}`, candidate);
   }
 
   deleteCandidate(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/candidates/${id}`);
+    return this.http.delete<void>(`${this.candidatesUrl}/${id}`);
   }
 
   // Applications
   getApplications(jobId?: string): Observable<Application[]> {
     let params = new HttpParams();
     if (jobId) params = params.set('jobId', jobId);
-    return this.http.get<Application[]>(`${this.apiUrl}/applications`, { params });
+    return this.http.get<Application[]>(`${this.applicationsUrl}`, { params });
   }
 
   getApplication(id: string): Observable<Application> {
-    return this.http.get<Application>(`${this.apiUrl}/applications/${id}`);
+    return this.http.get<Application>(`${this.applicationsUrl}/${id}`);
   }
 
   createApplication(application: Partial<Application>): Observable<Application> {
-    return this.http.post<Application>(`${this.apiUrl}/applications`, application);
+    return this.http.post<Application>(`${this.applicationsUrl}`, application);
   }
 
   updateApplicationStatus(id: string, status: string): Observable<Application> {
-    return this.http.patch<Application>(`${this.apiUrl}/applications/${id}/status`, { status });
+    return this.http.patch<Application>(`${this.applicationsUrl}/${id}/status`, { status });
   }
 
   // Interviews
@@ -102,23 +108,23 @@ export class RecruitmentService {
         if (filters[key]) params = params.set(key, filters[key]);
       });
     }
-    return this.http.get<Interview[]>(`${this.apiUrl}/interviews`, { params });
+    return this.http.get<Interview[]>(`${this.interviewsUrl}`, { params });
   }
 
   getInterview(id: string): Observable<Interview> {
-    return this.http.get<Interview>(`${this.apiUrl}/interviews/${id}`);
+    return this.http.get<Interview>(`${this.interviewsUrl}/${id}`);
   }
 
   scheduleInterview(interview: Partial<Interview>): Observable<Interview> {
-    return this.http.post<Interview>(`${this.apiUrl}/interviews`, interview);
+    return this.http.post<Interview>(`${this.interviewsUrl}`, interview);
   }
 
   updateInterview(id: string, interview: Partial<Interview>): Observable<Interview> {
-    return this.http.put<Interview>(`${this.apiUrl}/interviews/${id}`, interview);
+    return this.http.put<Interview>(`${this.interviewsUrl}/${id}`, interview);
   }
 
   updateInterviewStatus(id: string, status: string, feedback?: string, rating?: number): Observable<Interview> {
-    return this.http.patch<Interview>(`${this.apiUrl}/interviews/${id}/status`, { status, feedback, rating });
+    return this.http.patch<Interview>(`${this.interviewsUrl}/${id}/status`, { status, feedback, rating });
   }
 
   // Offers
@@ -129,35 +135,35 @@ export class RecruitmentService {
         if (filters[key]) params = params.set(key, filters[key]);
       });
     }
-    return this.http.get<Offer[]>(`${this.apiUrl}/offers`, { params });
+    return this.http.get<Offer[]>(`${this.offersUrl}`, { params });
   }
 
   getOffer(id: string): Observable<Offer> {
-    return this.http.get<Offer>(`${this.apiUrl}/offers/${id}`);
+    return this.http.get<Offer>(`${this.offersUrl}/${id}`);
   }
 
   createOffer(offer: Partial<Offer>): Observable<Offer> {
-    return this.http.post<Offer>(`${this.apiUrl}/offers`, offer);
+    return this.http.post<Offer>(`${this.offersUrl}`, offer);
   }
 
   updateOfferStatus(id: string, status: string): Observable<Offer> {
-    return this.http.patch<Offer>(`${this.apiUrl}/offers/${id}/status`, { status });
+    return this.http.patch<Offer>(`${this.offersUrl}/${id}/status`, { status });
   }
 
   // Onboarding
   getOnboardingChecklists(): Observable<OnboardingChecklist[]> {
-    return this.http.get<OnboardingChecklist[]>(`${this.apiUrl}/onboarding`);
+    return this.http.get<OnboardingChecklist[]>(`${this.onboardingUrl}`);
   }
 
   getOnboardingChecklist(id: string): Observable<OnboardingChecklist> {
-    return this.http.get<OnboardingChecklist>(`${this.apiUrl}/onboarding/${id}`);
+    return this.http.get<OnboardingChecklist>(`${this.onboardingUrl}/${id}`);
   }
 
   createOnboardingChecklist(checklist: Partial<OnboardingChecklist>): Observable<OnboardingChecklist> {
-    return this.http.post<OnboardingChecklist>(`${this.apiUrl}/onboarding`, checklist);
+    return this.http.post<OnboardingChecklist>(`${this.onboardingUrl}`, checklist);
   }
 
   updateOnboardingTask(checklistId: string, taskId: string, completed: boolean): Observable<OnboardingChecklist> {
-    return this.http.patch<OnboardingChecklist>(`${this.apiUrl}/onboarding/${checklistId}/tasks/${taskId}`, { completed });
+    return this.http.patch<OnboardingChecklist>(`${this.onboardingUrl}/${checklistId}/tasks/${taskId}`, { completed });
   }
 }

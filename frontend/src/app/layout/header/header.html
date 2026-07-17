@@ -17,6 +17,8 @@
       </mat-icon>
     </button>
 
+    <app-theme-switcher />
+
     <mat-menu #notificationMenu="matMenu" class="header__notification-menu" xPosition="before">
       <div class="notification-panel" (click)="$event.stopPropagation()">
         <div class="notification-panel__header">
@@ -60,7 +62,7 @@
         {{ getUserInitials() }}
       </div>
       <div class="header__user-info">
-        <span class="header__user-name">{{ user()?.displayName || 'User' }}</span>
+        <span class="header__user-name">{{ (user()?.firstName || '') + ' ' + (user()?.lastName || '') || 'User' }}</span>
         <span class="header__user-role">{{ user()?.roles?.[0] || 'Member' }}</span>
       </div>
       <mat-icon class="header__user-arrow">expand_more</mat-icon>

@@ -1,6 +1,7 @@
 using HRMS.Services.Travel.Application.Commands.AddItinerary;
 using HRMS.Services.Travel.Application.Commands.UpdateItinerary;
 using HRMS.Services.Travel.Application.Queries.GetItinerary;
+using HRMS.Services.Travel.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

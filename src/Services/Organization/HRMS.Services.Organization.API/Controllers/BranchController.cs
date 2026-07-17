@@ -4,11 +4,12 @@ using HRMS.Services.Organization.Application.Commands.CreateBranch;
 using HRMS.Services.Organization.Application.Commands.UpdateBranch;
 using HRMS.Services.Organization.Application.Commands.Delete;
 using HRMS.Services.Organization.Application.Queries.GetBranches;
+using HRMS.Services.Organization.API.DTOs;
 
 namespace HRMS.Services.Organization.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/organization/[controller]")]
 [Produces("application/json")]
 public class BranchController : ControllerBase
 {

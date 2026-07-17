@@ -1,3 +1,4 @@
+using HRMS.Services.Workflow.API.DTOs;
 using HRMS.Services.Workflow.Application.Commands.AdvanceWorkflow;
 using HRMS.Services.Workflow.Application.Commands.CancelWorkflow;
 using HRMS.Services.Workflow.Application.Commands.RejectWorkflow;
@@ -12,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Workflow.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/workflow/[controller]")]
 public class WorkflowInstancesController : ControllerBase
 {
     private readonly IMediator _mediator;

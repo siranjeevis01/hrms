@@ -64,7 +64,7 @@ export class SidebarComponent {
       icon: 'people',
       items: [
         { icon: 'badge', label: 'Employees', route: '/employees' },
-        { icon: 'account_tree', label: 'Organization', route: '/organization' },
+        { icon: 'account_tree', label: 'Organization', route: '/admin' },
       ],
     },
     {
@@ -73,8 +73,6 @@ export class SidebarComponent {
       items: [
         { icon: 'event_available', label: 'Attendance', route: '/attendance' },
         { icon: 'beach_access', label: 'Leave', route: '/leave' },
-        { icon: 'swap_shift', label: 'Shifts', route: '/attendance/shifts' },
-        { icon: 'celebration', label: 'Holidays', route: '/attendance/holidays' },
       ],
     },
     {
@@ -100,8 +98,8 @@ export class SidebarComponent {
       icon: 'folder',
       items: [
         { icon: 'cases', label: 'Projects', route: '/projects' },
-        { icon: 'task_alt', label: 'Tasks', route: '/projects/tasks' },
-        { icon: 'timer', label: 'Timesheet', route: '/projects/timesheet' },
+        { icon: 'task_alt', label: 'Tasks', route: '/projects' },
+        { icon: 'timer', label: 'Timesheet', route: '/projects' },
       ],
     },
     {
@@ -118,7 +116,7 @@ export class SidebarComponent {
       icon: 'analytics',
       items: [
         { icon: 'assessment', label: 'Reports', route: '/reports' },
-        { icon: 'insert_chart', label: 'Dashboards', route: '/reports/dashboards' },
+        { icon: 'insert_chart', label: 'Dashboards', route: '/reports' },
       ],
     },
     {

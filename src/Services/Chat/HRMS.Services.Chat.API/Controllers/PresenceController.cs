@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Chat.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/chat/[controller]")]
 public class PresenceController : ControllerBase
 {
     private readonly IMediator _mediator;

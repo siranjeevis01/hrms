@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Training.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/training/[controller]")]
 public class LearningPathsController : ControllerBase
 {
     private readonly IMediator _mediator;

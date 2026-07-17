@@ -10,13 +10,14 @@ using HRMS.Services.Helpdesk.Application.Queries.GetEmployeeTickets;
 using HRMS.Services.Helpdesk.Application.Queries.GetHelpdeskStats;
 using HRMS.Services.Helpdesk.Application.Queries.GetTicket;
 using HRMS.Services.Helpdesk.Application.Queries.GetTickets;
+using HRMS.Services.Helpdesk.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Helpdesk.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/helpdesk/[controller]")]
 public class TicketsController : ControllerBase
 {
     private readonly IMediator _mediator;

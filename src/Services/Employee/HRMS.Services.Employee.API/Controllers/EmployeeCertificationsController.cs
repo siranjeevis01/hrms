@@ -1,12 +1,13 @@
 using HRMS.Services.Employee.Application.Commands.AddCertification;
 using HRMS.Services.Employee.Application.Queries.GetEmployeeCertifications;
+using HRMS.Services.Employee.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Employee.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/employees/[controller]")]
 public class EmployeeCertificationsController : ControllerBase
 {
     private readonly IMediator _mediator;

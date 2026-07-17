@@ -1,3 +1,4 @@
+using HRMS.Services.Workflow.API.DTOs;
 using HRMS.Services.Workflow.Application.Commands.ActivateWorkflowDefinition;
 using HRMS.Services.Workflow.Application.Commands.CreateWorkflowDefinition;
 using HRMS.Services.Workflow.Application.Commands.DeactivateWorkflowDefinition;
@@ -11,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Workflow.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/workflow/[controller]")]
 public class WorkflowDefinitionsController : ControllerBase
 {
     private readonly IMediator _mediator;

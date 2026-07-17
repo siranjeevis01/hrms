@@ -3,13 +3,14 @@ using HRMS.Services.Performance.Application.Commands.CompleteCalibration;
 using HRMS.Services.Performance.Application.Commands.CreateCalibrationSession;
 using HRMS.Services.Performance.Application.Queries.GetCalibrationEntries;
 using HRMS.Services.Performance.Application.Queries.GetCalibrationSession;
+using HRMS.Services.Performance.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Performance.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/performance/[controller]")]
 public class CalibrationSessionsController : ControllerBase
 {
     private readonly IMediator _mediator;

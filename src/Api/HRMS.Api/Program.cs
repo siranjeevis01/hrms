@@ -1,9 +1,13 @@
 using System.IO.Compression;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using HRMS.Api;
+using HRMS.Services.Identity.Application.Interfaces;
+using HRMS.Services.Identity.Infrastructure.Extensions;
 using HRMS.Shared.Kernel.Common;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +37,49 @@ try
             options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
             options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         });
+
+    // ── Module Application Services (MediatR, FluentValidation, AutoMapper) ──
+    var applicationAssemblies = new[]
+    {
+        typeof(HRMS.Services.Identity.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Employee.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Organization.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Attendance.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Leave.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Payroll.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Notification.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Recruitment.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.ProjectTask.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Performance.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Training.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Audit.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Report.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Dashboard.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Expense.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Travel.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Helpdesk.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Chat.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Document.Application.DependencyInjection).Assembly,
+        typeof(HRMS.Services.Workflow.Application.DependencyInjection).Assembly,
+    };
+
+    builder.Services.AddMediatR(cfg =>
+    {
+        foreach (var assembly in applicationAssemblies)
+            cfg.RegisterServicesFromAssembly(assembly);
+    });
+
+    foreach (var assembly in applicationAssemblies)
+        builder.Services.AddValidatorsFromAssembly(assembly);
+
+    // ── Identity Infrastructure Services (for monolith) ──
+    builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.IPasswordHasher, HRMS.Services.Identity.Infrastructure.Services.PasswordHasherAdapter>();
+    builder.Services.AddScoped<HRMS.Services.Identity.Infrastructure.Services.TokenService>();
+    builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.ITokenService, HRMS.Services.Identity.Infrastructure.Services.ApplicationTokenServiceAdapter>();
+    builder.Services.Configure<HRMS.Services.Identity.Infrastructure.Services.JwtSettings>(builder.Configuration.GetSection("Jwt"));
+    builder.Services.Configure<HRMS.Services.Identity.Infrastructure.Services.FirebaseAuthSettings>(builder.Configuration.GetSection("Firebase"));
+    builder.Services.AddScoped<IIdentityDbContext>(sp =>
+        new IdentityDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
 
     builder.Services.AddEndpointsApiExplorer();
 
@@ -107,16 +154,26 @@ try
 
     var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
         ?? new[] { "http://localhost:4200", "http://localhost:3000" };
+    var allowAllOrigins = corsOrigins.Contains("*") || corsOrigins.Contains("https://*");
 
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowConfigured", policy =>
         {
-            policy.WithOrigins(corsOrigins)
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials()
-                .WithExposedHeaders("X-Pagination");
+            if (allowAllOrigins)
+            {
+                policy.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }
+            else
+            {
+                policy.WithOrigins(corsOrigins)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials()
+                    .WithExposedHeaders("X-Pagination");
+            }
         });
 
         options.AddPolicy("AllowAll", policy =>
@@ -174,7 +231,8 @@ try
 
     app.UseForwardedHeaders();
     app.UseResponseCompression();
-    app.UseHttpsRedirection();
+    if (!app.Environment.IsEnvironment("Production"))
+        app.UseHttpsRedirection();
 
     var corsPolicy = app.Environment.IsDevelopment() ? "AllowAll" : "AllowConfigured";
     app.UseCors(corsPolicy);

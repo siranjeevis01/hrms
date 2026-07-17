@@ -1,12 +1,13 @@
 using HRMS.Services.Notification.Application.Commands.CreateNotificationGroup;
 using HRMS.Services.Notification.Application.Queries.GetNotificationGroups;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Notification.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/notifications/[controller]")]
 [Authorize]
 public class NotificationGroupController : ControllerBase
 {

@@ -7,7 +7,7 @@ using HRMS.Services.Organization.Application.Queries.GetCompanyPolicies;
 namespace HRMS.Services.Organization.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/organization/[controller]")]
 [Produces("application/json")]
 public class CompanyPolicyController : ControllerBase
 {

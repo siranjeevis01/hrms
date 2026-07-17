@@ -1,11 +1,12 @@
 using HRMS.Services.Notification.Application.Queries.GetDeliveryLogs;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Notification.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/notifications/[controller]")]
 [Authorize]
 public class NotificationDeliveryLogController : ControllerBase
 {

@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Document.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/documents/[controller]")]
 public class DocumentsController : ControllerBase
 {
     private readonly IMediator _mediator;

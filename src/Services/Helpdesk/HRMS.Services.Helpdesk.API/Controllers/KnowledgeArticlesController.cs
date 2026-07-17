@@ -3,13 +3,15 @@ using HRMS.Services.Helpdesk.Application.Commands.PublishKnowledgeArticle;
 using HRMS.Services.Helpdesk.Application.Commands.UpdateKnowledgeArticle;
 using HRMS.Services.Helpdesk.Application.Queries.GetKnowledgeArticle;
 using HRMS.Services.Helpdesk.Application.Queries.GetKnowledgeArticles;
+using HRMS.Services.Helpdesk.Application.DTOs;
+using HRMS.Services.Helpdesk.API.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Helpdesk.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/helpdesk/[controller]")]
 public class KnowledgeArticlesController : ControllerBase
 {
     private readonly IMediator _mediator;

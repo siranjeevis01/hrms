@@ -7,13 +7,15 @@ using HRMS.Services.Performance.Application.Commands.UpdateOKR;
 using HRMS.Services.Performance.Application.Queries.GetEmployeeOKRs;
 using HRMS.Services.Performance.Application.Queries.GetOKR;
 using HRMS.Services.Performance.Application.Queries.GetOKRs;
+using HRMS.Services.Performance.Application.DTOs;
+using HRMS.Services.Performance.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Performance.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/performance/[controller]")]
 public class OKRsController : ControllerBase
 {
     private readonly IMediator _mediator;

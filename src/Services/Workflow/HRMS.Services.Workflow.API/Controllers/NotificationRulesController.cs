@@ -1,3 +1,4 @@
+using HRMS.Services.Workflow.API.DTOs;
 using HRMS.Services.Workflow.Application.Commands.CreateNotificationRule;
 using HRMS.Services.Workflow.Application.Commands.UpdateNotificationRule;
 using HRMS.Services.Workflow.Application.Queries.GetNotificationRules;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Workflow.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/workflow/[controller]")]
 public class NotificationRulesController : ControllerBase
 {
     private readonly IMediator _mediator;

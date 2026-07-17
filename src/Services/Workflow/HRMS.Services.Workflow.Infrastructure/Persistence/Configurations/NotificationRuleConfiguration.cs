@@ -32,7 +32,5 @@ public class NotificationRuleConfiguration : IEntityTypeConfiguration<Notificati
 
         builder.HasIndex(e => e.WorkflowDefinitionId);
         builder.HasIndex(e => e.TenantId);
-
-        builder.Ignore(e => e.DomainEvents);
     }
 }

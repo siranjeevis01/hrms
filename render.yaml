@@ -1,43 +1,49 @@
 services:
-  # Frontend - Static Site (FREE, never sleeps)
-  - type: static_site
-    name: hrms-frontend
-    runtime: static
-    buildCommand: cd frontend && npm ci && npx ng build --configuration production
-    staticPublishPath: frontend/dist/hrms-frontend/browser
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: NODE_VERSION
-        value: 20
-
-  # Backend - Web Service (FREE, 15-min sleep)
-  - type: web_service
+  - type: web
     name: hrms-api
     runtime: dotnet
+    plan: free
+    rootDir: .
     buildCommand: dotnet publish src/Api/HRMS.Api/HRMS.Api.csproj -c Release -o ./publish
     startCommand: dotnet ./publish/HRMS.Api.dll
     healthCheckPath: /health/live
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
-      - key: ASPNETCORE_URLS
-        value: http://+:8080
       - key: ConnectionStrings__DefaultConnection
-        sync: false
-      - key: Jwt__Authority
-        sync: false
-      - key: Jwt__Audience
-        sync: false
-      - key: Jwt__Issuer
-        value: HRMS Pro
-      - key: Jwt__SecretKey
-        generateValue: true
-      - key: Jwt__ExpirationMinutes
-        value: 60
-      - key: Cors__AllowedOrigins__0
-        sync: false
+        fromDatabase:
+          name: hrms-db
+          property: connectionString
       - key: Redis__ConnectionString
         sync: false
+      - key: Jwt__SecretKey
+        generateValue: true
+      - key: Jwt__Issuer
+        value: HRMS-Pro
+      - key: Jwt__Audience
+        value: hrms-api
+      - key: Jwt__ExpirationMinutes
+        value: 60
+
+  - type: pgsql
+    name: hrms-db
+    plan: free
+    database: hrms
+    user: hrms_admin
+
+  - type: static_site
+    name: hrms-frontend
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npx ng build --configuration=production
+    staticPublishPath: dist/frontend/browser
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://hrms-api.onrender.com/api/*
+      - type: rewrite
+        source: /hubs/*
+        destination: https://hrms-api.onrender.com/hubs/*
+      - type: rewrite
+        source: /*
+        destination: /index.html

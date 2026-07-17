@@ -1,13 +1,14 @@
 using HRMS.Services.Employee.Application.Commands.AddEmergencyContact;
 using HRMS.Services.Employee.Application.Commands.UpdateEmergencyContact;
 using HRMS.Services.Employee.Application.Queries.GetEmployeeEmergencyContacts;
+using HRMS.Services.Employee.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Employee.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/employees/[controller]")]
 public class EmergencyContactsController : ControllerBase
 {
     private readonly IMediator _mediator;

@@ -6,13 +6,15 @@ using HRMS.Services.Performance.Application.Commands.UpdateGoalProgress;
 using HRMS.Services.Performance.Application.Queries.GetEmployeeGoals;
 using HRMS.Services.Performance.Application.Queries.GetGoal;
 using HRMS.Services.Performance.Application.Queries.GetGoals;
+using HRMS.Services.Performance.Application.DTOs;
+using HRMS.Services.Performance.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Performance.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/performance/[controller]")]
 public class GoalsController : ControllerBase
 {
     private readonly IMediator _mediator;

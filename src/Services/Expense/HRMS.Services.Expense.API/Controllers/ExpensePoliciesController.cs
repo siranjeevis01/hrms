@@ -1,13 +1,14 @@
 using HRMS.Services.Expense.Application.Commands.CreateExpensePolicy;
 using HRMS.Services.Expense.Application.Commands.UpdateExpensePolicy;
 using HRMS.Services.Expense.Application.Queries.GetExpensePolicies;
+using HRMS.Services.Expense.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Expense.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/expenses/[controller]")]
 public class ExpensePoliciesController : ControllerBase
 {
     private readonly IMediator _mediator;

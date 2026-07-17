@@ -1,13 +1,14 @@
 using HRMS.Services.Performance.Application.Commands.CreateKeyResult;
 using HRMS.Services.Performance.Application.Commands.UpdateKeyResult;
 using HRMS.Services.Performance.Application.Queries.GetKeyResults;
+using HRMS.Services.Performance.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Performance.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/performance/[controller]")]
 public class KeyResultsController : ControllerBase
 {
     private readonly IMediator _mediator;

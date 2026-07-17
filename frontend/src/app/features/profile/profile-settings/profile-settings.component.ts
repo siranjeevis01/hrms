@@ -29,9 +29,8 @@ export class ProfileSettingsComponent implements OnInit {
   saving = signal(false);
 
   passwordForm: FormGroup = this.fb.group({
-    currentPassword: ['', Validators.required],
+    oldPassword: ['', Validators.required],
     newPassword: ['', [Validators.required, Validators.minLength(8)]],
-    confirmPassword: ['', Validators.required],
   });
 
   ngOnInit(): void {

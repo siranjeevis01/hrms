@@ -12,6 +12,18 @@
   transform: rotate(0);
 }
 
+@media (max-width: 768px) {
+  :host {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .kanban-column {
+    max-height: none;
+    overflow-x: auto;
+  }
+}
+
 .cdk-drag-preview {
   border-radius: 8px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);

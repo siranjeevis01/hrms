@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   TravelRequest,
   TravelDashboardStats,
@@ -10,7 +11,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class TravelService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/travel';
+  private apiUrl = `${environment.apiUrl}/api/travel/TravelRequests`;
 
   getDashboardStats(): Observable<TravelDashboardStats> {
     return this.http.get<TravelDashboardStats>(`${this.apiUrl}/dashboard`);

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   UserProfile,
   EmergencyContact,
@@ -17,7 +18,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/profile';
+  private apiUrl = `${environment.apiUrl}/api/identity/Users/me`;
 
   getProfile(): Observable<UserProfile> {
     return this.http.get<UserProfile>(this.apiUrl);

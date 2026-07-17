@@ -1,3 +1,4 @@
+using HRMS.Services.Workflow.API.DTOs;
 using HRMS.Services.Workflow.Application.Commands.AddWorkflowStep;
 using HRMS.Services.Workflow.Application.Commands.RemoveWorkflowStep;
 using HRMS.Services.Workflow.Application.Commands.UpdateWorkflowStep;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Workflow.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/workflow/[controller]")]
 public class WorkflowStepsController : ControllerBase
 {
     private readonly IMediator _mediator;

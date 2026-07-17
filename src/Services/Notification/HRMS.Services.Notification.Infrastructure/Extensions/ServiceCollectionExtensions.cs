@@ -1,27 +1,31 @@
-using HRMS.Services.Notification.Application.Commands.RetryFailedNotifications;
-using Hangfire;
-using MediatR;
-using Microsoft.Extensions.Logging;
+using HRMS.Services.Notification.Application.Interfaces;
+using HRMS.Services.Notification.Infrastructure.Persistence;
+using HRMS.Services.Notification.Infrastructure.Repositories;
+using HRMS.Services.Notification.Infrastructure.Repositories.Interfaces;
+using HRMS.Services.Notification.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace HRMS.Services.Notification.Infrastructure.Jobs;
+namespace HRMS.Services.Notification.Infrastructure.Extensions;
 
-public class RetryFailedJob
+public static class ServiceCollectionExtensions
 {
-    private readonly IMediator _mediator;
-    private readonly ILogger<RetryFailedJob> _logger;
-
-    public RetryFailedJob(IMediator mediator, ILogger<RetryFailedJob> logger)
+    public static IServiceCollection AddNotificationInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        _mediator = mediator;
-        _logger = logger;
-    }
+        services.AddDbContext<NotificationDbContext>(options =>
+            options.UseNpgsql(
+                configuration.GetConnectionString("NotificationDb"),
+                b => b.MigrationsAssembly(typeof(NotificationDbContext).Assembly.FullName)));
 
-    [AutomaticRetry(Attempts = 2)]
-    [Queue("retry")]
-    public async Task Execute(int batchSize = 50)
-    {
-        _logger.LogInformation("Starting retry failed notifications. Batch size: {BatchSize}", batchSize);
-        var retried = await _mediator.Send(new RetryFailedNotificationsCommand { BatchSize = batchSize });
-        _logger.LogInformation("Retry completed. Retried: {Retried}", retried);
+        services.AddScoped<INotificationDbContext>(provider =>
+            provider.GetRequiredService<NotificationDbContext>());
+
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<INotificationRenderer, NotificationRenderer>();
+
+        return services;
     }
 }

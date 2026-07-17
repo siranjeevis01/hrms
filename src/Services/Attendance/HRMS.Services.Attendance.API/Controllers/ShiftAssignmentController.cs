@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Attendance.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/attendance/[controller]")]
 public class ShiftAssignmentController : ControllerBase
 {
     private readonly IMediator _mediator;

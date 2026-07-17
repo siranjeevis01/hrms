@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Recruitment.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/recruitment/[controller]")]
 public class InterviewsController : ControllerBase
 {
     private readonly IMediator _mediator;

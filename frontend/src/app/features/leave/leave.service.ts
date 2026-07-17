@@ -16,10 +16,12 @@ import {
 @Injectable({ providedIn: 'root' })
 export class LeaveService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/api/leave`;
+  private apiUrl = `${environment.apiUrl}/api/leave/LeaveApplications`;
+  private approvalUrl = `${environment.apiUrl}/api/leave/LeaveApproval`;
+  private balanceUrl = `${environment.apiUrl}/api/leave/LeaveBalance`;
 
   applyLeave(command: ApplyLeaveCommand): Observable<string> {
-    return this.http.post<string>(`${this.apiUrl}`, command);
+    return this.http.post<string>(`${this.apiUrl}/apply`, command);
   }
 
   getMyLeaves(filters: LeaveFilters): Observable<PagedResult<LeaveRequest>> {
@@ -45,33 +47,33 @@ export class LeaveService {
     if (filters.departmentId) params = params.set('departmentId', filters.departmentId);
     if (filters.startDate) params = params.set('startDate', filters.startDate);
     if (filters.endDate) params = params.set('endDate', filters.endDate);
-    return this.http.get<PagedResult<LeaveRequest>>(`${this.apiUrl}/team`, { params });
+    return this.http.get<PagedResult<LeaveRequest>>(`${this.approvalUrl}/pending`, { params });
   }
 
   approveLeave(id: string, comments: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${id}/approve`, { comments });
+    return this.http.post<void>(`${this.approvalUrl}/${id}/approve`, { comments });
   }
 
   rejectLeave(id: string, comments: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${id}/reject`, { comments });
+    return this.http.post<void>(`${this.approvalUrl}/${id}/reject`, { comments });
   }
 
   getLeaveBalances(employeeId: string): Observable<LeaveBalance[]> {
-    return this.http.get<LeaveBalance[]>(`${this.apiUrl}/balances/${employeeId}`);
+    return this.http.get<LeaveBalance[]>(`${this.balanceUrl}?employeeId=${employeeId}`);
   }
 
   getLeaveTypes(): Observable<LeaveType[]> {
-    return this.http.get<LeaveType[]>(`${this.apiUrl}/types`);
+    return this.http.get<LeaveType[]>(`${environment.apiUrl}/api/leave/LeaveTypes`);
   }
 
   getHolidays(year: number): Observable<Holiday[]> {
-    return this.http.get<Holiday[]>(`${this.apiUrl}/holidays`, {
+    return this.http.get<Holiday[]>(`${environment.apiUrl}/api/leave/HolidayCalendar`, {
       params: { year: year.toString() },
     });
   }
 
   getLeaveCalendar(startDate: string, endDate: string): Observable<LeaveCalendarEntry[]> {
-    return this.http.get<LeaveCalendarEntry[]>(`${this.apiUrl}/calendar`, {
+    return this.http.get<LeaveCalendarEntry[]>(`${environment.apiUrl}/api/leave/LeaveReport/calendar`, {
       params: { startDate, endDate },
     });
   }

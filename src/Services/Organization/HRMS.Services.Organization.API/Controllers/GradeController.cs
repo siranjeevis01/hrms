@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using HRMS.Services.Organization.Application.Commands.CreateGrade;
 using HRMS.Services.Organization.Application.Commands.Delete;
 using HRMS.Services.Organization.Application.Queries.GetGrades;
+using HRMS.Services.Organization.API.DTOs;
 
 namespace HRMS.Services.Organization.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/organization/[controller]")]
 [Produces("application/json")]
 public class GradeController : ControllerBase
 {

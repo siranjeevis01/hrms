@@ -1,13 +1,14 @@
 using HRMS.Services.Employee.Application.Commands.CreateSalaryStructure;
 using HRMS.Services.Employee.Application.Queries.GetEmployeeHistory;
 using HRMS.Services.Employee.Application.Queries.GetEmployeeSalary;
+using HRMS.Services.Employee.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Employee.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/employees/[controller]")]
 public class EmployeeSalaryController : ControllerBase
 {
     private readonly IMediator _mediator;

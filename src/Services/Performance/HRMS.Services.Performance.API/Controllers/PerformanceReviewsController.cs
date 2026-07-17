@@ -5,13 +5,15 @@ using HRMS.Services.Performance.Application.Commands.CreatePerformanceReview;
 using HRMS.Services.Performance.Application.Commands.SubmitPerformanceReview;
 using HRMS.Services.Performance.Application.Queries.GetPerformanceReview;
 using HRMS.Services.Performance.Application.Queries.GetPerformanceReviews;
+using HRMS.Services.Performance.Application.DTOs;
+using HRMS.Services.Performance.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Performance.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/performance/[controller]")]
 public class PerformanceReviewsController : ControllerBase
 {
     private readonly IMediator _mediator;

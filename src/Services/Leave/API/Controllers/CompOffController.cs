@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Leave.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/leave/[controller]")]
 public class CompOffController : ControllerBase
 {
     private readonly IMediator _mediator;

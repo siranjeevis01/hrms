@@ -1,10 +1,13 @@
 .layout-container {
   height: 100vh;
+  height: 100dvh;
 }
 
 .layout-sidenav {
-  width: 260px;
-  border-right: 1px solid #E5E7EB;
+  width: var(--hrms-sidebar-width, 260px);
+  background: var(--hrms-sidebar-bg, #FFFFFF);
+  border-right: 1px solid var(--hrms-border, #E5E7EB);
+  transition: width 0.3s ease, background 0.3s ease;
 
   ::ng-deep .mat-drawer-inner-container {
     padding: 0;
@@ -12,30 +15,39 @@
   }
 }
 
+::ng-deep .mat-drawer {
+  background: var(--hrms-sidebar-bg, #FFFFFF) !important;
+}
+
 .layout-content {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--hrms-bg, #F9FAFB);
 }
 
 .layout-main {
   flex: 1;
   padding: 24px;
-  background-color: #F9FAFB;
   overflow-y: auto;
+  background: var(--hrms-bg, #F9FAFB);
+  transition: background 0.3s;
 }
 
 .layout-loading-bar {
-  position: relative;
   height: 3px;
-  background-color: transparent;
+  position: relative;
+  overflow: hidden;
+  background: var(--hrms-border-light, #F3F4F6);
 
   &__indicator {
     position: absolute;
     top: 0;
     left: 0;
     height: 100%;
-    width: 100%;
-    background: linear-gradient(90deg, #4F46E5, #7C3AED, #4F46E5);
+    width: 40%;
+    background: linear-gradient(90deg, var(--hrms-primary, #4F46E5), var(--hrms-secondary, #7C3AED), var(--hrms-primary, #4F46E5));
     background-size: 200% 100%;
     animation: loading-slide 1.5s ease-in-out infinite;
   }
@@ -47,5 +59,17 @@
   }
   100% {
     background-position: -200% 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .layout-main {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .layout-main {
+    padding: 12px;
   }
 }

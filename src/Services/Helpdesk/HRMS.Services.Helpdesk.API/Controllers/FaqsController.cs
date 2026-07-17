@@ -1,13 +1,14 @@
 using HRMS.Services.Helpdesk.Application.Commands.CreateFaq;
 using HRMS.Services.Helpdesk.Application.Commands.UpdateFaq;
 using HRMS.Services.Helpdesk.Application.Queries.GetFaqs;
+using HRMS.Services.Helpdesk.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Helpdesk.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/helpdesk/[controller]")]
 public class FaqsController : ControllerBase
 {
     private readonly IMediator _mediator;

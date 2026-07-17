@@ -1,12 +1,13 @@
 using HRMS.Services.Employee.Application.Commands.AddEducation;
 using HRMS.Services.Employee.Application.Queries.GetEmployeeEducation;
+using HRMS.Services.Employee.Application.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.Services.Employee.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/employees/[controller]")]
 public class EmployeeEducationController : ControllerBase
 {
     private readonly IMediator _mediator;

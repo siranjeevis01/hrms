@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   DocumentItem,
   DocumentFolder,
@@ -11,7 +12,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class DocumentsService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/documents';
+  private apiUrl = `${environment.apiUrl}/api/documents/Documents`;
 
   getDocuments(folderId?: string, search?: string, sort?: string): Observable<DocumentItem[]> {
     let params = new HttpParams();

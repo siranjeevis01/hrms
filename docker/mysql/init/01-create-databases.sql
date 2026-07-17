@@ -97,6 +97,42 @@ CREATE DATABASE IF NOT EXISTS `hrms_dashboard`
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
+-- Expense Service Database
+-- Expense claims, reimbursements, approval workflows
+CREATE DATABASE IF NOT EXISTS `hrms_expense`
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+-- Travel Service Database
+-- Travel requests, itineraries, bookings, approvals
+CREATE DATABASE IF NOT EXISTS `hrms_travel`
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+-- Helpdesk Service Database
+-- Support tickets, knowledge base, SLA tracking
+CREATE DATABASE IF NOT EXISTS `hrms_helpdesk`
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+-- Chat Service Database
+-- Real-time messaging, channels, conversations
+CREATE DATABASE IF NOT EXISTS `hrms_chat`
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+-- Document Service Database
+-- Document storage, metadata, access control
+CREATE DATABASE IF NOT EXISTS `hrms_document`
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+-- Workflow Service Database
+-- Approval workflows, business rules, escalations
+CREATE DATABASE IF NOT EXISTS `hrms_workflow`
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
 -- ============================================
 -- Create User and Grant Privileges
 -- ============================================
@@ -119,6 +155,12 @@ GRANT ALL PRIVILEGES ON `hrms_performance`.* TO 'hrms_admin'@'%';
 GRANT ALL PRIVILEGES ON `hrms_report`.* TO 'hrms_admin'@'%';
 GRANT ALL PRIVILEGES ON `hrms_audit`.* TO 'hrms_admin'@'%';
 GRANT ALL PRIVILEGES ON `hrms_dashboard`.* TO 'hrms_admin'@'%';
+GRANT ALL PRIVILEGES ON `hrms_expense`.* TO 'hrms_admin'@'%';
+GRANT ALL PRIVILEGES ON `hrms_travel`.* TO 'hrms_admin'@'%';
+GRANT ALL PRIVILEGES ON `hrms_helpdesk`.* TO 'hrms_admin'@'%';
+GRANT ALL PRIVILEGES ON `hrms_chat`.* TO 'hrms_admin'@'%';
+GRANT ALL PRIVILEGES ON `hrms_document`.* TO 'hrms_admin'@'%';
+GRANT ALL PRIVILEGES ON `hrms_workflow`.* TO 'hrms_admin'@'%';
 
 -- Also grant access to the init databases
 GRANT ALL PRIVILEGES ON `hrms_identity`.* TO 'hrms_admin'@'localhost';

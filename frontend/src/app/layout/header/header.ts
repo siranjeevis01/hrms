@@ -12,6 +12,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { User } from '../../core/models/auth.model';
 import { AppNotification } from '../../core/models/common.model';
+import { ThemeSwitcherComponent } from '../../shared/components/theme-switcher/theme-switcher.component';
 
 @Component({
   selector: 'app-header',
@@ -26,6 +27,7 @@ import { AppNotification } from '../../core/models/common.model';
     MatBadgeModule,
     MatDividerModule,
     MatListModule,
+    ThemeSwitcherComponent,
   ],
   templateUrl: './header.html',
   styleUrl: './header.scss',
@@ -72,8 +74,9 @@ export class HeaderComponent implements OnInit {
 
   getUserInitials(): string {
     const u = this.user();
-    if (!u?.displayName) return 'U';
-    return u.displayName
+    const name = `${u?.firstName || ''} ${u?.lastName || ''}`.trim();
+    if (!name) return 'U';
+    return name
       .split(' ')
       .map((n) => n[0])
       .join('')

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HRMS.Services.Leave.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/leave/[controller]")]
 public class HolidayCalendarController : ControllerBase
 {
     private readonly IMediator _mediator;

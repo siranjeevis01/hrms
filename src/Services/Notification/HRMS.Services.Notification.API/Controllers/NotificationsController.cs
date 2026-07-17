@@ -1,87 +1,96 @@
-using Hangfire;
-using Hangfire.SqlServer;
-using HRMS.Services.Notification.API.Controllers;
-using HRMS.Services.Notification.Infrastructure.Extensions;
-using HRMS.Services.Notification.Infrastructure.Jobs;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using HRMS.Services.Notification.Application.Commands.DeleteNotification;
+using HRMS.Services.Notification.Application.Commands.MarkAllAsRead;
+using HRMS.Services.Notification.Application.Commands.MarkAsRead;
+using HRMS.Services.Notification.Application.Queries.GetMyNotifications;
+using HRMS.Services.Notification.Application.Queries.GetNotificationById;
+using HRMS.Services.Notification.Application.Queries.GetUnreadCount;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace HRMS.Services.Notification.API.Controllers;
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+[ApiController]
+[Route("api/notifications/[controller]")]
+[Authorize]
+public class NotificationsController : ControllerBase
 {
-    c.SwaggerDoc("v1", new() { Title = "HRMS Notification Service", Version = "v1" });
-});
+    private readonly IMediator _mediator;
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+    public NotificationsController(IMediator mediator)
     {
-        options.TokenValidationParameters = new TokenValidationParameters
+        _mediator = mediator;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetMyNotifications(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? type = null,
+        [FromQuery] string? category = null,
+        [FromQuery] bool? isRead = null,
+        [FromQuery] string? searchTerm = null)
+    {
+        var userId = GetUserId();
+        var query = new GetMyNotificationsQuery
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-            ValidAudience = builder.Configuration["JwtSettings:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"] ?? "default-secret-key"))
+            UserId = userId,
+            Page = page,
+            PageSize = pageSize,
+            Type = type != null && Enum.TryParse<Domain.Enums.NotificationType>(type, true, out var t) ? t : null,
+            Category = category != null && Enum.TryParse<Domain.Enums.NotificationCategory>(category, true, out var c) ? c : null,
+            IsRead = isRead,
+            SearchTerm = searchTerm
         };
-    });
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
 
-builder.Services.AddAuthorization();
-
-builder.Services.AddSignalR();
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
+    [HttpGet("unread-count")]
+    public async Task<IActionResult> GetUnreadCount()
     {
-        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-    });
-});
+        var userId = GetUserId();
+        var count = await _mediator.Send(new GetUnreadCountQuery { UserId = userId });
+        return Ok(new { count });
+    }
 
-builder.Services.AddNotificationInfrastructure(builder.Configuration);
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var userId = GetUserId();
+        var result = await _mediator.Send(new GetNotificationByIdQuery { Id = id, UserId = userId });
+        if (result == null) return NotFound();
+        return Ok(result);
+    }
 
-builder.Services.AddHangfire(config => config
-    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-    .UseSimpleAssemblyNameTypeSerializer()
-    .UseRecommendedSerializerSettings()
-    .UseSqlServerBuilder(builder.Configuration.GetConnectionString("Hangfire") ??
-        builder.Configuration.GetConnectionString("NotificationDb")));
+    [HttpPut("{id:guid}/read")]
+    public async Task<IActionResult> MarkAsRead(Guid id)
+    {
+        var userId = GetUserId();
+        await _mediator.Send(new MarkAsReadCommand { NotificationId = id, UserId = userId });
+        return Ok();
+    }
 
-builder.Services.AddHangfireServer(options =>
-{
-    options.Queues = new[] { "email", "sms", "retry", "default" };
-    options.WorkerCount = 4;
-});
+    [HttpPut("read-all")]
+    public async Task<IActionResult> MarkAllAsRead()
+    {
+        var userId = GetUserId();
+        var count = await _mediator.Send(new MarkAllAsReadCommand { UserId = userId });
+        return Ok(new { marked = count });
+    }
 
-builder.Services.AddHealthChecks()
-    .AddSqlServer(builder.Configuration.GetConnectionString("NotificationDb") ?? "Server=localhost;Database=HRMS_Notification;Trusted_Connection=True;");
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var userId = GetUserId();
+        await _mediator.Send(new DeleteNotificationCommand { NotificationId = id, UserId = userId });
+        return Ok();
+    }
 
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    private Guid GetUserId()
+    {
+        var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (claim == null) throw new UnauthorizedAccessException();
+        return Guid.Parse(claim.Value);
+    }
 }
-
-app.UseHttpsRedirection();
-app.UseCors();
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-app.MapHub<NotificationHub>("/hubs/notifications");
-app.MapHealthChecks("/health");
-
-app.MapHangfireDashboard("/hangfire", new DashboardOptions
-{
-    DashboardTitle = "Notification Service Jobs",
-    Authorization = new[] { new HangfireAuthorizationFilter() }
-});
-
-app.Run();

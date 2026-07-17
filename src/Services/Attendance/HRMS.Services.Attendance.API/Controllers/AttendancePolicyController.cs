@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace HRMS.Services.Attendance.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/attendance/[controller]")]
 public class AttendancePolicyController : ControllerBase
 {
     private readonly IMediator _mediator;

@@ -94,8 +94,8 @@
   <!-- Module: Leave -->
   <ItemGroup>
     <ProjectReference Include="..\..\Services\Leave\Domain\HRMS.Services.Leave.Domain.csproj" />
-    <ProjectReference Include="..\..\Services\Leave\Application\HRMS.Services.Leave.Application\HRMS.Services.Leave.Application.csproj" />
-    <ProjectReference Include="..\..\Services\Leave\Infrastructure\HRMS.Services.Leave.Infrastructure\HRMS.Services.Leave.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Services\Leave\Application\HRMS.Services.Leave.Application.csproj" />
+    <ProjectReference Include="..\..\Services\Leave\Infrastructure\HRMS.Services.Leave.Infrastructure.csproj" />
   </ItemGroup>
 
   <!-- Module: Notification -->

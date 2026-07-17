@@ -35,7 +35,5 @@ public class DelegationConfiguration : IEntityTypeConfiguration<Delegation>
         builder.HasIndex(e => e.DelegateToUserId);
         builder.HasIndex(e => e.IsActive);
         builder.HasIndex(e => e.TenantId);
-
-        builder.Ignore(e => e.DomainEvents);
     }
 }
