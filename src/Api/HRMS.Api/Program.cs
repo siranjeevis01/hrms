@@ -324,6 +324,18 @@ try
             db.Database.Migrate();
             Log.Information("Migrations applied successfully.");
         }
+
+        var conn = db.Database.GetDbConnection();
+        await conn.OpenAsync();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
+            DO $$ BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'ApplicationUsers' AND column_name = 'PasswordHash') THEN
+                    ALTER TABLE ""ApplicationUsers"" ADD COLUMN ""PasswordHash"" text;
+                END IF;
+            END $$;";
+        await cmd.ExecuteNonQueryAsync();
+        await conn.CloseAsync();
     }
 
     Log.Information("HRMS Pro API started successfully on {Urls}", builder.Configuration["Urls"] ?? "default");
