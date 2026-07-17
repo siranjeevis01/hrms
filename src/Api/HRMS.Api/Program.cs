@@ -73,9 +73,13 @@ try
         builder.Services.AddValidatorsFromAssembly(assembly);
 
     // ── Identity Infrastructure Services (for monolith) ──
+    builder.Services.AddScoped<HRMS.Services.Identity.Infrastructure.Services.PasswordHasher>();
     builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.IPasswordHasher, HRMS.Services.Identity.Infrastructure.Services.PasswordHasherAdapter>();
     builder.Services.AddScoped<HRMS.Services.Identity.Infrastructure.Services.TokenService>();
     builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.ITokenService, HRMS.Services.Identity.Infrastructure.Services.ApplicationTokenServiceAdapter>();
+    builder.Services.AddScoped<HRMS.Services.Identity.Infrastructure.Services.TotpService>();
+    builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.ITotpService, HRMS.Services.Identity.Infrastructure.Services.TotpServiceAdapter>();
+    builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.IEmailService, HRMS.Services.Identity.Infrastructure.Services.NoOpEmailService>();
     builder.Services.Configure<HRMS.Services.Identity.Infrastructure.Services.JwtSettings>(builder.Configuration.GetSection("Jwt"));
     builder.Services.Configure<HRMS.Services.Identity.Infrastructure.Services.FirebaseAuthSettings>(builder.Configuration.GetSection("Firebase"));
     builder.Services.AddScoped<IIdentityDbContext>(sp =>
@@ -152,9 +156,26 @@ try
 
     builder.Services.AddAuthorization();
 
-    var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-        ?? new[] { "http://localhost:4200", "http://localhost:3000" };
-    var allowAllOrigins = corsOrigins.Contains("*") || corsOrigins.Contains("https://*");
+    var corsOriginsRaw = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+    if (corsOriginsRaw is null || corsOriginsRaw.Length == 0)
+    {
+        var rawValue = builder.Configuration["Cors:AllowedOrigins"];
+        if (!string.IsNullOrWhiteSpace(rawValue))
+        {
+            try
+            {
+                corsOriginsRaw = JsonSerializer.Deserialize<string[]>(rawValue, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            catch
+            {
+                corsOriginsRaw = rawValue.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            }
+        }
+    }
+    var corsOrigins = corsOriginsRaw is { Length: > 0 }
+        ? corsOriginsRaw
+        : new[] { "https://courageous-rolypoly-c81b64.netlify.app", "https://hrms-pro.netlify.app", "http://localhost:4200" };
+    var allowAllOrigins = corsOrigins.Any(o => o == "*" || o == "https://*");
 
     builder.Services.AddCors(options =>
     {
