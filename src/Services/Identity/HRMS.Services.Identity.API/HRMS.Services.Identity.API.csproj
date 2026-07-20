@@ -16,9 +16,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Shared\HRMS.Shared.Kernel\HRMS.Shared.Kernel.csproj" />
-    <ProjectReference Include="..\..\..\Shared\Persistence\HRMS.Shared.Persistence\HRMS.Shared.Persistence.csproj" />
-    <ProjectReference Include="..\..\..\Shared\Caching\HRMS.Shared.Caching\HRMS.Shared.Caching.csproj" />
-    <ProjectReference Include="..\..\..\Shared\Security\HRMS.Shared.Security\HRMS.Shared.Security.csproj" />
+    <ProjectReference Include="..\..\..\Shared\HRMS.Shared.Persistence\HRMS.Shared.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\Shared\HRMS.Shared.Caching\HRMS.Shared.Caching.csproj" />
+    <ProjectReference Include="..\..\..\Shared\HRMS.Shared.Security\HRMS.Shared.Security.csproj" />
     <ProjectReference Include="..\HRMS.Services.Identity.Domain\HRMS.Services.Identity.Domain.csproj" />
     <ProjectReference Include="..\HRMS.Services.Identity.Application\HRMS.Services.Identity.Application.csproj" />
     <ProjectReference Include="..\HRMS.Services.Identity.Infrastructure\HRMS.Services.Identity.Infrastructure.csproj" />

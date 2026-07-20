@@ -12,17 +12,20 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
     private readonly IIdentityDbContext _context;
     private readonly IPasswordHasher _passwordHasher;
     private readonly ITokenService _tokenService;
+    private readonly IEmailService _emailService;
     private readonly IPublisher _publisher;
 
     public RegisterUserCommandHandler(
         IIdentityDbContext context,
         IPasswordHasher passwordHasher,
         ITokenService tokenService,
+        IEmailService emailService,
         IPublisher publisher)
     {
         _context = context;
         _passwordHasher = passwordHasher;
         _tokenService = tokenService;
+        _emailService = emailService;
         _publisher = publisher;
     }
 
@@ -97,6 +100,13 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
 
         await _publisher.Publish(
             new UserRegisteredEvent(userId, user.Email, user.FirstName, user.LastName, user.TenantId),
+            cancellationToken);
+
+        var verificationToken = _tokenService.GeneratePasswordResetToken();
+        await _emailService.SendEmailVerificationAsync(
+            user.Email,
+            user.FirstName,
+            verificationToken,
             cancellationToken);
 
         return Result<AuthResponseDto>.Success(dto);

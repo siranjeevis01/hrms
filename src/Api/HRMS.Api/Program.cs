@@ -99,9 +99,17 @@ try
     builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.ITokenService, HRMS.Services.Identity.Infrastructure.Services.ApplicationTokenServiceAdapter>();
     builder.Services.AddScoped<HRMS.Services.Identity.Infrastructure.Services.TotpService>();
     builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.ITotpService, HRMS.Services.Identity.Infrastructure.Services.TotpServiceAdapter>();
-    builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.IEmailService, HRMS.Services.Identity.Infrastructure.Services.NoOpEmailService>();
     builder.Services.Configure<HRMS.Services.Identity.Infrastructure.Services.JwtSettings>(builder.Configuration.GetSection("Jwt"));
     builder.Services.Configure<HRMS.Services.Identity.Infrastructure.Services.FirebaseAuthSettings>(builder.Configuration.GetSection("Firebase"));
+
+    // ── Email Service (SMTP) ──
+    builder.Services.Configure<HRMS.Services.Identity.Infrastructure.Services.SmtpOptions>(builder.Configuration.GetSection(HRMS.Services.Identity.Infrastructure.Services.SmtpOptions.SectionName));
+    builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.IEmailService, HRMS.Services.Identity.Infrastructure.Services.SmtpEmailService>();
+
+    // ── Notification Service (monolith) ──
+    builder.Services.Configure<HRMS.Api.Services.SmtpSettings>(builder.Configuration.GetSection(HRMS.Api.Services.SmtpSettings.SectionName));
+    builder.Services.AddScoped<HRMS.Shared.Kernel.Interfaces.INotificationService, HRMS.Api.Services.MonolithNotificationService>();
+
     builder.Services.AddScoped<IIdentityDbContext>(sp =>
         new IdentityDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
 

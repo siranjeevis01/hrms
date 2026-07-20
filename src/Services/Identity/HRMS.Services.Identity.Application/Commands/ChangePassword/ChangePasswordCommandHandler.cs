@@ -9,15 +9,18 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
 {
     private readonly IIdentityDbContext _context;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IEmailService _emailService;
     private readonly IPublisher _publisher;
 
     public ChangePasswordCommandHandler(
         IIdentityDbContext context,
         IPasswordHasher passwordHasher,
+        IEmailService emailService,
         IPublisher publisher)
     {
         _context = context;
         _passwordHasher = passwordHasher;
+        _emailService = emailService;
         _publisher = publisher;
     }
 
@@ -45,6 +48,11 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
         await _context.SaveChangesAsync(cancellationToken);
 
         await _publisher.Publish(new PasswordChangedEvent(user.Id), cancellationToken);
+
+        await _emailService.SendPasswordChangedNotificationAsync(
+            user.Email,
+            user.FirstName,
+            cancellationToken);
 
         return Result.Success();
     }
