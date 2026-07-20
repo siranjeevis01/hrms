@@ -21,14 +21,14 @@ jobs:
       matrix:
         service:
           - name: api-gateway
-            context: ./src/ApiGateway
-            dockerfile: ./src/ApiGateway/Dockerfile
+            context: .
+            dockerfile: ./src/ApiGateway/HRMS.ApiGateway/Dockerfile
           - name: identity
             context: .
-            dockerfile: ./src/Services/Identity/Dockerfile
+            dockerfile: ./src/Services/Identity/HRMS.Services.Identity.API/Dockerfile
           - name: organization
             context: .
-            dockerfile: ./src/Services/Organization/Dockerfile
+            dockerfile: ./src/Services/Organization/HRMS.Services.Organization.API/Dockerfile
           - name: employee
             context: .
             dockerfile: ./src/Services/Employee/Dockerfile
@@ -37,10 +37,10 @@ jobs:
             dockerfile: ./src/Services/Attendance/Dockerfile
           - name: leave
             context: .
-            dockerfile: ./src/Services/Leave/Dockerfile
+            dockerfile: ./src/Services/Leave/API/Dockerfile
           - name: payroll
             context: .
-            dockerfile: ./src/Services/Payroll/Dockerfile
+            dockerfile: ./src/Services/Payroll/HRMS.Services.Payroll.API/Dockerfile
           - name: notification
             context: .
             dockerfile: ./src/Services/Notification/Dockerfile
@@ -160,8 +160,8 @@ jobs:
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend/angular
-          file: ./frontend/angular/Dockerfile
+          context: ./frontend
+          file: ./frontend/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

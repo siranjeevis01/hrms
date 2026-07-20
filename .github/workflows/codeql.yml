@@ -36,7 +36,7 @@ jobs:
           languages: ${{ matrix.language }}
           config: |
             paths:
-              - frontend/angular/src
+              - frontend/src
             queries:
               - uses: security-extended
               - uses: security-and-quality

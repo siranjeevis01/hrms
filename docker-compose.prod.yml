@@ -162,7 +162,7 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: src/ApiGateway/Dockerfile
+      dockerfile: src/ApiGateway/HRMS.ApiGateway/Dockerfile
       target: final
       args:
         - BUILD_VERSION=${BUILD_VERSION}
@@ -204,7 +204,7 @@ services:
   identity-service:
     build:
       context: .
-      dockerfile: src/Services/Identity/Dockerfile
+      dockerfile: src/Services/Identity/HRMS.Services.Identity.API/Dockerfile
       target: final
       args:
         - BUILD_VERSION=${BUILD_VERSION}
@@ -243,7 +243,7 @@ services:
   organization-service:
     build:
       context: .
-      dockerfile: src/Services/Organization/Dockerfile
+      dockerfile: src/Services/Organization/HRMS.Services.Organization.API/Dockerfile
       target: final
       args:
         - BUILD_VERSION=${BUILD_VERSION}
@@ -348,7 +348,7 @@ services:
   leave-service:
     build:
       context: .
-      dockerfile: src/Services/Leave/Dockerfile
+      dockerfile: src/Services/Leave/API/Dockerfile
       target: final
       args:
         - BUILD_VERSION=${BUILD_VERSION}
@@ -383,7 +383,7 @@ services:
   payroll-service:
     build:
       context: .
-      dockerfile: src/Services/Payroll/Dockerfile
+      dockerfile: src/Services/Payroll/HRMS.Services.Payroll.API/Dockerfile
       target: final
       args:
         - BUILD_VERSION=${BUILD_VERSION}
@@ -915,7 +915,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend/angular
+      context: ./frontend
       dockerfile: Dockerfile
       target: production
       args:
