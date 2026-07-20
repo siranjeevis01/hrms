@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Exporter;
 using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Events;
@@ -72,11 +73,9 @@ public static class ServiceCollectionExtensions
 
                 if (!string.IsNullOrEmpty(jaegerEndpoint))
                 {
-                    tracing.AddJaegerExporter(options =>
+                    tracing.AddOtlpExporter(options =>
                     {
-                        options.AgentHost = new Uri(jaegerEndpoint).Host;
-                        options.AgentPort = new Uri(jaegerEndpoint).Port;
-                        options.ExportProcessorType = ExportProcessorType.Simple;
+                        options.Endpoint = new Uri(jaegerEndpoint);
                     });
                 }
             });
