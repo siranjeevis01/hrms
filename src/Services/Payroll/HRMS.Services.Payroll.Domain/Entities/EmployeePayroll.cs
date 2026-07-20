@@ -4,7 +4,7 @@ namespace HRMS.Services.Payroll.Domain.Entities;
 
 public class EmployeePayroll : BaseEntity
 {
-    public Guid Id { get; private set; }
+    public new Guid Id { get; private set; }
     public Guid PayrollRunId { get; private set; }
     public Guid EmployeeId { get; private set; }
     public Guid DepartmentId { get; private set; }
@@ -22,7 +22,7 @@ public class EmployeePayroll : BaseEntity
     public decimal OvertimeAmount { get; private set; }
     public bool IsProcessed { get; private set; }
     public DateTime? ProcessedAt { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     public PayrollRun PayrollRun { get; private set; } = null!;
 

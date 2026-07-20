@@ -8,7 +8,7 @@ public class PayrollRun : AggregateRoot
     public Guid CompanyId { get; private set; }
     public int Month { get; private set; }
     public int Year { get; private set; }
-    public PayrollStatus Status { get; private set; }
+    public new PayrollStatus Status { get; private set; }
     public DateTime? ProcessedAt { get; private set; }
     public Guid? ProcessedBy { get; private set; }
     public DateTime? ApprovedAt { get; private set; }
@@ -17,7 +17,7 @@ public class PayrollRun : AggregateRoot
     public decimal TotalGrossAmount { get; private set; }
     public decimal TotalDeductions { get; private set; }
     public decimal TotalNetAmount { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private readonly List<EmployeePayroll> _employeePayrolls = new();
     public IReadOnlyCollection<EmployeePayroll> EmployeePayrolls => _employeePayrolls.AsReadOnly();

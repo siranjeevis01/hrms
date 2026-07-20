@@ -11,7 +11,7 @@ public class KnowledgeArticle : AggregateRoot
     public string? Tags { get; private set; }
     public int ViewCount { get; private set; }
     public bool IsPublished { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private KnowledgeArticle() { }
 

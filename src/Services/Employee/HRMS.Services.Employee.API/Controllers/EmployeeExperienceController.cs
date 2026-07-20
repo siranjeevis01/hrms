@@ -36,14 +36,14 @@ public class EmployeeExperienceController : ControllerBase
 
     [HttpPut("{expId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> UpdateExperience(Guid expId)
+    public IActionResult UpdateExperience(Guid expId)
     {
         return NoContent();
     }
 
     [HttpDelete("{expId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> DeleteExperience(Guid expId)
+    public IActionResult DeleteExperience(Guid expId)
     {
         return NoContent();
     }

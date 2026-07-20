@@ -11,8 +11,8 @@ public class ReportInstance : BaseEntity
     public string? Parameters { get; private set; }
     public string? FileUrl { get; private set; }
     public long? FileSize { get; private set; }
-    public ReportStatus Status { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new ReportStatus Status { get; private set; }
+    public new string TenantId { get; private set; } = string.Empty;
 
     private ReportInstance() { }
 

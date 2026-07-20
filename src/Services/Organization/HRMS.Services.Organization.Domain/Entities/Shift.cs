@@ -14,7 +14,7 @@ public class Shift : AggregateRoot
     public bool IsFlexible { get; private set; }
     public int MaxShifts { get; private set; }
     public bool IsActive { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private Shift() { }
 

@@ -12,7 +12,7 @@ public class ValidateGeoLocationQueryHandler : IRequestHandler<ValidateGeoLocati
         _context = context;
     }
 
-    public async Task<ValidateGeoLocationResult> Handle(ValidateGeoLocationQuery request, CancellationToken cancellationToken)
+    public Task<ValidateGeoLocationResult> Handle(ValidateGeoLocationQuery request, CancellationToken cancellationToken)
     {
         var fences = _context.GeoFences
             .Where(f => f.CompanyId == request.CompanyId && f.IsActive)
@@ -20,11 +20,11 @@ public class ValidateGeoLocationQueryHandler : IRequestHandler<ValidateGeoLocati
 
         if (!fences.Any())
         {
-            return new ValidateGeoLocationResult
+            return Task.FromResult(new ValidateGeoLocationResult
             {
                 IsValid = false,
                 Message = "No active geo-fences configured for this company."
-            };
+            });
         }
 
         var now = DateTime.UtcNow.TimeOfDay;
@@ -34,12 +34,12 @@ public class ValidateGeoLocationQueryHandler : IRequestHandler<ValidateGeoLocati
         {
             if (fence.IsPointInside(request.Latitude, request.Longitude))
             {
-                return new ValidateGeoLocationResult
+                return Task.FromResult(new ValidateGeoLocationResult
                 {
                     IsValid = true,
                     Message = $"Inside geo-fence: {fence.Name}",
                     NearestFenceName = fence.Name
-                };
+                });
             }
         }
 
@@ -59,12 +59,12 @@ public class ValidateGeoLocationQueryHandler : IRequestHandler<ValidateGeoLocati
             }
         }
 
-        return new ValidateGeoLocationResult
+        return Task.FromResult(new ValidateGeoLocationResult
         {
             IsValid = false,
             Message = "Location is outside all configured geo-fences.",
             NearestFenceDistanceMeters = minDistance,
             NearestFenceName = nearestName
-        };
+        });
     }
 }

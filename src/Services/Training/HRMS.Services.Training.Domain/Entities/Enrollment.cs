@@ -8,7 +8,7 @@ public class Enrollment : BaseEntity
     public Guid CourseId { get; private set; }
     public Guid EmployeeId { get; private set; }
     public DateTime EnrolledAt { get; private set; }
-    public EnrollmentStatus Status { get; private set; }
+    public new EnrollmentStatus Status { get; private set; }
     public double ProgressPercentage { get; private set; }
     public DateTime? CompletedAt { get; private set; }
     public Guid? CertificateId { get; private set; }

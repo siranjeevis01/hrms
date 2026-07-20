@@ -8,12 +8,12 @@ public class JobApplication : BaseEntity
     public Guid JobPostingId { get; private set; }
     public Guid CandidateId { get; private set; }
     public DateTime AppliedAt { get; private set; }
-    public ApplicationStatus Status { get; private set; }
+    public new ApplicationStatus Status { get; private set; }
     public decimal? ScreeningScore { get; private set; }
     public string? RecruiterNotes { get; private set; }
     public Guid? AssignedTo { get; private set; }
     public string? RejectionReason { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     public JobPosting? JobPosting { get; set; }
     public Candidate? Candidate { get; set; }

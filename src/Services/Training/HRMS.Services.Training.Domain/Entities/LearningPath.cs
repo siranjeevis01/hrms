@@ -8,7 +8,7 @@ public class LearningPath : AggregateRoot
     public string Title { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public Guid? DepartmentId { get; private set; }
-    public CourseStatus Status { get; private set; }
+    public new CourseStatus Status { get; private set; }
 
     private readonly List<LearningPathCourse> _learningPathCourses = new();
     public IReadOnlyCollection<LearningPathCourse> LearningPathCourses => _learningPathCourses.AsReadOnly();

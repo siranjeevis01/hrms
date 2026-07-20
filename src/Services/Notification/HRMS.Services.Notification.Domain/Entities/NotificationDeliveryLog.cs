@@ -9,12 +9,12 @@ public class NotificationDeliveryLog : AggregateRoot
     public NotificationChannel Channel { get; private set; }
     public string Provider { get; private set; } = string.Empty;
     public string? ProviderMessageId { get; private set; }
-    public NotificationStatus Status { get; private set; }
+    public new NotificationStatus Status { get; private set; }
     public string? Response { get; private set; }
     public int AttemptCount { get; private set; }
     public DateTime? LastAttemptAt { get; private set; }
     public DateTime? NextRetryAt { get; private set; }
-    public Guid? TenantId { get; private set; }
+    public new Guid? TenantId { get; private set; }
 
     private NotificationDeliveryLog() { }
 

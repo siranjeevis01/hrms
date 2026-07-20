@@ -28,7 +28,7 @@ public class LeaveAccrualPolicy : BaseEntity
     public int? CustomAccrualDay { get; private set; }
     public decimal MaxAccrualPerYear { get; private set; }
     public ResetType ResetType { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     public static LeaveAccrualPolicy Create(
         Guid id,

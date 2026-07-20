@@ -3,7 +3,7 @@ using MediatR;
 
 namespace HRMS.Services.Training.Application.Queries.GetCertificate;
 
-public class GetCertificateQuery : IRequest<CertificateDto>
+public class GetCertificateQuery : IRequest<CertificateDto?>
 {
     public Guid Id { get; set; }
 }

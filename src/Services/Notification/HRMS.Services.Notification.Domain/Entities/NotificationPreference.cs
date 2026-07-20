@@ -12,7 +12,7 @@ public class NotificationPreference : AggregateRoot
     public NotificationFrequency Frequency { get; private set; }
     public TimeOnly? QuietHoursStart { get; private set; }
     public TimeOnly? QuietHoursEnd { get; private set; }
-    public Guid? TenantId { get; private set; }
+    public new Guid? TenantId { get; private set; }
 
     private NotificationPreference() { }
 

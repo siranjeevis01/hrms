@@ -13,7 +13,7 @@ public class AttendanceRegularization : BaseEntity
     public DateTime? OriginalCheckOut { get; private set; }
     public DateTime? RequestedCheckIn { get; private set; }
     public DateTime? RequestedCheckOut { get; private set; }
-    public RegularizationStatus Status { get; private set; }
+    public new RegularizationStatus Status { get; private set; }
     public Guid? ApprovedBy { get; private set; }
     public DateTime? ApprovedAt { get; private set; }
     public string? RejectionReason { get; private set; }

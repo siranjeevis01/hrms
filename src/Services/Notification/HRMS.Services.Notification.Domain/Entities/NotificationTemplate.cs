@@ -13,7 +13,7 @@ public class NotificationTemplate : AggregateRoot
     public string? Variables { get; private set; }
     public bool IsActive { get; private set; }
     public string Language { get; private set; } = "en";
-    public Guid? TenantId { get; private set; }
+    public new Guid? TenantId { get; private set; }
 
     private NotificationTemplate() { }
 

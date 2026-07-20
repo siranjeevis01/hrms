@@ -8,7 +8,7 @@ public class AuditTrail : BaseEntity
     public string FieldName { get; private set; } = string.Empty;
     public string? OldValue { get; private set; }
     public string? NewValue { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private AuditTrail() { }
 

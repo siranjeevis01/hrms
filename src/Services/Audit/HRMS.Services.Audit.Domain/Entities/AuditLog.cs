@@ -14,7 +14,7 @@ public class AuditLog : AggregateRoot
     public string? NewValues { get; private set; }
     public string? IpAddress { get; private set; }
     public string? UserAgent { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
     public DateTime Timestamp { get; private set; }
 
     private readonly List<AuditTrail> _auditTrails = new();

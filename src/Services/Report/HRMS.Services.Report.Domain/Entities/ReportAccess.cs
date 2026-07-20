@@ -9,7 +9,7 @@ public class ReportAccess : BaseEntity
     public string Permission { get; private set; } = string.Empty;
     public DateTime GrantedAt { get; private set; }
     public Guid GrantedBy { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private ReportAccess() { }
 

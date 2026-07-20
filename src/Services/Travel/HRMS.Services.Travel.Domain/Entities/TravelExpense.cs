@@ -11,7 +11,7 @@ public class TravelExpense : BaseEntity
     public string Currency { get; private set; } = "USD";
     public string? ReceiptUrl { get; private set; }
     public DateTime Date { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private TravelExpense() { }
 

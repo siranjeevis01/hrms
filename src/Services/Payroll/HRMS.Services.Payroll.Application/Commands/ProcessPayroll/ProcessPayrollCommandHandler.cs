@@ -98,7 +98,7 @@ public class ProcessPayrollCommandHandler : IRequestHandler<ProcessPayrollComman
         return result;
     }
 
-    private async Task<EmployeePayrollResult> ProcessEmployee(
+    private Task<EmployeePayrollResult> ProcessEmployee(
         EmployeePayrollInput input, Guid payrollRunId,
         List<SalaryComponentDef> salaryComponents,
         List<EmployeeSalaryAssignment> assignedComponents,
@@ -250,7 +250,7 @@ public class ProcessPayrollCommandHandler : IRequestHandler<ProcessPayrollComman
         employeeResult.TotalDeductions = totalDeductions;
         employeeResult.NetPayable = employeePayroll.NetPayable;
 
-        return employeeResult;
+        return Task.FromResult(employeeResult);
     }
 
     private decimal CalculateFormula(string? formula, decimal basic, decimal compValue, decimal dayRate, int paidDays)

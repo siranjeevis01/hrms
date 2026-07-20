@@ -5,7 +5,7 @@ namespace HRMS.Services.Payroll.Domain.Entities;
 
 public class SalaryComponentDef : BaseEntity
 {
-    public Guid Id { get; private set; }
+    public new Guid Id { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string Code { get; private set; } = string.Empty;
     public ComponentType Type { get; private set; }
@@ -18,7 +18,7 @@ public class SalaryComponentDef : BaseEntity
     public bool IsESIApplicable { get; private set; }
     public bool IsActive { get; private set; }
     public int SortOrder { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private SalaryComponentDef() { }
 

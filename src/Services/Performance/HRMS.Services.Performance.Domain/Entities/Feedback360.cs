@@ -9,9 +9,9 @@ public class Feedback360 : AggregateRoot
     public Guid ReviewerId { get; private set; }
     public string ReviewPeriod { get; private set; } = string.Empty;
     public FeedbackRelationship Relationship { get; private set; }
-    public FeedbackStatus Status { get; private set; }
+    public new FeedbackStatus Status { get; private set; }
     public DateTime? SubmittedAt { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private readonly List<FeedbackAnswer> _answers = new();
     public IReadOnlyCollection<FeedbackAnswer> Answers => _answers.AsReadOnly();

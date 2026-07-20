@@ -46,7 +46,7 @@ public class EmployeeDocumentsController : ControllerBase
 
     [HttpDelete("{docId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> DeleteDocument(Guid docId)
+    public IActionResult DeleteDocument(Guid docId)
     {
         return NoContent();
     }

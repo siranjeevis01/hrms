@@ -20,10 +20,10 @@ public class Candidate : AggregateRoot
     public Guid? ReferralEmployeeId { get; private set; }
     public string Skills { get; private set; } = "[]";
     public string Education { get; private set; } = "{}";
-    public CandidateStatus Status { get; private set; }
+    public new CandidateStatus Status { get; private set; }
     public string? RejectionReason { get; private set; }
     public string? Notes { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private Candidate() { }
 

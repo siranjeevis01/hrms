@@ -10,7 +10,7 @@ public class WidgetPreset : BaseEntity
     public string? DefaultConfiguration { get; private set; }
     public string? Description { get; private set; }
     public string? Category { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private WidgetPreset() { }
 

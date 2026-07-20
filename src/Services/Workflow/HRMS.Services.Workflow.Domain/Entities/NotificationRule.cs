@@ -9,7 +9,7 @@ public class NotificationRule : BaseEntity
     public string EventType { get; private set; } = string.Empty;
     public string Channel { get; private set; } = string.Empty;
     public string? TemplateId { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private NotificationRule() { }
 

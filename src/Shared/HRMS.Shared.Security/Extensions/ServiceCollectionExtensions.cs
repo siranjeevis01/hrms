@@ -64,7 +64,7 @@ public static class ServiceCollectionExtensions
                     }
                     return Task.CompletedTask;
                 },
-                OnTokenValidated = async context =>
+                OnTokenValidated = context =>
                 {
                     var firebaseUser = context.Principal;
                     if (firebaseUser is not null && firebaseUser.Identity?.IsAuthenticated == true)
@@ -76,10 +76,11 @@ public static class ServiceCollectionExtensions
                             if (tenantClaim is null)
                             {
                                 context.Fail("Tenant claim is required");
-                                return;
+                                return Task.CompletedTask;
                             }
                         }
                     }
+                    return Task.CompletedTask;
                 }
             };
         });

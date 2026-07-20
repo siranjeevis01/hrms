@@ -9,7 +9,7 @@ public class LeaveComment : BaseEntity
     public Guid LeaveApplicationId { get; private set; }
     public Guid UserId { get; private set; }
     public string Comment { get; private set; } = string.Empty;
-    public DateTime CreatedAt { get; private set; }
+    public new DateTime CreatedAt { get; private set; }
 
     public static LeaveComment Create(Guid id, Guid leaveApplicationId, Guid userId, string comment)
     {

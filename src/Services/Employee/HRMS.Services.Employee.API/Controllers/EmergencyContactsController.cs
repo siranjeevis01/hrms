@@ -46,7 +46,7 @@ public class EmergencyContactsController : ControllerBase
 
     [HttpDelete("{contactId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> DeleteEmergencyContact(Guid contactId)
+    public IActionResult DeleteEmergencyContact(Guid contactId)
     {
         return NoContent();
     }

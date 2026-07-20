@@ -13,7 +13,7 @@ public class DashboardWidget : BaseEntity
     public string? Position { get; private set; }
     public string? Size { get; private set; }
     public int RefreshIntervalSeconds { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private DashboardWidget() { }
 

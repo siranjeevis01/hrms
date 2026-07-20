@@ -9,9 +9,9 @@ public class OKR : AggregateRoot
     public Guid EmployeeId { get; private set; }
     public Guid? ManagerId { get; private set; }
     public string Period { get; private set; } = string.Empty;
-    public OKRStatus Status { get; private set; }
+    public new OKRStatus Status { get; private set; }
     public decimal? OverallScore { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private readonly List<OKRItem> _items = new();
     public IReadOnlyCollection<OKRItem> Items => _items.AsReadOnly();

@@ -31,7 +31,7 @@ public class Employee : AggregateRoot
     public DateTime? LastWorkingDate { get; private set; }
     public EmploymentType EmploymentType { get; private set; }
     public EmploymentStatus EmploymentStatus { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private readonly List<EmergencyContact> _emergencyContacts = new();
     public IReadOnlyCollection<EmergencyContact> EmergencyContacts => _emergencyContacts.AsReadOnly();

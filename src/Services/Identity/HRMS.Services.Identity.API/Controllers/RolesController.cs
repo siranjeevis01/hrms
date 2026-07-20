@@ -79,7 +79,7 @@ public class RolesController : ControllerBase
                 Details = result.Error.Code
             });
 
-        return CreatedAtAction(nameof(GetRoleById), new { id = result.Value.Id }, result.Value);
+        return CreatedAtAction(nameof(GetRoleById), new { id = result.Value!.Id }, result.Value);
     }
 
     [HttpPut("{id:guid}")]

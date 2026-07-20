@@ -20,7 +20,7 @@ public class LeaveApprovalMatrix : BaseEntity
     public ApproverType ApproverType { get; private set; }
     public Guid? ApproverUserId { get; private set; }
     public bool IsRequired { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     public static LeaveApprovalMatrix Create(
         Guid id,

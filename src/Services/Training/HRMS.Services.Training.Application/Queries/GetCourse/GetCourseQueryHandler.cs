@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Services.Training.Application.Queries.GetCourse;
 
-public class GetCourseQueryHandler : IRequestHandler<GetCourseQuery, CourseDto>
+public class GetCourseQueryHandler : IRequestHandler<GetCourseQuery, CourseDto?>
 {
     private readonly ITrainingDbContext _context;
     private readonly IMapper _mapper;
@@ -17,7 +17,7 @@ public class GetCourseQueryHandler : IRequestHandler<GetCourseQuery, CourseDto>
         _mapper = mapper;
     }
 
-    public async Task<CourseDto> Handle(GetCourseQuery request, CancellationToken cancellationToken)
+    public async Task<CourseDto?> Handle(GetCourseQuery request, CancellationToken cancellationToken)
     {
         var course = await _context.Courses
             .Include(c => c.Modules)

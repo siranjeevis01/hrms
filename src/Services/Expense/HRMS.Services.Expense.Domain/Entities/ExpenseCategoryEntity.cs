@@ -9,7 +9,7 @@ public class ExpenseCategoryEntity : BaseEntity
     public string? Description { get; private set; }
     public Guid? DefaultPolicyId { get; private set; }
     public bool IsActive { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private ExpenseCategoryEntity() { }
 

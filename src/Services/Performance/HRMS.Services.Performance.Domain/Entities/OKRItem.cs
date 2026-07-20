@@ -7,7 +7,7 @@ public class OKRItem : BaseEntity
     public Guid OKRId { get; private set; }
     public string ObjectiveTitle { get; private set; } = string.Empty;
     public string? ObjectiveDescription { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private readonly List<KeyResult> _keyResults = new();
     public IReadOnlyCollection<KeyResult> KeyResults => _keyResults.AsReadOnly();

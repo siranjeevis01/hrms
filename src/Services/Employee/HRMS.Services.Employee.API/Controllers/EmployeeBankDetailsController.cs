@@ -36,14 +36,14 @@ public class EmployeeBankDetailsController : ControllerBase
 
     [HttpPut("{bankId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> UpdateBankDetail(Guid bankId)
+    public IActionResult UpdateBankDetail(Guid bankId)
     {
         return NoContent();
     }
 
     [HttpDelete("{bankId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> DeleteBankDetail(Guid bankId)
+    public IActionResult DeleteBankDetail(Guid bankId)
     {
         return NoContent();
     }

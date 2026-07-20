@@ -32,7 +32,7 @@ public class BonusController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetAll()
+    public ActionResult GetAll()
     {
         // Implement get bonuses query
         return Ok();

@@ -283,7 +283,7 @@ public class AuthController : ControllerBase
     [HttpPost("firebase")]
     [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> FirebaseLogin(
+    public IActionResult FirebaseLogin(
         [FromBody] FirebaseLoginRequest request,
         CancellationToken cancellationToken)
     {

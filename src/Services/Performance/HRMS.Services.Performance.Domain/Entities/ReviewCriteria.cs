@@ -10,7 +10,7 @@ public class ReviewCriteria : BaseEntity
     public decimal? Rating { get; private set; }
     public decimal Weight { get; private set; }
     public string? Comments { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private ReviewCriteria() { }
 

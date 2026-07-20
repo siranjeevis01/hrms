@@ -12,7 +12,7 @@ public class Assessment : AggregateRoot
     public int TotalPoints { get; private set; }
     public int? TimeLimitMinutes { get; private set; }
     public int MaxAttempts { get; private set; }
-    public AssessmentStatus Status { get; private set; }
+    public new AssessmentStatus Status { get; private set; }
 
     private readonly List<AssessmentQuestion> _questions = new();
     public IReadOnlyCollection<AssessmentQuestion> Questions => _questions.AsReadOnly();

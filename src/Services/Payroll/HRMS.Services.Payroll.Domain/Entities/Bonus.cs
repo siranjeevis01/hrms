@@ -5,16 +5,16 @@ namespace HRMS.Services.Payroll.Domain.Entities;
 
 public class Bonus : BaseEntity
 {
-    public Guid Id { get; private set; }
+    public new Guid Id { get; private set; }
     public Guid EmployeeId { get; private set; }
     public BonusType BonusType { get; private set; }
     public decimal Amount { get; private set; }
     public int Month { get; private set; }
     public int Year { get; private set; }
-    public PayrollStatus Status { get; private set; }
+    public new PayrollStatus Status { get; private set; }
     public Guid? ApprovedBy { get; private set; }
     public DateTime? ApprovedAt { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private Bonus() { }
 

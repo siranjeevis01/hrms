@@ -14,7 +14,7 @@ public class EmployeeDocument : BaseEntity
     public bool IsVerified { get; private set; }
     public Guid? VerifiedBy { get; private set; }
     public DateTime? VerifiedAt { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private EmployeeDocument() { }
 

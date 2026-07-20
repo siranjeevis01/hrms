@@ -4,7 +4,7 @@ namespace HRMS.Services.Payroll.Domain.Entities;
 
 public class EmployeeSalaryAssignment : BaseEntity
 {
-    public Guid Id { get; private set; }
+    public new Guid Id { get; private set; }
     public Guid EmployeeId { get; private set; }
     public Guid ComponentDefId { get; private set; }
     public decimal Amount { get; private set; }
@@ -12,7 +12,7 @@ public class EmployeeSalaryAssignment : BaseEntity
     public DateOnly EffectiveFrom { get; private set; }
     public DateOnly? EffectiveTo { get; private set; }
     public bool IsCurrent { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     public SalaryComponentDef ComponentDef { get; private set; } = null!;
 

@@ -14,7 +14,7 @@ public class Branch : AggregateRoot
     public Guid? ManagerId { get; private set; }
     public bool IsHeadquarters { get; private set; }
     public bool IsActive { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private Branch() { }
 

@@ -12,8 +12,8 @@ public class KeyResult : BaseEntity
     public decimal CurrentValue { get; private set; }
     public string? Unit { get; private set; }
     public decimal Weight { get; private set; }
-    public GoalStatus Status { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new GoalStatus Status { get; private set; }
+    public new string TenantId { get; private set; } = string.Empty;
 
     private KeyResult() { }
 

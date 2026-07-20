@@ -12,7 +12,7 @@ public class HolidayCalendarEntry : BaseEntity
     public DateTime Date { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public bool IsOptional { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     public static HolidayCalendarEntry Create(
         Guid id,

@@ -9,8 +9,8 @@ public class CalibrationSession : AggregateRoot
     public string? Description { get; private set; }
     public string ReviewPeriod { get; private set; } = string.Empty;
     public Guid ConductedBy { get; private set; }
-    public CalibrationStatus Status { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new CalibrationStatus Status { get; private set; }
+    public new string TenantId { get; private set; } = string.Empty;
 
     private readonly List<CalibrationEntry> _entries = new();
     public IReadOnlyCollection<CalibrationEntry> Entries => _entries.AsReadOnly();

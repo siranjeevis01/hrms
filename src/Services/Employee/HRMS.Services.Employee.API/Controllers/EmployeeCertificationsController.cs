@@ -36,14 +36,14 @@ public class EmployeeCertificationsController : ControllerBase
 
     [HttpPut("{certId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> UpdateCertification(Guid certId)
+    public IActionResult UpdateCertification(Guid certId)
     {
         return NoContent();
     }
 
     [HttpDelete("{certId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> DeleteCertification(Guid certId)
+    public IActionResult DeleteCertification(Guid certId)
     {
         return NoContent();
     }

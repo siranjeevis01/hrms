@@ -15,9 +15,9 @@ public class OnboardingChecklist : AggregateRoot
     public Guid CandidateId { get; private set; }
     public DateTime JoiningDate { get; private set; }
     public string Items { get; private set; } = "[]";
-    public OnboardingStatus Status { get; private set; }
+    public new OnboardingStatus Status { get; private set; }
     public DateTime? CompletedAt { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private OnboardingChecklist() { }
 

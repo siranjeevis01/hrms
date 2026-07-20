@@ -11,7 +11,7 @@ public class EmployeeHistory : BaseEntity
     public string? NewValue { get; private set; }
     public string? Reason { get; private set; }
     public Guid? ApprovedBy { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private EmployeeHistory() { }
 

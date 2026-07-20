@@ -14,10 +14,10 @@ public class Interview : AggregateRoot
     public int Duration { get; private set; }
     public string? Location { get; private set; }
     public string? MeetingUrl { get; private set; }
-    public InterviewStatus Status { get; private set; }
+    public new InterviewStatus Status { get; private set; }
     public decimal? Rating { get; private set; }
     public HireRecommendation? OverallRecommendation { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     public JobApplication? JobApplication { get; set; }
     public Candidate? Candidate { get; set; }

@@ -14,7 +14,7 @@ public class CompanyPolicy : AggregateRoot
     public DateTime? ExpiryDate { get; private set; }
     public bool IsActive { get; private set; }
     public int Version { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private CompanyPolicy() { }
 

@@ -11,8 +11,8 @@ public class WorkflowDefinition : AggregateRoot
     public string? Steps { get; private set; }
     public bool IsActive { get; private set; }
     public int Version { get; private set; }
-    public string? CreatedBy { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string? CreatedBy { get; private set; }
+    public new string TenantId { get; private set; } = string.Empty;
 
     private readonly List<WorkflowStep> _steps = new();
     public IReadOnlyCollection<WorkflowStep> StepsCollection => _steps.AsReadOnly();

@@ -10,12 +10,12 @@ public class HelpdeskTicket : AggregateRoot
     public string Description { get; private set; } = string.Empty;
     public TicketCategoryType Category { get; private set; }
     public TicketPriority Priority { get; private set; }
-    public TicketStatus Status { get; private set; }
+    public new TicketStatus Status { get; private set; }
     public Guid? AssignedTo { get; private set; }
     public Guid? DepartmentId { get; private set; }
     public string? ResolutionNotes { get; private set; }
     public DateTime? ResolvedAt { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private readonly List<TicketComment> _comments = new();
     public IReadOnlyCollection<TicketComment> Comments => _comments.AsReadOnly();

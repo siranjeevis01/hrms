@@ -11,7 +11,7 @@ public class Dashboard : AggregateRoot
     public bool IsDefault { get; private set; }
     public bool IsPublic { get; private set; }
     public string? Layout { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private readonly List<DashboardWidget> _widgets = new();
     public IReadOnlyCollection<DashboardWidget> Widgets => _widgets.AsReadOnly();

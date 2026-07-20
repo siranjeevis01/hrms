@@ -12,14 +12,14 @@ public class EmailQueue : AggregateRoot
     public string Body { get; private set; } = string.Empty;
     public bool IsHtml { get; private set; }
     public string? Attachments { get; private set; }
-    public EmailQueueStatus Status { get; private set; }
+    public new EmailQueueStatus Status { get; private set; }
     public NotificationPriority Priority { get; private set; }
     public DateTime? ScheduledAt { get; private set; }
     public DateTime? SentAt { get; private set; }
     public int RetryCount { get; private set; }
     public int MaxRetries { get; private set; }
     public string? LastError { get; private set; }
-    public Guid? TenantId { get; private set; }
+    public new Guid? TenantId { get; private set; }
 
     private EmailQueue() { }
 

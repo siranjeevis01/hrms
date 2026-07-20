@@ -14,7 +14,7 @@ public class ScheduledReport : AggregateRoot
     public bool IsActive { get; private set; }
     public DateTime? LastRunAt { get; private set; }
     public DateTime? NextRunAt { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private ScheduledReport() { }
 

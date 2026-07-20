@@ -10,7 +10,7 @@ public class AttendanceRecord : AggregateRoot
     public DateTime? CheckInTime { get; private set; }
     public DateTime? CheckOutTime { get; private set; }
     public Guid? ShiftId { get; private set; }
-    public AttendanceStatus Status { get; private set; }
+    public new AttendanceStatus Status { get; private set; }
     public CheckInMethod? CheckInMethod { get; private set; }
     public CheckInMethod? CheckOutMethod { get; private set; }
     public double? CheckInLatitude { get; private set; }

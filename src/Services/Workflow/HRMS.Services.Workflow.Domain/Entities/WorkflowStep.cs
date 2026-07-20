@@ -13,7 +13,7 @@ public class WorkflowStep : BaseEntity
     public WorkflowActionType Action { get; private set; }
     public int? TimeoutHours { get; private set; }
     public bool IsRequired { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private WorkflowStep() { }
 

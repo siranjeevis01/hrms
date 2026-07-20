@@ -20,7 +20,7 @@ public class JobPosting : AggregateRoot
     public string Requirements { get; private set; } = "[]";
     public string Responsibilities { get; private set; } = "[]";
     public string Benefits { get; private set; } = "[]";
-    public JobStatus Status { get; private set; }
+    public new JobStatus Status { get; private set; }
     public DateTime? PublishedAt { get; private set; }
     public DateTime? ClosedAt { get; private set; }
     public int HeadCount { get; private set; }
@@ -29,7 +29,7 @@ public class JobPosting : AggregateRoot
     public Guid RecruiterId { get; private set; }
     public bool IsUrgent { get; private set; }
     public DateTime? ApplicationDeadline { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private readonly List<JobApplication> _applications = new();
     public IReadOnlyCollection<JobApplication> Applications => _applications.AsReadOnly();

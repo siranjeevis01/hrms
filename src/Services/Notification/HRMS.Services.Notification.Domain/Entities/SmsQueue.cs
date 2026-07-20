@@ -6,14 +6,14 @@ public class SmsQueue : AggregateRoot
 {
     public string PhoneNumber { get; private set; } = string.Empty;
     public string Message { get; private set; } = string.Empty;
-    public SmsQueueStatus Status { get; private set; }
+    public new SmsQueueStatus Status { get; private set; }
     public string Provider { get; private set; } = "Twilio";
     public string? ProviderMessageId { get; private set; }
     public int RetryCount { get; private set; }
     public int MaxRetries { get; private set; }
     public DateTime? SentAt { get; private set; }
     public string? LastError { get; private set; }
-    public Guid? TenantId { get; private set; }
+    public new Guid? TenantId { get; private set; }
 
     private SmsQueue() { }
 

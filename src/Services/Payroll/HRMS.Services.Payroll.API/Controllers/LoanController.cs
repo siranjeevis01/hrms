@@ -19,7 +19,7 @@ public class LoanController : ControllerBase
     }
 
     [HttpPost("request")]
-    public async Task<ActionResult<Guid>> Request([FromBody] RequestLoanCommand command)
+    public new async Task<ActionResult<Guid>> Request([FromBody] RequestLoanCommand command)
     {
         var id = await _mediator.Send(command);
         return Ok(id);

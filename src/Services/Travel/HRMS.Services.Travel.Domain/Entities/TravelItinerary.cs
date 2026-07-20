@@ -12,7 +12,7 @@ public class TravelItinerary : BaseEntity
     public DateTime StartTime { get; private set; }
     public DateTime EndTime { get; private set; }
     public string? Notes { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private TravelItinerary() { }
 

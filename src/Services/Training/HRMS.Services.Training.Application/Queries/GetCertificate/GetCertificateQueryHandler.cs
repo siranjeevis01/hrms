@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Services.Training.Application.Queries.GetCertificate;
 
-public class GetCertificateQueryHandler : IRequestHandler<GetCertificateQuery, CertificateDto>
+public class GetCertificateQueryHandler : IRequestHandler<GetCertificateQuery, CertificateDto?>
 {
     private readonly ITrainingDbContext _context;
     private readonly IMapper _mapper;
@@ -17,7 +17,7 @@ public class GetCertificateQueryHandler : IRequestHandler<GetCertificateQuery, C
         _mapper = mapper;
     }
 
-    public async Task<CertificateDto> Handle(GetCertificateQuery request, CancellationToken cancellationToken)
+    public async Task<CertificateDto?> Handle(GetCertificateQuery request, CancellationToken cancellationToken)
     {
         var certificate = await _context.Certificates
             .FirstOrDefaultAsync(c => c.Id == request.Id && !c.IsDeleted, cancellationToken);

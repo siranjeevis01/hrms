@@ -13,7 +13,7 @@ public class Holiday : AggregateRoot
     public bool IsRecurring { get; private set; }
     public string? ApplicableDepartmentIdsJson { get; private set; }
     public bool IsActive { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private Holiday() { }
 

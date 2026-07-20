@@ -13,7 +13,7 @@ public class ExpenseItem : BaseEntity
     public DateTime Date { get; private set; }
     public string? ReceiptUrl { get; private set; }
     public bool IsReimbursable { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private ExpenseItem() { }
 

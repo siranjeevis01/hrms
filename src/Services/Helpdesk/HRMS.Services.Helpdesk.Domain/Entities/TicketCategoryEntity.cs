@@ -10,7 +10,7 @@ public class TicketCategoryEntity : BaseEntity
     public Guid? DefaultAssigneeId { get; private set; }
     public int SLAHours { get; private set; }
     public bool IsActive { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private TicketCategoryEntity() { }
 

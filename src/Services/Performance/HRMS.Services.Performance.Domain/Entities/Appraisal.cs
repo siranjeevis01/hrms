@@ -10,7 +10,7 @@ public class Appraisal : AggregateRoot
     public Guid? ManagerId { get; private set; }
     public string Period { get; private set; } = string.Empty;
     public AppraisalType Type { get; private set; }
-    public AppraisalStatus Status { get; private set; }
+    public new AppraisalStatus Status { get; private set; }
     public decimal? FinalRating { get; private set; }
     public decimal? HikePercentage { get; private set; }
     public bool PromotionRecommended { get; private set; }
@@ -18,7 +18,7 @@ public class Appraisal : AggregateRoot
     public string? Comments { get; private set; }
     public Guid? ApprovedBy { get; private set; }
     public DateTime? ApprovedAt { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private Appraisal() { }
 

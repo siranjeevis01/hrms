@@ -15,7 +15,7 @@ public class Course : AggregateRoot
     public string? ThumbnailUrl { get; private set; }
     public Guid? InstructorId { get; private set; }
     public Guid? DepartmentId { get; private set; }
-    public CourseStatus Status { get; private set; }
+    public new CourseStatus Status { get; private set; }
     public bool IsPublished { get; private set; }
 
     private readonly List<CourseModule> _modules = new();

@@ -4,7 +4,7 @@ namespace HRMS.Services.Payroll.Domain.Entities;
 
 public class Payslip : BaseEntity
 {
-    public Guid Id { get; private set; }
+    public new Guid Id { get; private set; }
     public Guid EmployeePayrollId { get; private set; }
     public Guid EmployeeId { get; private set; }
     public int Month { get; private set; }
@@ -13,7 +13,7 @@ public class Payslip : BaseEntity
     public DateTime GeneratedAt { get; private set; }
     public bool IsViewed { get; private set; }
     public DateTime? ViewedAt { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     public EmployeePayroll EmployeePayroll { get; private set; } = null!;
 

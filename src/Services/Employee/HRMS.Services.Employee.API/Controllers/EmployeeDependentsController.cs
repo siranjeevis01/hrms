@@ -36,14 +36,14 @@ public class EmployeeDependentsController : ControllerBase
 
     [HttpPut("{dependentId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> UpdateDependent(Guid dependentId)
+    public IActionResult UpdateDependent(Guid dependentId)
     {
         return NoContent();
     }
 
     [HttpDelete("{dependentId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> DeleteDependent(Guid dependentId)
+    public IActionResult DeleteDependent(Guid dependentId)
     {
         return NoContent();
     }

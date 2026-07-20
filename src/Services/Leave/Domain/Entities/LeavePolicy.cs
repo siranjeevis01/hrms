@@ -15,7 +15,7 @@ public class LeavePolicy : BaseEntity
     public int MaxPendingApplications { get; private set; }
     public bool AllowBackDatedLeave { get; private set; }
     public int? BackDatedLimitDays { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     public static LeavePolicy Create(
         Guid id,

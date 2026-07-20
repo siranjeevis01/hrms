@@ -10,11 +10,11 @@ public class VisaRequest : AggregateRoot
     public string VisaType { get; private set; } = string.Empty;
     public string Purpose { get; private set; } = string.Empty;
     public Guid? TravelRequestId { get; private set; }
-    public VisaStatus Status { get; private set; }
+    public new VisaStatus Status { get; private set; }
     public DateTime SubmissionDate { get; private set; }
     public DateTime? ExpiryDate { get; private set; }
     public string? DocumentUrl { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private VisaRequest() { }
 

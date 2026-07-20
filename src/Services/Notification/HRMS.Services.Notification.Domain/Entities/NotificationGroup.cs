@@ -8,7 +8,7 @@ public class NotificationGroup : AggregateRoot
     public string? Description { get; private set; }
     public string? Members { get; private set; }
     public bool IsActive { get; private set; }
-    public Guid? TenantId { get; private set; }
+    public new Guid? TenantId { get; private set; }
 
     private NotificationGroup() { }
 

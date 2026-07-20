@@ -10,13 +10,13 @@ public class ExpenseClaim : AggregateRoot
     public string? Description { get; private set; }
     public decimal TotalAmount { get; private set; }
     public string Currency { get; private set; } = "USD";
-    public ClaimStatus Status { get; private set; }
+    public new ClaimStatus Status { get; private set; }
     public DateTime SubmittedAt { get; private set; }
     public Guid? ReviewedBy { get; private set; }
     public DateTime? ReviewedAt { get; private set; }
     public string? RejectionReason { get; private set; }
     public string? PolicyViolationNotes { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private readonly List<ExpenseItem> _items = new();
     public IReadOnlyCollection<ExpenseItem> Items => _items.AsReadOnly();

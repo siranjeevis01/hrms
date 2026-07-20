@@ -10,10 +10,10 @@ public class WorkflowInstance : AggregateRoot
     public Guid EntityId { get; private set; }
     public Guid RequestedById { get; private set; }
     public int CurrentStepNumber { get; private set; }
-    public WorkflowStatus Status { get; private set; }
+    public new WorkflowStatus Status { get; private set; }
     public DateTime StartedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private readonly List<WorkflowAction> _actions = new();
     public IReadOnlyCollection<WorkflowAction> Actions => _actions.AsReadOnly();

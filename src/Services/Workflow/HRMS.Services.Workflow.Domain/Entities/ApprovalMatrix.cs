@@ -11,7 +11,7 @@ public class ApprovalMatrix : AggregateRoot
     public string? Conditions { get; private set; }
     public string? Approvers { get; private set; }
     public bool IsActive { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private ApprovalMatrix() { }
 

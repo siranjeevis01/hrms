@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Services.Training.Application.Queries.GetEnrollment;
 
-public class GetEnrollmentQueryHandler : IRequestHandler<GetEnrollmentQuery, EnrollmentDto>
+public class GetEnrollmentQueryHandler : IRequestHandler<GetEnrollmentQuery, EnrollmentDto?>
 {
     private readonly ITrainingDbContext _context;
     private readonly IMapper _mapper;
@@ -17,7 +17,7 @@ public class GetEnrollmentQueryHandler : IRequestHandler<GetEnrollmentQuery, Enr
         _mapper = mapper;
     }
 
-    public async Task<EnrollmentDto> Handle(GetEnrollmentQuery request, CancellationToken cancellationToken)
+    public async Task<EnrollmentDto?> Handle(GetEnrollmentQuery request, CancellationToken cancellationToken)
     {
         var enrollment = await _context.Enrollments
             .FirstOrDefaultAsync(e => e.Id == request.Id && !e.IsDeleted, cancellationToken);

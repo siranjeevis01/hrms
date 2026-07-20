@@ -15,7 +15,7 @@ public class Department : AggregateRoot
     public Guid? HODId { get; private set; }
     public DepartmentType Type { get; private set; }
     public bool IsActive { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private readonly List<Department> _subDepartments = new();
     public IReadOnlyCollection<Department> SubDepartments => _subDepartments.AsReadOnly();

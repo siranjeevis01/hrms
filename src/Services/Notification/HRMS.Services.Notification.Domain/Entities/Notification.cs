@@ -11,7 +11,7 @@ public class Notification : AggregateRoot
     public NotificationType Type { get; private set; }
     public NotificationCategory Category { get; private set; }
     public NotificationPriority Priority { get; private set; }
-    public NotificationStatus Status { get; private set; }
+    public new NotificationStatus Status { get; private set; }
     public NotificationChannel Channel { get; private set; }
     public DateTime? SentAt { get; private set; }
     public DateTime? DeliveredAt { get; private set; }
@@ -21,7 +21,7 @@ public class Notification : AggregateRoot
     public string? Data { get; private set; }
     public string? ActionUrl { get; private set; }
     public bool IsRead { get; private set; }
-    public Guid? TenantId { get; private set; }
+    public new Guid? TenantId { get; private set; }
 
     private Notification() { }
 

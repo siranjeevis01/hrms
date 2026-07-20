@@ -51,7 +51,7 @@ public class GetEmployeePerformanceSummaryQueryHandler : IRequestHandler<GetEmpl
         var completedGoals = goals.Count(g => g.Status == GoalStatus.Completed);
         var avgGoalProgress = goals.Any(g => g.TargetValue > 0 && g.CurrentValue.HasValue)
             ? goals.Where(g => g.TargetValue > 0 && g.CurrentValue.HasValue)
-                .Average(g => g.CurrentValue!.Value / g.TargetValue.Value * 100)
+                .Average(g => g.CurrentValue!.Value / g.TargetValue!.Value * 100)
             : 0;
 
         var latestOKR = okrs.FirstOrDefault();

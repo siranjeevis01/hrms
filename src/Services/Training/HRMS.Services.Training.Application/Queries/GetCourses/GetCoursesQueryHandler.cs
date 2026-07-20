@@ -29,7 +29,7 @@ public class GetCoursesQueryHandler : IRequestHandler<GetCoursesQuery, PagedResu
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
             var term = request.SearchTerm.ToLower();
-            query = query.Where(c => c.Title.ToLower().Contains(term) || c.Code.ToLower().Contains(term) || c.Description.ToLower().Contains(term));
+            query = query.Where(c => c.Title.ToLower().Contains(term) || c.Code.ToLower().Contains(term) || (c.Description != null && c.Description.ToLower().Contains(term)));
         }
 
         if (!string.IsNullOrWhiteSpace(request.Category))

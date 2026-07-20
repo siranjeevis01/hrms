@@ -172,7 +172,7 @@ public class ApplyLeaveCommandHandler : IRequestHandler<ApplyLeaveCommand, Guid>
         return applicationId;
     }
 
-    internal async Task<decimal> CalculateWorkingDays(DateTime startDate, DateTime endDate, bool isHalfDay,
+    internal Task<decimal> CalculateWorkingDays(DateTime startDate, DateTime endDate, bool isHalfDay,
         HashSet<DayOfWeek> weekendDays, HashSet<DateTime> holidays)
     {
         decimal days = 0;
@@ -189,7 +189,7 @@ public class ApplyLeaveCommandHandler : IRequestHandler<ApplyLeaveCommand, Guid>
         if (isHalfDay && days > 0)
             days = Math.Max(0.5m, days - 0.5m);
 
-        return days;
+        return Task.FromResult(days);
     }
 
     internal async Task<bool> CheckSandwichPolicy(Guid employeeId, DateTime startDate, DateTime endDate,

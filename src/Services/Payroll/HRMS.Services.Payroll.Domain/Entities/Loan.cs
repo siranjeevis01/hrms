@@ -5,7 +5,7 @@ namespace HRMS.Services.Payroll.Domain.Entities;
 
 public class Loan : BaseEntity
 {
-    public Guid Id { get; private set; }
+    public new Guid Id { get; private set; }
     public Guid EmployeeId { get; private set; }
     public LoanType LoanType { get; private set; }
     public decimal Amount { get; private set; }
@@ -13,9 +13,9 @@ public class Loan : BaseEntity
     public decimal MonthlyDeduction { get; private set; }
     public DateOnly StartDate { get; private set; }
     public DateOnly? EndDate { get; private set; }
-    public LoanStatus Status { get; private set; }
+    public new LoanStatus Status { get; private set; }
     public Guid? ApprovedBy { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private readonly List<LoanRepayment> _repayments = new();
     public IReadOnlyCollection<LoanRepayment> Repayments => _repayments.AsReadOnly();

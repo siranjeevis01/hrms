@@ -5,7 +5,7 @@ namespace HRMS.Services.Payroll.Domain.Entities;
 
 public class Deduction : BaseEntity
 {
-    public Guid Id { get; private set; }
+    public new Guid Id { get; private set; }
     public Guid EmployeePayrollId { get; private set; }
     public Guid ComponentDefId { get; private set; }
     public string Name { get; private set; } = string.Empty;

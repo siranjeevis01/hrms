@@ -8,7 +8,7 @@ public class TicketComment : BaseEntity
     public Guid EmployeeId { get; private set; }
     public string Content { get; private set; } = string.Empty;
     public bool IsInternal { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private TicketComment() { }
 

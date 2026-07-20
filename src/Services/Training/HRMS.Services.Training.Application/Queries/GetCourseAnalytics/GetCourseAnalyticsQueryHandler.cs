@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Services.Training.Application.Queries.GetCourseAnalytics;
 
-public class GetCourseAnalyticsQueryHandler : IRequestHandler<GetCourseAnalyticsQuery, CourseAnalyticsDto>
+public class GetCourseAnalyticsQueryHandler : IRequestHandler<GetCourseAnalyticsQuery, CourseAnalyticsDto?>
 {
     private readonly ITrainingDbContext _context;
 
@@ -15,7 +15,7 @@ public class GetCourseAnalyticsQueryHandler : IRequestHandler<GetCourseAnalytics
         _context = context;
     }
 
-    public async Task<CourseAnalyticsDto> Handle(GetCourseAnalyticsQuery request, CancellationToken cancellationToken)
+    public async Task<CourseAnalyticsDto?> Handle(GetCourseAnalyticsQuery request, CancellationToken cancellationToken)
     {
         var course = await _context.Courses
             .FirstOrDefaultAsync(c => c.Id == request.CourseId && !c.IsDeleted, cancellationToken);

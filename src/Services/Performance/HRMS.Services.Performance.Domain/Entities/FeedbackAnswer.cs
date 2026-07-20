@@ -8,7 +8,7 @@ public class FeedbackAnswer : BaseEntity
     public string Question { get; private set; } = string.Empty;
     public decimal? Rating { get; private set; }
     public string? Comments { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private FeedbackAnswer() { }
 

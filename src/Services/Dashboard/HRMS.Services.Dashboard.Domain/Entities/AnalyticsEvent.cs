@@ -11,7 +11,7 @@ public class AnalyticsEvent : BaseEntity
     public Guid? EmployeeId { get; private set; }
     public string? Data { get; private set; }
     public DateTime Timestamp { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private AnalyticsEvent() { }
 

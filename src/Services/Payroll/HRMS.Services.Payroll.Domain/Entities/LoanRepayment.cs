@@ -4,7 +4,7 @@ namespace HRMS.Services.Payroll.Domain.Entities;
 
 public class LoanRepayment : BaseEntity
 {
-    public Guid Id { get; private set; }
+    public new Guid Id { get; private set; }
     public Guid LoanId { get; private set; }
     public Guid EmployeePayrollId { get; private set; }
     public decimal Amount { get; private set; }

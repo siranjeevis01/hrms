@@ -5,7 +5,7 @@ namespace HRMS.Services.Payroll.Domain.Entities;
 
 public class EmployeeTaxDeclaration : BaseEntity
 {
-    public Guid Id { get; private set; }
+    public new Guid Id { get; private set; }
     public Guid EmployeeId { get; private set; }
     public string FinancialYear { get; private set; } = string.Empty;
     public decimal DeclaredAmount { get; private set; }
@@ -13,8 +13,8 @@ public class EmployeeTaxDeclaration : BaseEntity
     public bool ProofSubmitted { get; private set; }
     public Guid? VerifiedBy { get; private set; }
     public DateTime? VerifiedAt { get; private set; }
-    public PayrollStatus Status { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new PayrollStatus Status { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private EmployeeTaxDeclaration() { }
 

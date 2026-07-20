@@ -36,14 +36,14 @@ public class EmployeeSkillsController : ControllerBase
 
     [HttpPut("{skillId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> UpdateSkill(Guid skillId)
+    public IActionResult UpdateSkill(Guid skillId)
     {
         return NoContent();
     }
 
     [HttpDelete("{skillId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> DeleteSkill(Guid skillId)
+    public IActionResult DeleteSkill(Guid skillId)
     {
         return NoContent();
     }

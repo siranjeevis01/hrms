@@ -4,7 +4,7 @@ namespace HRMS.Services.Payroll.Domain.Entities;
 
 public class PayrollAuditLog : BaseEntity
 {
-    public Guid Id { get; private set; }
+    public new Guid Id { get; private set; }
     public Guid PayrollRunId { get; private set; }
     public string Action { get; private set; } = string.Empty;
     public string PerformedBy { get; private set; } = string.Empty;

@@ -23,7 +23,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="9.0.0" />
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <!-- Shared Libraries -->

@@ -14,7 +14,7 @@ public class ReportTemplate : AggregateRoot
     public string? Parameters { get; private set; }
     public ReportFormat Format { get; private set; }
     public ReportAccessLevel AccessLevel { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private readonly List<ReportInstance> _instances = new();
     public IReadOnlyCollection<ReportInstance> Instances => _instances.AsReadOnly();

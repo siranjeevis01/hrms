@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Services.Training.Application.Queries.GetAssessment;
 
-public class GetAssessmentQueryHandler : IRequestHandler<GetAssessmentQuery, AssessmentDto>
+public class GetAssessmentQueryHandler : IRequestHandler<GetAssessmentQuery, AssessmentDto?>
 {
     private readonly ITrainingDbContext _context;
     private readonly IMapper _mapper;
@@ -17,7 +17,7 @@ public class GetAssessmentQueryHandler : IRequestHandler<GetAssessmentQuery, Ass
         _mapper = mapper;
     }
 
-    public async Task<AssessmentDto> Handle(GetAssessmentQuery request, CancellationToken cancellationToken)
+    public async Task<AssessmentDto?> Handle(GetAssessmentQuery request, CancellationToken cancellationToken)
     {
         var assessment = await _context.Assessments
             .FirstOrDefaultAsync(a => a.Id == request.Id && !a.IsDeleted, cancellationToken);

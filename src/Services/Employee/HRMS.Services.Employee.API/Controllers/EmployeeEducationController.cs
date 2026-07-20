@@ -36,14 +36,14 @@ public class EmployeeEducationController : ControllerBase
 
     [HttpPut("{eduId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> UpdateEducation(Guid eduId)
+    public IActionResult UpdateEducation(Guid eduId)
     {
         return NoContent();
     }
 
     [HttpDelete("{eduId:guid}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> DeleteEducation(Guid eduId)
+    public IActionResult DeleteEducation(Guid eduId)
     {
         return NoContent();
     }

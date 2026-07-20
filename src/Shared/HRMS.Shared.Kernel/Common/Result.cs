@@ -4,7 +4,7 @@ public class Result<T>
 {
     public bool IsSuccess { get; }
     public T? Value { get; }
-    public Error Error { get; }
+    public Error Error { get; } = Error.None;
     public IReadOnlyList<Error> Errors { get; }
 
     private Result(T value)
@@ -27,7 +27,7 @@ public class Result<T>
     {
         IsSuccess = false;
         Value = default;
-        Error = errors.FirstOrDefault();
+        Error = errors.FirstOrDefault()!;
         Errors = errors;
     }
 
@@ -46,7 +46,7 @@ public class Result<T>
 public class Result
 {
     public bool IsSuccess { get; }
-    public Error Error { get; }
+    public Error Error { get; } = Error.None;
     public IReadOnlyList<Error> Errors { get; }
 
     private Result(bool isSuccess, Error error)
@@ -59,7 +59,7 @@ public class Result
     public static Result Success() => new(true, Error.None);
     public static Result Failure(Error error) => new(false, error);
     public static Result Failure(IReadOnlyList<Error> errors) =>
-        new(false, errors.FirstOrDefault());
+        new(false, errors.FirstOrDefault()!);
 
     public TResult Match<TResult>(
         Func<TResult> onSuccess,

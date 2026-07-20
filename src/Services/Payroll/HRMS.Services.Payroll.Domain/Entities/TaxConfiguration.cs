@@ -4,7 +4,7 @@ namespace HRMS.Services.Payroll.Domain.Entities;
 
 public class TaxConfiguration : BaseEntity
 {
-    public Guid Id { get; private set; }
+    public new Guid Id { get; private set; }
     public Guid CompanyId { get; private set; }
     public string FinancialYear { get; private set; } = string.Empty;
     public string Country { get; private set; } = string.Empty;
@@ -13,7 +13,7 @@ public class TaxConfiguration : BaseEntity
     public decimal ESIContributionRate { get; private set; }
     public string ProfessionalTaxConfig { get; private set; } = "{}";
     public decimal StandardDeduction { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private TaxConfiguration() { }
 

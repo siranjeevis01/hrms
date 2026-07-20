@@ -10,13 +10,13 @@ public class TravelRequest : AggregateRoot
     public string Destination { get; private set; } = string.Empty;
     public DateTime StartDate { get; private set; }
     public DateTime EndDate { get; private set; }
-    public TravelRequestStatus Status { get; private set; }
+    public new TravelRequestStatus Status { get; private set; }
     public decimal EstimatedCost { get; private set; }
     public decimal? ActualCost { get; private set; }
     public string Currency { get; private set; } = "USD";
     public TransportMode TransportMode { get; private set; }
     public AccommodationType AccommodationType { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private readonly List<TravelItinerary> _itineraries = new();
     public IReadOnlyCollection<TravelItinerary> Itineraries => _itineraries.AsReadOnly();

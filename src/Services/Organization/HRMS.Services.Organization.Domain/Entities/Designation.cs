@@ -12,7 +12,7 @@ public class Designation : AggregateRoot
     public decimal? MinSalary { get; private set; }
     public decimal? MaxSalary { get; private set; }
     public bool IsActive { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     private Designation() { }
 

@@ -11,7 +11,7 @@ public class Delegation : BaseEntity
     public DateTime EndDate { get; private set; }
     public bool IsActive { get; private set; }
     public WorkflowEntityType? EntityType { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private Delegation() { }
 

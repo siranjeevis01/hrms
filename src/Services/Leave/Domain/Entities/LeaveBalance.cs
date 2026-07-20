@@ -17,7 +17,7 @@ public class LeaveBalance : BaseEntity
     public decimal AdjustedDays { get; private set; }
     public decimal AvailableDays => TotalDays + CarryForwardDays + AdjustedDays - UsedDays - PendingDays - EncashedDays;
     public DateTime? LastAccrualDate { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     public static LeaveBalance Create(Guid id, Guid employeeId, Guid leaveTypeId, int year,
         decimal totalDays, Guid tenantId)

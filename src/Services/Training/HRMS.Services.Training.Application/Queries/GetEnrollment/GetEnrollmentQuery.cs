@@ -3,7 +3,7 @@ using MediatR;
 
 namespace HRMS.Services.Training.Application.Queries.GetEnrollment;
 
-public class GetEnrollmentQuery : IRequest<EnrollmentDto>
+public class GetEnrollmentQuery : IRequest<EnrollmentDto?>
 {
     public Guid Id { get; set; }
 }

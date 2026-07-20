@@ -14,13 +14,13 @@ public class Goal : AggregateRoot
     public Guid? DepartmentId { get; private set; }
     public DateTime StartDate { get; private set; }
     public DateTime EndDate { get; private set; }
-    public GoalStatus Status { get; private set; }
+    public new GoalStatus Status { get; private set; }
     public GoalPriority Priority { get; private set; }
     public decimal Weight { get; private set; }
     public decimal? TargetValue { get; private set; }
     public decimal? CurrentValue { get; private set; }
     public string? Unit { get; private set; }
-    public string TenantId { get; private set; } = string.Empty;
+    public new string TenantId { get; private set; } = string.Empty;
 
     private readonly List<KeyResult> _keyResults = new();
     public IReadOnlyCollection<KeyResult> KeyResults => _keyResults.AsReadOnly();

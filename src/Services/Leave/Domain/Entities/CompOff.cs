@@ -19,9 +19,9 @@ public class CompOff : BaseEntity
     public DateTime ExpiryDate { get; private set; }
     public decimal Days { get; private set; }
     public string? Reason { get; private set; }
-    public CompOffStatus Status { get; private set; }
+    public new CompOffStatus Status { get; private set; }
     public DateTime? UsedDate { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     public static CompOff Create(
         Guid id,

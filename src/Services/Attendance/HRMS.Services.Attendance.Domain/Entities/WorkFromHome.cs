@@ -9,7 +9,7 @@ public class WorkFromHome : BaseEntity
     public DateTime StartDate { get; private set; }
     public DateTime EndDate { get; private set; }
     public string Reason { get; private set; } = string.Empty;
-    public AttendanceStatus Status { get; private set; }
+    public new AttendanceStatus Status { get; private set; }
     public Guid? ApprovedBy { get; private set; }
     public DateTime? ApprovedAt { get; private set; }
     public string? DayWiseStatus { get; private set; }

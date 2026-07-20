@@ -12,7 +12,7 @@ public class TrainingSchedule : BaseEntity
     public int MaxParticipants { get; private set; }
     public string? InstructorName { get; private set; }
     public string? MeetingUrl { get; private set; }
-    public TrainingScheduleStatus Status { get; private set; }
+    public new TrainingScheduleStatus Status { get; private set; }
 
     private TrainingSchedule() { }
 

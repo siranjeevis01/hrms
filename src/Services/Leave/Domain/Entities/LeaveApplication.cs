@@ -16,7 +16,7 @@ public class LeaveApplication : AggregateRoot
     public bool IsHalfDay { get; private set; }
     public HalfDayType? HalfDayType { get; private set; }
     public string Reason { get; private set; } = string.Empty;
-    public LeaveStatus Status { get; private set; }
+    public new LeaveStatus Status { get; private set; }
     public DateTime AppliedAt { get; private set; }
     public Guid? ApprovedBy { get; private set; }
     public DateTime? ApprovedAt { get; private set; }
@@ -26,7 +26,7 @@ public class LeaveApplication : AggregateRoot
     public int? CurrentApprovalLevel { get; private set; }
     public IReadOnlyList<LeaveComment> Comments => _comments.AsReadOnly();
     public bool IsSandwichApplied { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     public static LeaveApplication Create(
         Guid id,

@@ -15,13 +15,13 @@ public class OfferLetter : AggregateRoot
     public decimal BasicSalary { get; private set; }
     public DateTime JoiningDate { get; private set; }
     public DateTime OfferExpiryDate { get; private set; }
-    public OfferStatus Status { get; private set; }
+    public new OfferStatus Status { get; private set; }
     public DateTime? SentAt { get; private set; }
     public DateTime? AcceptedAt { get; private set; }
     public DateTime? RejectedAt { get; private set; }
     public string? RejectionReason { get; private set; }
     public string? DocumentUrl { get; private set; }
-    public Guid TenantId { get; private set; }
+    public new Guid TenantId { get; private set; }
 
     public JobApplication? JobApplication { get; set; }
     public Candidate? Candidate { get; set; }
