@@ -16,6 +16,11 @@ public class Appraisal : AggregateRoot
     public bool PromotionRecommended { get; private set; }
     public decimal? Bonus { get; private set; }
     public string? Comments { get; private set; }
+    public decimal? SelfRating { get; private set; }
+    public string? Achievements { get; private set; }
+    public string? Goals { get; private set; }
+    public string? Strengths { get; private set; }
+    public string? Improvements { get; private set; }
     public Guid? ApprovedBy { get; private set; }
     public DateTime? ApprovedAt { get; private set; }
     public new string TenantId { get; private set; } = string.Empty;
@@ -47,6 +52,15 @@ public class Appraisal : AggregateRoot
 
     public void Submit()
     {
+        Status = AppraisalStatus.Submitted;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void SubmitSelfAssessment(decimal? selfRating, string? achievements, string? goals)
+    {
+        SelfRating = selfRating;
+        Achievements = achievements;
+        Goals = goals;
         Status = AppraisalStatus.Submitted;
         UpdatedAt = DateTime.UtcNow;
     }

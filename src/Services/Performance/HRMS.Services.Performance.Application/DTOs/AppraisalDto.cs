@@ -15,6 +15,11 @@ public class AppraisalDto
     public bool PromotionRecommended { get; set; }
     public decimal? Bonus { get; set; }
     public string? Comments { get; set; }
+    public decimal? SelfRating { get; set; }
+    public string? Achievements { get; set; }
+    public string? Goals { get; set; }
+    public string? Strengths { get; set; }
+    public string? Improvements { get; set; }
     public Guid? ApprovedBy { get; set; }
     public DateTime? ApprovedAt { get; set; }
     public string TenantId { get; set; } = string.Empty;

@@ -2,6 +2,7 @@ using HRMS.Services.Performance.Application.Commands.ApproveAppraisal;
 using HRMS.Services.Performance.Application.Commands.CreateAppraisal;
 using HRMS.Services.Performance.Application.Commands.RejectAppraisal;
 using HRMS.Services.Performance.Application.Commands.SubmitAppraisal;
+using HRMS.Services.Performance.Application.Commands.SubmitSelfAssessment;
 using HRMS.Services.Performance.Application.Queries.GetAppraisal;
 using HRMS.Services.Performance.Application.Queries.GetAppraisals;
 using HRMS.Services.Performance.Application.Queries.GetEmployeeAppraisals;
@@ -76,6 +77,15 @@ public class AppraisalsController : ControllerBase
     public async Task<IActionResult> SubmitAppraisal(Guid id)
     {
         await _mediator.Send(new SubmitAppraisalCommand { AppraisalId = id });
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/self-assessment")]
+    [ProducesResponseType(204)]
+    public async Task<IActionResult> SubmitSelfAssessment(Guid id, [FromBody] SubmitSelfAssessmentCommand command)
+    {
+        command.AppraisalId = id;
+        await _mediator.Send(command);
         return NoContent();
     }
 
