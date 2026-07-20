@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using HRMS.Services.Organization.Application.Commands.CreateHoliday;
+using HRMS.Services.Organization.Application.Commands.UpdateHoliday;
 using HRMS.Services.Organization.Application.Commands.Delete;
 using HRMS.Services.Organization.Application.Queries.GetHolidays;
 
@@ -61,6 +62,19 @@ public class HolidayController : ControllerBase
         }
 
         return CreatedAtAction(nameof(GetHolidays), new { companyId = results.First().CompanyId }, results);
+    }
+
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(Application.DTOs.HolidayDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateHolidayCommand command, CancellationToken cancellationToken)
+    {
+        if (id != command.Id)
+            return BadRequest(new { message = "ID mismatch between route and body." });
+
+        var result = await _mediator.Send(command, cancellationToken);
+        return Ok(result);
     }
 
     [HttpDelete("{id:guid}")]

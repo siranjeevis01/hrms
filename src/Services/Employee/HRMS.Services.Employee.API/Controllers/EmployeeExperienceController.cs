@@ -1,4 +1,6 @@
 using HRMS.Services.Employee.Application.Commands.AddWorkExperience;
+using HRMS.Services.Employee.Application.Commands.UpdateWorkExperience;
+using HRMS.Services.Employee.Application.Commands.DeleteWorkExperience;
 using HRMS.Services.Employee.Application.Queries.GetEmployeeExperience;
 using HRMS.Services.Employee.Application.DTOs;
 using MediatR;
@@ -36,15 +38,18 @@ public class EmployeeExperienceController : ControllerBase
 
     [HttpPut("{expId:guid}")]
     [ProducesResponseType(204)]
-    public IActionResult UpdateExperience(Guid expId)
+    public async Task<IActionResult> UpdateExperience(Guid expId, [FromBody] UpdateWorkExperienceCommand command)
     {
+        command.Id = expId;
+        await _mediator.Send(command);
         return NoContent();
     }
 
     [HttpDelete("{expId:guid}")]
     [ProducesResponseType(204)]
-    public IActionResult DeleteExperience(Guid expId)
+    public async Task<IActionResult> DeleteExperience(Guid expId)
     {
+        await _mediator.Send(new DeleteWorkExperienceCommand { Id = expId });
         return NoContent();
     }
 }

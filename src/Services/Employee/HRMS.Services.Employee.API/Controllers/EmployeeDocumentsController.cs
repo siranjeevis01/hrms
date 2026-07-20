@@ -1,4 +1,6 @@
 using HRMS.Services.Employee.Application.Commands.UploadDocument;
+using HRMS.Services.Employee.Application.Commands.UpdateDocument;
+using HRMS.Services.Employee.Application.Commands.DeleteDocument;
 using HRMS.Services.Employee.Application.Commands.VerifyDocument;
 using HRMS.Services.Employee.Application.Queries.GetEmployeeDocuments;
 using HRMS.Services.Employee.Application.DTOs;
@@ -35,6 +37,15 @@ public class EmployeeDocumentsController : ControllerBase
         return CreatedAtAction(nameof(GetDocuments), new { id }, docId);
     }
 
+    [HttpPut("{docId:guid}")]
+    [ProducesResponseType(204)]
+    public async Task<IActionResult> UpdateDocument(Guid docId, [FromBody] UpdateDocumentCommand command)
+    {
+        command.Id = docId;
+        await _mediator.Send(command);
+        return NoContent();
+    }
+
     [HttpPut("{docId:guid}/verify")]
     [ProducesResponseType(204)]
     public async Task<IActionResult> VerifyDocument(Guid docId, [FromBody] VerifyDocumentCommand command)
@@ -46,8 +57,9 @@ public class EmployeeDocumentsController : ControllerBase
 
     [HttpDelete("{docId:guid}")]
     [ProducesResponseType(204)]
-    public IActionResult DeleteDocument(Guid docId)
+    public async Task<IActionResult> DeleteDocument(Guid docId)
     {
+        await _mediator.Send(new DeleteDocumentCommand { Id = docId });
         return NoContent();
     }
 }

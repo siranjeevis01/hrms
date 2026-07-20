@@ -9,7 +9,7 @@ export const ADMIN_ROUTES: Routes = [
       ),
   },
   {
-    path: 'company',
+    path: 'settings',
     loadComponent: () =>
       import('./company-settings/company-settings.component').then(
         (m) => m.CompanySettingsComponent,

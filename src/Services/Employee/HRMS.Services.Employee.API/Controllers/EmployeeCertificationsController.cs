@@ -1,4 +1,6 @@
 using HRMS.Services.Employee.Application.Commands.AddCertification;
+using HRMS.Services.Employee.Application.Commands.UpdateCertification;
+using HRMS.Services.Employee.Application.Commands.DeleteCertification;
 using HRMS.Services.Employee.Application.Queries.GetEmployeeCertifications;
 using HRMS.Services.Employee.Application.DTOs;
 using MediatR;
@@ -36,15 +38,18 @@ public class EmployeeCertificationsController : ControllerBase
 
     [HttpPut("{certId:guid}")]
     [ProducesResponseType(204)]
-    public IActionResult UpdateCertification(Guid certId)
+    public async Task<IActionResult> UpdateCertification(Guid certId, [FromBody] UpdateCertificationCommand command)
     {
+        command.Id = certId;
+        await _mediator.Send(command);
         return NoContent();
     }
 
     [HttpDelete("{certId:guid}")]
     [ProducesResponseType(204)]
-    public IActionResult DeleteCertification(Guid certId)
+    public async Task<IActionResult> DeleteCertification(Guid certId)
     {
+        await _mediator.Send(new DeleteCertificationCommand { Id = certId });
         return NoContent();
     }
 }

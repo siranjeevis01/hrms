@@ -39,6 +39,16 @@ public class EmployeeDocument : BaseEntity
         };
     }
 
+    public void UpdateDetails(DocumentType? documentType, string? fileName, string? fileUrl,
+        DateTime? expiryDate)
+    {
+        if (documentType.HasValue) DocumentType = documentType.Value;
+        FileName = fileName ?? FileName;
+        FileUrl = fileUrl ?? FileUrl;
+        if (expiryDate.HasValue) ExpiryDate = expiryDate;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
     public void Verify(Guid verifiedBy)
     {
         IsVerified = true;

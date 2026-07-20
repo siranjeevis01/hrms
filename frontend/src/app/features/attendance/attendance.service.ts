@@ -47,9 +47,9 @@ export class AttendanceService {
     return this.http.post<void>(`${this.apiUrl}/check-out`, {}, { params });
   }
 
-  getTeamAttendance(date: string): Observable<AttendanceRecord[]> {
+  getTeamAttendance(managerId: string, date: string): Observable<AttendanceRecord[]> {
     return this.http.get<AttendanceRecord[]>(`${this.apiUrl}/team`, {
-      params: { date },
+      params: { managerId, date },
     });
   }
 

@@ -1,4 +1,6 @@
 using HRMS.Services.Employee.Application.Commands.AddEducation;
+using HRMS.Services.Employee.Application.Commands.UpdateEducation;
+using HRMS.Services.Employee.Application.Commands.DeleteEducation;
 using HRMS.Services.Employee.Application.Queries.GetEmployeeEducation;
 using HRMS.Services.Employee.Application.DTOs;
 using MediatR;
@@ -36,15 +38,18 @@ public class EmployeeEducationController : ControllerBase
 
     [HttpPut("{eduId:guid}")]
     [ProducesResponseType(204)]
-    public IActionResult UpdateEducation(Guid eduId)
+    public async Task<IActionResult> UpdateEducation(Guid eduId, [FromBody] UpdateEducationCommand command)
     {
+        command.Id = eduId;
+        await _mediator.Send(command);
         return NoContent();
     }
 
     [HttpDelete("{eduId:guid}")]
     [ProducesResponseType(204)]
-    public IActionResult DeleteEducation(Guid eduId)
+    public async Task<IActionResult> DeleteEducation(Guid eduId)
     {
+        await _mediator.Send(new DeleteEducationCommand { Id = eduId });
         return NoContent();
     }
 }

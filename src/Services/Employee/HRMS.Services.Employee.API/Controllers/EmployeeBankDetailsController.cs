@@ -1,4 +1,6 @@
 using HRMS.Services.Employee.Application.Commands.AddBankDetail;
+using HRMS.Services.Employee.Application.Commands.UpdateBankDetail;
+using HRMS.Services.Employee.Application.Commands.DeleteBankDetail;
 using HRMS.Services.Employee.Application.Queries.GetEmployeeSalary;
 using HRMS.Services.Employee.Application.DTOs;
 using MediatR;
@@ -36,15 +38,18 @@ public class EmployeeBankDetailsController : ControllerBase
 
     [HttpPut("{bankId:guid}")]
     [ProducesResponseType(204)]
-    public IActionResult UpdateBankDetail(Guid bankId)
+    public async Task<IActionResult> UpdateBankDetail(Guid bankId, [FromBody] UpdateBankDetailCommand command)
     {
+        command.Id = bankId;
+        await _mediator.Send(command);
         return NoContent();
     }
 
     [HttpDelete("{bankId:guid}")]
     [ProducesResponseType(204)]
-    public IActionResult DeleteBankDetail(Guid bankId)
+    public async Task<IActionResult> DeleteBankDetail(Guid bankId)
     {
+        await _mediator.Send(new DeleteBankDetailCommand { Id = bankId });
         return NoContent();
     }
 }

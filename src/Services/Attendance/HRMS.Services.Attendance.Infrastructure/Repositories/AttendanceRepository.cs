@@ -33,7 +33,7 @@ public class AttendanceRepository : IAttendanceRepository
     public async Task<List<AttendanceRecord>> GetTeamAttendanceAsync(Guid managerId, DateTime date, CancellationToken cancellationToken = default)
     {
         return await _context.AttendanceRecords
-            .Where(a => a.Date == date.Date)
+            .Where(a => a.Date == date.Date && a.EmployeeId != managerId)
             .OrderBy(a => a.EmployeeId)
             .ToListAsync(cancellationToken);
     }

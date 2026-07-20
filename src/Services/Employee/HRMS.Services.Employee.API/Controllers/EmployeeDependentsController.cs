@@ -1,4 +1,6 @@
 using HRMS.Services.Employee.Application.Commands.AddDependent;
+using HRMS.Services.Employee.Application.Commands.UpdateDependent;
+using HRMS.Services.Employee.Application.Commands.DeleteDependent;
 using HRMS.Services.Employee.Application.Queries.GetEmployeeDependents;
 using HRMS.Services.Employee.Application.DTOs;
 using MediatR;
@@ -36,15 +38,18 @@ public class EmployeeDependentsController : ControllerBase
 
     [HttpPut("{dependentId:guid}")]
     [ProducesResponseType(204)]
-    public IActionResult UpdateDependent(Guid dependentId)
+    public async Task<IActionResult> UpdateDependent(Guid dependentId, [FromBody] UpdateDependentCommand command)
     {
+        command.Id = dependentId;
+        await _mediator.Send(command);
         return NoContent();
     }
 
     [HttpDelete("{dependentId:guid}")]
     [ProducesResponseType(204)]
-    public IActionResult DeleteDependent(Guid dependentId)
+    public async Task<IActionResult> DeleteDependent(Guid dependentId)
     {
+        await _mediator.Send(new DeleteDependentCommand { Id = dependentId });
         return NoContent();
     }
 }

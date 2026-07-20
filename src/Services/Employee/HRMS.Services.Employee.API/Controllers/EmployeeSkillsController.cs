@@ -1,4 +1,6 @@
 using HRMS.Services.Employee.Application.Commands.AddSkill;
+using HRMS.Services.Employee.Application.Commands.UpdateSkill;
+using HRMS.Services.Employee.Application.Commands.DeleteSkill;
 using HRMS.Services.Employee.Application.Queries.GetEmployeeSkills;
 using HRMS.Services.Employee.Application.DTOs;
 using MediatR;
@@ -36,15 +38,18 @@ public class EmployeeSkillsController : ControllerBase
 
     [HttpPut("{skillId:guid}")]
     [ProducesResponseType(204)]
-    public IActionResult UpdateSkill(Guid skillId)
+    public async Task<IActionResult> UpdateSkill(Guid skillId, [FromBody] UpdateSkillCommand command)
     {
+        command.Id = skillId;
+        await _mediator.Send(command);
         return NoContent();
     }
 
     [HttpDelete("{skillId:guid}")]
     [ProducesResponseType(204)]
-    public IActionResult DeleteSkill(Guid skillId)
+    public async Task<IActionResult> DeleteSkill(Guid skillId)
     {
+        await _mediator.Send(new DeleteSkillCommand { Id = skillId });
         return NoContent();
     }
 }

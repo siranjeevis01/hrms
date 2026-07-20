@@ -14,6 +14,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AttendanceService } from '../attendance.service';
 import { AttendanceRecord } from '../attendance.models';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-team-attendance',
@@ -54,7 +55,7 @@ export class TeamAttendanceComponent implements OnInit {
   totalLate = signal(0);
   avgHours = signal(0);
 
-  constructor(private attendanceService: AttendanceService) {}
+  constructor(private attendanceService: AttendanceService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.loadTeamAttendance();
@@ -63,7 +64,8 @@ export class TeamAttendanceComponent implements OnInit {
   loadTeamAttendance(): void {
     this.loading.set(true);
     const dateStr = this.selectedDate().toISOString().split('T')[0];
-    this.attendanceService.getTeamAttendance(dateStr).subscribe({
+    const managerId = this.authService.getCurrentUser()?.id ?? '';
+    this.attendanceService.getTeamAttendance(managerId, dateStr).subscribe({
       next: (records) => {
         this.records.set(records);
         this.applyFilters();

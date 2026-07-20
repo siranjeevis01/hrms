@@ -11,6 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subscription } from 'rxjs';
 import { ChatService } from '../chat.service';
 import { Conversation, Message, ChatUser } from '../chat.models';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-chat',
@@ -27,6 +28,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   @ViewChild('messageInput') private messageInput!: ElementRef;
 
   private chatService = inject(ChatService);
+  private authService = inject(AuthService);
   private subscriptions: Subscription[] = [];
 
   conversations = signal<Conversation[]>([]);
@@ -47,7 +49,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadConversations();
     this.setupSubscriptions();
-    this.chatService.startConnection('mock-token');
+    this.chatService.startConnection(this.authService.getToken() ?? '');
   }
 
   ngOnDestroy(): void {
