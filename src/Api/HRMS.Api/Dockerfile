@@ -21,5 +21,5 @@ ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 ENV DOTNET_NOLOGO=1
 
 EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 CMD curl -f http://localhost:8080/health/live || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 CMD curl -f http://localhost:8080/health/live || exit 1
 ENTRYPOINT ["dotnet", "HRMS.Api.dll"]

@@ -17,12 +17,14 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Log.Logger = new LoggerConfiguration()
+var seqUrl = builder.Configuration["Seq:Url"];
+var loggerConfig = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.Seq(builder.Configuration["Seq:Url"] ?? "http://localhost:5341")
-    .CreateLogger();
+    .WriteTo.Console();
+if (!string.IsNullOrWhiteSpace(seqUrl))
+    loggerConfig.WriteTo.Seq(seqUrl);
+Log.Logger = loggerConfig.CreateLogger();
 
 try
 {
@@ -351,30 +353,38 @@ try
         }
     });
 
-    using (var scope = app.Services.CreateScope())
+    app.Lifetime.ApplicationStarted.Register(async () =>
     {
-        var db = scope.ServiceProvider.GetRequiredService<HrmsDbContext>();
-        if (db.Database.GetPendingMigrations().Any())
+        try
         {
-            Log.Information("Applying database migrations...");
-            db.Database.Migrate();
-            Log.Information("Migrations applied successfully.");
+            using var scope = app.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<HrmsDbContext>();
+            if (db.Database.GetPendingMigrations().Any())
+            {
+                Log.Information("Applying database migrations...");
+                db.Database.Migrate();
+                Log.Information("Migrations applied successfully.");
+            }
+
+            var conn = db.Database.GetDbConnection();
+            await conn.OpenAsync();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+                DO $$ BEGIN
+                    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'ApplicationUsers' AND column_name = 'PasswordHash') THEN
+                        ALTER TABLE ""ApplicationUsers"" ADD COLUMN ""PasswordHash"" text;
+                    END IF;
+                END $$;";
+            await cmd.ExecuteNonQueryAsync();
+            await conn.CloseAsync();
         }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Database migration failed after startup");
+        }
+    });
 
-        var conn = db.Database.GetDbConnection();
-        await conn.OpenAsync();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            DO $$ BEGIN
-                IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'ApplicationUsers' AND column_name = 'PasswordHash') THEN
-                    ALTER TABLE ""ApplicationUsers"" ADD COLUMN ""PasswordHash"" text;
-                END IF;
-            END $$;";
-        await cmd.ExecuteNonQueryAsync();
-        await conn.CloseAsync();
-    }
-
-    Log.Information("HRMS Pro API started successfully on {Urls}", builder.Configuration["Urls"] ?? "default");
+    Log.Information("HRMS Pro API starting on {Urls}", builder.Configuration["Urls"] ?? "default");
     app.Run();
 }
 catch (Exception ex)
