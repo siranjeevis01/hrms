@@ -209,6 +209,8 @@ try
         };
     var allowAllOrigins = corsOrigins.Any(o => o == "*" || o == "https://*");
 
+    Log.Information("CORS origins configured: {Origins}, AllowAll: {AllowAll}", string.Join(", ", corsOrigins), allowAllOrigins);
+
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowConfigured", policy =>
@@ -279,12 +281,10 @@ try
     }
 
     app.UseForwardedHeaders();
+    app.UseCors("AllowConfigured");
     app.UseResponseCompression();
     if (!app.Environment.IsEnvironment("Production"))
         app.UseHttpsRedirection();
-
-    var corsPolicy = app.Environment.IsDevelopment() ? "AllowAll" : "AllowConfigured";
-    app.UseCors(corsPolicy);
 
     if (!app.Environment.IsDevelopment())
     {
