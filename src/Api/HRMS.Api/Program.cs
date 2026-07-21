@@ -4,8 +4,27 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using HRMS.Api;
+using HRMS.Services.Attendance.Application.Interfaces;
+using HRMS.Services.Audit.Application.Interfaces;
+using HRMS.Services.Chat.Application.Interfaces;
+using HRMS.Services.Dashboard.Application.Interfaces;
+using HRMS.Services.Document.Application.Interfaces;
+using HRMS.Services.Employee.Application.Interfaces;
+using HRMS.Services.Expense.Application.Interfaces;
+using HRMS.Services.Helpdesk.Application.Interfaces;
 using HRMS.Services.Identity.Application.Interfaces;
 using HRMS.Services.Identity.Infrastructure.Extensions;
+using HRMS.Services.Leave.Application.Interfaces;
+using HRMS.Services.Notification.Application.Interfaces;
+using HRMS.Services.Organization.Application.Interfaces;
+using HRMS.Services.Payroll.Application.Interfaces;
+using HRMS.Services.Performance.Application.Interfaces;
+using HRMS.Services.ProjectTask.Application.Interfaces;
+using HRMS.Services.Recruitment.Application.Interfaces;
+using HRMS.Services.Report.Application.Interfaces;
+using HRMS.Services.Training.Application.Interfaces;
+using HRMS.Services.Travel.Application.Interfaces;
+using HRMS.Services.Workflow.Application.Interfaces;
 using HRMS.Shared.Kernel.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -94,6 +113,8 @@ try
     foreach (var assembly in applicationAssemblies)
         builder.Services.AddValidatorsFromAssembly(assembly);
 
+    builder.Services.AddAutoMapper(applicationAssemblies);
+
     // ── Identity Infrastructure Services (for monolith) ──
     builder.Services.AddScoped<HRMS.Services.Identity.Infrastructure.Services.PasswordHasher>();
     builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.IPasswordHasher, HRMS.Services.Identity.Infrastructure.Services.PasswordHasherAdapter>();
@@ -114,6 +135,27 @@ try
 
     builder.Services.AddScoped<IIdentityDbContext>(sp =>
         new IdentityDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+
+    // ── Module DbContext Adapters (monolith uses HrmsDbContext for all) ──
+    builder.Services.AddScoped<IEmployeeDbContext>(sp => new EmployeeDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IOrganizationDbContext>(sp => new OrganizationDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IAttendanceDbContext>(sp => new AttendanceDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<ILeaveDbContext>(sp => new LeaveDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IPayrollDbContext>(sp => new PayrollDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<INotificationDbContext>(sp => new NotificationDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IRecruitmentDbContext>(sp => new RecruitmentDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IProjectTaskDbContext>(sp => new ProjectTaskDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IPerformanceDbContext>(sp => new PerformanceDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<ITrainingDbContext>(sp => new TrainingDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IAuditDbContext>(sp => new AuditDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IReportDbContext>(sp => new ReportDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IDashboardDbContext>(sp => new DashboardDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IExpenseDbContext>(sp => new ExpenseDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<ITravelDbContext>(sp => new TravelDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IHelpdeskDbContext>(sp => new HelpdeskDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IChatDbContext>(sp => new ChatDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IDocumentDbContext>(sp => new DocumentDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
+    builder.Services.AddScoped<IWorkflowDbContext>(sp => new WorkflowDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
 
     builder.Services.AddEndpointsApiExplorer();
 
