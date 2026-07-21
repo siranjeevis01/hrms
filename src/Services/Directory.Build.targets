@@ -1,0 +1,9 @@
+<Project>
+  <!-- Prevent service appsettings.json from conflicting with the monolith's appsettings.json during publish -->
+  <Target Name="ExcludeAppSettingsFromPublish" BeforeTargets="ComputeFilesToPublish">
+    <ItemGroup>
+      <Content Update="appsettings.json" CopyToPublishDirectory="Never" CopyToOutputDirectory="Never" />
+      <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" CopyToOutputDirectory="Never" />
+    </ItemGroup>
+  </Target>
+</Project>

@@ -1,0 +1,18 @@
+<Project>
+  <!--
+    When a monolith (HRMS.Api) references microservice API projects (Microsoft.NET.Sdk.Web),
+    each service's appsettings.json flows into the monolith's publish output via Content items,
+    causing NETSDK1152 duplicate output conflicts.
+    This target strips them from ResolvedFileToPublish after it's populated but before the
+    conflict resolution target (_HandlePublishOutputConflicts) runs.
+  -->
+  <Target Name="StripServiceAppSettingsFromPublish"
+          AfterTargets="ComputeFilesToPublish"
+          BeforeTargets="_HandlePublishOutputConflicts">
+    <ItemGroup>
+      <ResolvedFileToPublish
+        Remove="@(ResolvedFileToPublish)"
+        Condition="$([System.String]::new('%(RelativePath)').StartsWith('appsettings')) AND !$([System.String]::new('%(FullPath)').Contains('HRMS.Api')) AND $([System.String]::new('%(FullPath)').Contains('Services'))" />
+    </ItemGroup>
+  </Target>
+</Project>
