@@ -202,7 +202,11 @@ try
     }
     var corsOrigins = corsOriginsRaw is { Length: > 0 }
         ? corsOriginsRaw
-        : new[] { "https://courageous-rolypoly-c81b64.netlify.app", "https://hrms-pro.netlify.app", "http://localhost:4200" };
+        : new[] {
+            "https://hrms-siranjeevis01.web.app",
+            "https://hrms-siranjeevis01.firebaseapp.com",
+            "http://localhost:4200"
+        };
     var allowAllOrigins = corsOrigins.Any(o => o == "*" || o == "https://*");
 
     builder.Services.AddCors(options =>
@@ -217,7 +221,8 @@ try
             }
             else
             {
-                policy.WithOrigins(corsOrigins)
+                policy.SetIsOriginAllowedToAllowWildcardSubdomains()
+                    .WithOrigins(corsOrigins)
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials()
