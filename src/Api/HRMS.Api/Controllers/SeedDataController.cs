@@ -150,20 +150,21 @@ public class SeedDataController : ControllerBase
             ("Jennifer", "Taylor", "jennifer.taylor@acme.com")
         };
 
-        var employeeIds = new Guid[employeeNames.Length];
+        var firstUserId = allUsers.Count > 0 ? allUsers[0].Id : Guid.NewGuid();
+
+        var employees = new List<HRMS.Services.Employee.Domain.Entities.Employee>();
         for (int i = 0; i < employeeNames.Length; i++)
         {
             var (first, last, email) = employeeNames[i];
-            employeeIds[i] = Guid.NewGuid();
             var emp = Employee.Create(
                 employeeCode: $"EMP-{(i + 1):D4}",
-                userId: employeeIds[i],
+                userId: i == 0 ? firstUserId : Guid.NewGuid(),
                 companyId: company.Id,
                 branchId: branches[0].Id,
                 departmentId: departments[i % departments.Length].Id,
                 designationId: designations[Math.Min(i, designations.Length - 1)].Id,
                 gradeId: grades[Math.Min(i, grades.Length - 1)].Id,
-                reportsToId: i > 0 ? employeeIds[0] : null,
+                reportsToId: i > 0 ? employees[0].Id : null,
                 firstName: first,
                 lastName: last,
                 middleName: null,
@@ -180,9 +181,12 @@ public class SeedDataController : ControllerBase
                 joiningDate: now.AddDays(-180 + (i * 20)),
                 employmentType: HRMS.Services.Employee.Domain.Enums.EmploymentType.FullTime,
                 tenantId: tenantIdStr);
+            employees.Add(emp);
             _db.Employees.Add(emp);
         }
         await _db.SaveChangesAsync(ct);
+
+        var employeeIds = employees.Select(e => e.Id).ToArray();
 
         var leaveTypes = new[]
         {

@@ -24,9 +24,14 @@ public class ChannelsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(List<ChatChannelDto>), 200)]
     public async Task<IActionResult> GetChannels(
-        [FromQuery] Guid tenantId,
         [FromQuery] bool includeArchived = false)
     {
+        var tenantId = Guid.Empty;
+        if (Request.Query.TryGetValue("tenantId", out var qv) && Guid.TryParse(qv.FirstOrDefault(), out var qt))
+            tenantId = qt;
+        else if (Guid.TryParse(User.FindFirst("tenant_id")?.Value, out var jt))
+            tenantId = jt;
+
         var result = await _mediator.Send(new GetChannelsQuery
         {
             TenantId = tenantId,
@@ -40,7 +45,7 @@ public class ChannelsController : ControllerBase
     public async Task<IActionResult> CreateChannel([FromBody] CreateChannelCommand command)
     {
         var id = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetChannels), new { tenantId = command.TenantId }, id);
+        return CreatedAtAction(nameof(GetChannels), new { }, id);
     }
 
     [HttpPut("{id:guid}")]

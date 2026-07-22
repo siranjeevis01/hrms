@@ -20,8 +20,15 @@ public class TicketCategoriesController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(List<TicketCategoryDto>), 200)]
-    public async Task<IActionResult> GetTicketCategories([FromQuery] string tenantId = "")
+    public async Task<IActionResult> GetTicketCategories()
     {
+        var tenantId = HttpContext.Request.Query["tenantId"].FirstOrDefault() ?? "";
+        if (string.IsNullOrEmpty(tenantId))
+        {
+            var tenantClaim = User.FindFirst("tenant_id")?.Value;
+            if (!string.IsNullOrEmpty(tenantClaim))
+                tenantId = tenantClaim;
+        }
         var result = await _mediator.Send(new GetTicketCategoriesQuery { TenantId = tenantId });
         return Ok(result);
     }

@@ -18,8 +18,15 @@ public class ExpenseCategoriesController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(List<ExpenseCategoryDto>), 200)]
-    public async Task<IActionResult> GetExpenseCategories([FromQuery] string tenantId = "")
+    public async Task<IActionResult> GetExpenseCategories()
     {
+        var tenantId = HttpContext.Request.Query["tenantId"].FirstOrDefault() ?? "";
+        if (string.IsNullOrEmpty(tenantId))
+        {
+            var tenantClaim = User.FindFirst("tenant_id")?.Value;
+            if (!string.IsNullOrEmpty(tenantClaim))
+                tenantId = tenantClaim;
+        }
         var result = await _mediator.Send(new GetExpenseCategoriesQuery { TenantId = tenantId });
         return Ok(result);
     }

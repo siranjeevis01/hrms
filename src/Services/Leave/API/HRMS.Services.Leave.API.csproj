@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Application\HRMS.Services.Leave.Application.csproj" />
     <ProjectReference Include="..\Infrastructure\HRMS.Services.Leave.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Employee\HRMS.Services.Employee.Application\HRMS.Services.Employee.Application.csproj" />
   </ItemGroup>
 
 </Project>
