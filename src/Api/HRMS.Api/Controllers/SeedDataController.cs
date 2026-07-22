@@ -33,10 +33,33 @@ public class SeedDataController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Seed(CancellationToken ct)
+    public async Task<IActionResult> Seed([FromQuery] bool force = false, CancellationToken ct = default)
     {
-        if (await _db.Companies.AnyAsync(ct))
-            return Ok(new { message = "Database already seeded." });
+        if (!force && await _db.Companies.AnyAsync(ct))
+            return Ok(new { message = "Database already seeded. Use ?force=true to re-seed." });
+
+        if (force)
+        {
+            _logger.LogInformation("Force re-seeding: clearing existing data...");
+            _db.ChatChannels.RemoveRange(_db.ChatChannels);
+            _db.Dashboards.RemoveRange(_db.Dashboards);
+            _db.Documents.RemoveRange(_db.Documents);
+            _db.ExpenseCategories.RemoveRange(_db.ExpenseCategories);
+            _db.Projects.RemoveRange(_db.Projects);
+            _db.TicketCategories.RemoveRange(_db.TicketCategories);
+            _db.ShiftAssignments.RemoveRange(_db.ShiftAssignments);
+            _db.AttendancePolicies.RemoveRange(_db.AttendancePolicies);
+            _db.LeaveBalances.RemoveRange(_db.LeaveBalances);
+            _db.LeaveTypes.RemoveRange(_db.LeaveTypes);
+            _db.Employees.RemoveRange(_db.Employees);
+            _db.Shifts.RemoveRange(_db.Shifts);
+            _db.Designations.RemoveRange(_db.Designations);
+            _db.Grades.RemoveRange(_db.Grades);
+            _db.Departments.RemoveRange(_db.Departments);
+            _db.Branches.RemoveRange(_db.Branches);
+            _db.Companies.RemoveRange(_db.Companies);
+            await _db.SaveChangesAsync(ct);
+        }
 
         var tenantId = Guid.NewGuid();
         var tenantIdStr = tenantId.ToString();
