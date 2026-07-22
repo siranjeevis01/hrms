@@ -13,6 +13,8 @@ using IdentityApplicationUser = HRMS.Services.Identity.Domain.Entities.Applicati
 
 using SystemAuditLog = HRMS.Services.Audit.Domain.Entities.AuditLog;
 
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
 namespace HRMS.Api;
 
 public class HrmsDbContext : DbContext

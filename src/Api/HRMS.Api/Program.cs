@@ -36,6 +36,9 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Allow Npgsql to accept DateTime with Kind=Unspecified (treats as UTC)
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var seqUrl = builder.Configuration["Seq:Url"];
 var loggerConfig = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
