@@ -28,6 +28,11 @@ public interface IIdentityDbContext
     Task<string?> GetUserPasswordHashAsync(Guid userId, CancellationToken cancellationToken = default);
     Task SetUserPasswordHashAsync(Guid userId, string hashedPassword, CancellationToken cancellationToken = default);
 
+    void AddRole(Role role);
+    void AddRolePermission(RolePermission rolePermission);
+    void RemoveRolePermission(RolePermission rolePermission);
+    void UpdateRole(Role role);
+    void RemoveRole(Role role);
     void AddUser(ApplicationUser user);
     void AddRefreshToken(RefreshToken refreshToken);
     void AddUserSession(UserSession session);

@@ -1,5 +1,12 @@
 using System.Security.Claims;
+using HRMS.Services.Identity.Application.Commands.AddPermission;
+using HRMS.Services.Identity.Application.Commands.CreateRole;
+using HRMS.Services.Identity.Application.Commands.DeleteRole;
+using HRMS.Services.Identity.Application.Commands.RemovePermission;
+using HRMS.Services.Identity.Application.Commands.UpdateRole;
 using HRMS.Services.Identity.Application.DTOs;
+using HRMS.Services.Identity.Application.Queries.GetAllRoles;
+using HRMS.Services.Identity.Application.Queries.GetRoleById;
 using HRMS.Shared.Kernel.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -169,34 +176,6 @@ public class RolesController : ControllerBase
         return NoContent();
     }
 }
-
-#region Role Management Commands
-
-public record GetAllRolesQuery() : IRequest<Result<IReadOnlyList<RoleDto>>>;
-
-public record GetRoleByIdQuery(Guid Id) : IRequest<Result<RoleDto>>;
-
-public record CreateRoleCommand(
-    string Name,
-    string? Description) : IRequest<Result<RoleDto>>;
-
-public record UpdateRoleCommand(
-    Guid Id,
-    string? Description) : IRequest<Result>;
-
-public record DeleteRoleCommand(Guid Id) : IRequest<Result>;
-
-public record AddPermissionCommand(
-    Guid RoleId,
-    string Permission,
-    string? Module,
-    string? Description) : IRequest<Result>;
-
-public record RemovePermissionCommand(
-    Guid RoleId,
-    string Permission) : IRequest<Result>;
-
-#endregion
 
 #region Request DTOs
 

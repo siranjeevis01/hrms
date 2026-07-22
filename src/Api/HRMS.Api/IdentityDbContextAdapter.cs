@@ -85,6 +85,11 @@ public class IdentityDbContextAdapter : IIdentityDbContext
         }
     }
 
+    public void AddRole(Role role) => _context.Roles.Add(role);
+    public void AddRolePermission(RolePermission rolePermission) => _context.RolePermissions.Add(rolePermission);
+    public void RemoveRolePermission(RolePermission rolePermission) => _context.RolePermissions.Remove(rolePermission);
+    public void UpdateRole(Role role) => _context.Roles.Update(role);
+    public void RemoveRole(Role role) => _context.Roles.Remove(role);
     public void AddUser(ApplicationUser user) => _context.ApplicationUsers.Add(user);
     public void AddRefreshToken(RefreshToken refreshToken) => _context.RefreshTokens.Add(refreshToken);
     public void AddUserSession(UserSession session) => _context.UserSessions.Add(session);
