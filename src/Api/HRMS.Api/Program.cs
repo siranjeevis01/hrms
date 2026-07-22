@@ -54,51 +54,33 @@ try
 
     builder.Host.UseSerilog();
 
-    var mvcBuilder = builder.Services.AddControllers()
+    builder.Services.AddControllers()
+        .AddApplicationPart(typeof(HRMS.Services.Identity.API.Controllers.AuthController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Attendance.API.Controllers.AttendanceController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Audit.API.Controllers.AuditLogsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Chat.API.Controllers.ChannelsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Dashboard.API.Controllers.DashboardsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Document.API.Controllers.DocumentsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Employee.API.Controllers.EmployeesController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Expense.API.Controllers.ExpenseClaimsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Helpdesk.API.Controllers.TicketsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Leave.API.Controllers.LeaveApplicationsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Notification.API.Controllers.NotificationsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Organization.API.Controllers.CompanyController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Payroll.API.Controllers.PayrollController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Performance.API.Controllers.PerformanceReviewsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.ProjectTask.API.Controllers.ProjectsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Recruitment.API.Controllers.CandidatesController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Report.API.Controllers.ReportTemplatesController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Training.API.Controllers.CoursesController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Travel.API.Controllers.TravelRequestsController).Assembly)
+        .AddApplicationPart(typeof(HRMS.Services.Workflow.API.Controllers.WorkflowDefinitionsController).Assembly)
         .AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
             options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         });
-
-    var moduleAssemblies = new[]
-    {
-        "HRMS.Services.Identity.API",
-        "HRMS.Services.Attendance.API",
-        "HRMS.Services.Audit.API",
-        "HRMS.Services.Chat.API",
-        "HRMS.Services.Dashboard.API",
-        "HRMS.Services.Document.API",
-        "HRMS.Services.Employee.API",
-        "HRMS.Services.Expense.API",
-        "HRMS.Services.Helpdesk.API",
-        "HRMS.Services.Leave.API",
-        "HRMS.Services.Notification.API",
-        "HRMS.Services.Organization.API",
-        "HRMS.Services.Payroll.API",
-        "HRMS.Services.Performance.API",
-        "HRMS.Services.ProjectTask.API",
-        "HRMS.Services.Recruitment.API",
-        "HRMS.Services.Report.API",
-        "HRMS.Services.Training.API",
-        "HRMS.Services.Travel.API",
-        "HRMS.Services.Workflow.API",
-    };
-
-    foreach (var asmName in moduleAssemblies)
-    {
-        try
-        {
-            var asm = System.Reflection.Assembly.Load(asmName);
-            mvcBuilder.AddApplicationPart(asm);
-            Log.Information("Loaded ApplicationPart: {Assembly}", asmName);
-        }
-        catch (Exception ex)
-        {
-            Log.Warning(ex, "Failed to load ApplicationPart: {Assembly}", asmName);
-        }
-    }
 
     // ── Module Application Services (MediatR, FluentValidation, AutoMapper) ──
     var applicationAssemblies = new[]
