@@ -14,6 +14,7 @@ import {
 export class ExpensesService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/api/expenses/ExpenseClaims`;
+  private policiesApi = `${environment.apiUrl}/api/expenses/ExpensePolicies`;
 
   getDashboardStats(): Observable<ExpenseDashboardStats> {
     return this.http.get<ExpenseDashboardStats>(`${this.apiUrl}/dashboard`);
@@ -57,18 +58,18 @@ export class ExpensesService {
   }
 
   getPolicies(): Observable<ExpensePolicy[]> {
-    return this.http.get<ExpensePolicy[]>(`${this.apiUrl}/policies`);
+    return this.http.get<ExpensePolicy[]>(`${this.policiesApi}`);
   }
 
   createPolicy(policy: Partial<ExpensePolicy>): Observable<ExpensePolicy> {
-    return this.http.post<ExpensePolicy>(`${this.apiUrl}/policies`, policy);
+    return this.http.post<ExpensePolicy>(`${this.policiesApi}`, policy);
   }
 
   updatePolicy(id: string, policy: Partial<ExpensePolicy>): Observable<ExpensePolicy> {
-    return this.http.put<ExpensePolicy>(`${this.apiUrl}/policies/${id}`, policy);
+    return this.http.put<ExpensePolicy>(`${this.policiesApi}/${id}`, policy);
   }
 
   deletePolicy(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/policies/${id}`);
+    return this.http.delete<void>(`${this.policiesApi}/${id}`);
   }
 }

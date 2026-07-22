@@ -22,11 +22,11 @@ export class PayrollService {
   private apiUrl = `${environment.apiUrl}/api/payroll`;
 
   getPayrollSummary(): Observable<PayrollSummary> {
-    return this.http.get<PayrollSummary>(`${this.apiUrl}/summary`);
+    return this.http.get<PayrollSummary>(`${this.apiUrl}/runs`);
   }
 
   runPayroll(month: number, year: number): Observable<PayrollRunResult> {
-    return this.http.post<PayrollRunResult>(`${this.apiUrl}/run`, { month, year });
+    return this.http.post<PayrollRunResult>(`${this.apiUrl}/process`, { month, year });
   }
 
   getPayslips(filters: PayslipFilters): Observable<PagedResult<Payslip>> {
@@ -51,11 +51,11 @@ export class PayrollService {
   }
 
   getSalaryStructures(): Observable<SalaryStructure[]> {
-    return this.http.get<SalaryStructure[]>(`${this.apiUrl}/salary-structures`);
+    return this.http.get<SalaryStructure[]>(`${this.apiUrl}/employee-salary`);
   }
 
   createSalaryStructure(command: { name: string; components: SalaryComponent[] }): Observable<string> {
-    return this.http.post<string>(`${this.apiUrl}/salary-structures`, command);
+    return this.http.post<string>(`${this.apiUrl}/employee-salary`, command);
   }
 
   getSalaryComponents(): Observable<SalaryComponent[]> {
@@ -63,7 +63,7 @@ export class PayrollService {
   }
 
   calculateTax(salary: number): Observable<TaxCalculation> {
-    return this.http.get<TaxCalculation>(`${this.apiUrl}/tax-calculate`, {
+    return this.http.get<TaxCalculation>(`${this.apiUrl}/tax`, {
       params: { salary: salary.toString() },
     });
   }

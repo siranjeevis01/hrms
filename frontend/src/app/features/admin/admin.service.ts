@@ -18,100 +18,103 @@ import {
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/api/identity`;
+  private identityApi = `${environment.apiUrl}/api/identity`;
+  private organizationApi = `${environment.apiUrl}/api/organization`;
+  private auditApi = `${environment.apiUrl}/api/audit`;
+  private workflowApi = `${environment.apiUrl}/api/workflow`;
 
   getDashboardStats(): Observable<AdminDashboardStats> {
-    return this.http.get<AdminDashboardStats>(`${this.apiUrl}/dashboard`);
+    return this.http.get<AdminDashboardStats>(`${environment.apiUrl}/api/dashboard/Analytics`);
   }
 
   getCompanySettings(): Observable<CompanySettings> {
-    return this.http.get<CompanySettings>(`${this.apiUrl}/company`);
+    return this.http.get<CompanySettings>(`${this.organizationApi}/Company`);
   }
 
   updateCompanySettings(settings: Partial<CompanySettings>): Observable<CompanySettings> {
-    return this.http.put<CompanySettings>(`${this.apiUrl}/company`, settings);
+    return this.http.put<CompanySettings>(`${this.organizationApi}/Company`, settings);
   }
 
   getDepartments(): Observable<Department[]> {
-    return this.http.get<Department[]>(`${this.apiUrl}/departments`);
+    return this.http.get<Department[]>(`${this.organizationApi}/Department`);
   }
 
   getDepartment(id: string): Observable<Department> {
-    return this.http.get<Department>(`${this.apiUrl}/departments/${id}`);
+    return this.http.get<Department>(`${this.organizationApi}/Department/${id}`);
   }
 
   createDepartment(department: Partial<Department>): Observable<Department> {
-    return this.http.post<Department>(`${this.apiUrl}/departments`, department);
+    return this.http.post<Department>(`${this.organizationApi}/Department`, department);
   }
 
   updateDepartment(id: string, department: Partial<Department>): Observable<Department> {
-    return this.http.put<Department>(`${this.apiUrl}/departments/${id}`, department);
+    return this.http.put<Department>(`${this.organizationApi}/Department/${id}`, department);
   }
 
   deleteDepartment(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/departments/${id}`);
+    return this.http.delete<void>(`${this.organizationApi}/Department/${id}`);
   }
 
   getDesignations(departmentId?: string): Observable<Designation[]> {
     let params = new HttpParams();
     if (departmentId) params = params.set('departmentId', departmentId);
-    return this.http.get<Designation[]>(`${this.apiUrl}/designations`, { params });
+    return this.http.get<Designation[]>(`${this.organizationApi}/Designation`, { params });
   }
 
   createDesignation(designation: Partial<Designation>): Observable<Designation> {
-    return this.http.post<Designation>(`${this.apiUrl}/designations`, designation);
+    return this.http.post<Designation>(`${this.organizationApi}/Designation`, designation);
   }
 
   updateDesignation(id: string, designation: Partial<Designation>): Observable<Designation> {
-    return this.http.put<Designation>(`${this.apiUrl}/designations/${id}`, designation);
+    return this.http.put<Designation>(`${this.organizationApi}/Designation/${id}`, designation);
   }
 
   deleteDesignation(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/designations/${id}`);
+    return this.http.delete<void>(`${this.organizationApi}/Designation/${id}`);
   }
 
   getBranches(): Observable<Branch[]> {
-    return this.http.get<Branch[]>(`${this.apiUrl}/branches`);
+    return this.http.get<Branch[]>(`${this.organizationApi}/Branch`);
   }
 
   createBranch(branch: Partial<Branch>): Observable<Branch> {
-    return this.http.post<Branch>(`${this.apiUrl}/branches`, branch);
+    return this.http.post<Branch>(`${this.organizationApi}/Branch`, branch);
   }
 
   updateBranch(id: string, branch: Partial<Branch>): Observable<Branch> {
-    return this.http.put<Branch>(`${this.apiUrl}/branches/${id}`, branch);
+    return this.http.put<Branch>(`${this.organizationApi}/Branch/${id}`, branch);
   }
 
   deleteBranch(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/branches/${id}`);
+    return this.http.delete<void>(`${this.organizationApi}/Branch/${id}`);
   }
 
   getRoles(): Observable<Role[]> {
-    return this.http.get<Role[]>(`${this.apiUrl}/roles`);
+    return this.http.get<Role[]>(`${this.identityApi}/Roles`);
   }
 
   getRole(id: string): Observable<Role> {
-    return this.http.get<Role>(`${this.apiUrl}/roles/${id}`);
+    return this.http.get<Role>(`${this.identityApi}/Roles/${id}`);
   }
 
   createRole(role: Partial<Role>): Observable<Role> {
-    return this.http.post<Role>(`${this.apiUrl}/roles`, role);
+    return this.http.post<Role>(`${this.identityApi}/Roles`, role);
   }
 
   updateRole(id: string, role: Partial<Role>): Observable<Role> {
-    return this.http.put<Role>(`${this.apiUrl}/roles/${id}`, role);
+    return this.http.put<Role>(`${this.identityApi}/Roles/${id}`, role);
   }
 
   deleteRole(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/roles/${id}`);
+    return this.http.delete<void>(`${this.identityApi}/Roles/${id}`);
   }
 
   getPermissions(): Observable<Permission[]> {
-    return this.http.get<Permission[]>(`${this.apiUrl}/permissions`);
+    return this.http.get<Permission[]>(`${this.identityApi}/Roles`);
   }
 
   assignPermissions(roleId: string, permissionIds: string[]): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/roles/${roleId}/permissions`, { permissionIds });
+    return this.http.post<void>(`${this.identityApi}/Roles/${roleId}/permissions`, { permissionIds });
   }
 
   getAuditLogs(filters?: { search?: string; userId?: string; action?: string; entityType?: string; dateFrom?: string; dateTo?: string }): Observable<AuditLog[]> {
@@ -121,42 +124,42 @@ export class AdminService {
         if (value) params = params.set(key, value);
       });
     }
-    return this.http.get<AuditLog[]>(`${this.apiUrl}/audit-logs`, { params });
+    return this.http.get<AuditLog[]>(`${this.auditApi}/AuditLogs`, { params });
   }
 
   getFeatureFlags(): Observable<FeatureFlag[]> {
-    return this.http.get<FeatureFlag[]>(`${this.apiUrl}/feature-flags`);
+    return this.http.get<FeatureFlag[]>(`${this.auditApi}/AuditLogs`);
   }
 
   createFeatureFlag(flag: Partial<FeatureFlag>): Observable<FeatureFlag> {
-    return this.http.post<FeatureFlag>(`${this.apiUrl}/feature-flags`, flag);
+    return this.http.post<FeatureFlag>(`${this.auditApi}/AuditLogs`, flag);
   }
 
   updateFeatureFlag(id: string, flag: Partial<FeatureFlag>): Observable<FeatureFlag> {
-    return this.http.put<FeatureFlag>(`${this.apiUrl}/feature-flags/${id}`, flag);
+    return this.http.put<FeatureFlag>(`${this.auditApi}/AuditLogs/${id}`, flag);
   }
 
   deleteFeatureFlag(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/feature-flags/${id}`);
+    return this.http.delete<void>(`${this.auditApi}/AuditLogs/${id}`);
   }
 
   toggleFeatureFlag(id: string, isEnabled: boolean): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/feature-flags/${id}/toggle`, { isEnabled });
+    return this.http.patch<void>(`${this.auditApi}/AuditLogs/${id}/toggle`, { isEnabled });
   }
 
   getWorkflows(): Observable<WorkflowTemplate[]> {
-    return this.http.get<WorkflowTemplate[]>(`${this.apiUrl}/workflows`);
+    return this.http.get<WorkflowTemplate[]>(`${this.workflowApi}/WorkflowDefinitions`);
   }
 
   createWorkflow(workflow: Partial<WorkflowTemplate>): Observable<WorkflowTemplate> {
-    return this.http.post<WorkflowTemplate>(`${this.apiUrl}/workflows`, workflow);
+    return this.http.post<WorkflowTemplate>(`${this.workflowApi}/WorkflowDefinitions`, workflow);
   }
 
   updateWorkflow(id: string, workflow: Partial<WorkflowTemplate>): Observable<WorkflowTemplate> {
-    return this.http.put<WorkflowTemplate>(`${this.apiUrl}/workflows/${id}`, workflow);
+    return this.http.put<WorkflowTemplate>(`${this.workflowApi}/WorkflowDefinitions/${id}`, workflow);
   }
 
   deleteWorkflow(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/workflows/${id}`);
+    return this.http.delete<void>(`${this.workflowApi}/WorkflowDefinitions/${id}`);
   }
 }

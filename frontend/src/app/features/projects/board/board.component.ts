@@ -99,7 +99,7 @@ export class BoardComponent implements OnInit {
       const task = event.container.data[event.currentIndex];
       const newStatus = event.container.id as TaskStatus;
       this.projectsService
-        .updateTaskStatus({ taskId: task.id, status: newStatus, position: event.currentIndex })
+        .updateTaskStatus(this.projectId, { taskId: task.id, status: newStatus, position: event.currentIndex })
         .subscribe();
     }
   }

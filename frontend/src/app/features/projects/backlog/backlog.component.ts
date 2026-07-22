@@ -74,7 +74,7 @@ export class BacklogComponent implements OnInit {
       const task = event.container.data[event.currentIndex];
       const sprintId = event.container.id;
       this.projectsService
-        .updateTask(task.id, { sprintId })
+        .updateTask(this.projectId, task.id, { sprintId })
         .subscribe();
     }
   }

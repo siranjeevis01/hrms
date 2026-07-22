@@ -13,6 +13,7 @@ import {
 export class DocumentsService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/api/documents/Documents`;
+  private foldersApi = `${environment.apiUrl}/api/documents/Folders`;
 
   getDocuments(folderId?: string, search?: string, sort?: string): Observable<DocumentItem[]> {
     let params = new HttpParams();
@@ -29,19 +30,19 @@ export class DocumentsService {
   getFolders(parentId?: string): Observable<DocumentFolder[]> {
     let params = new HttpParams();
     if (parentId) params = params.set('parentId', parentId);
-    return this.http.get<DocumentFolder[]>(`${this.apiUrl}/folders`, { params });
+    return this.http.get<DocumentFolder[]>(`${this.foldersApi}`, { params });
   }
 
   getFolder(id: string): Observable<DocumentFolder> {
-    return this.http.get<DocumentFolder>(`${this.apiUrl}/folders/${id}`);
+    return this.http.get<DocumentFolder>(`${this.foldersApi}/${id}`);
   }
 
   createFolder(name: string, parentId: string | null): Observable<DocumentFolder> {
-    return this.http.post<DocumentFolder>(`${this.apiUrl}/folders`, { name, parentId });
+    return this.http.post<DocumentFolder>(`${this.foldersApi}`, { name, parentId });
   }
 
   deleteFolder(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/folders/${id}`);
+    return this.http.delete<void>(`${this.foldersApi}/${id}`);
   }
 
   uploadDocument(request: UploadDocumentRequest): Observable<DocumentItem> {
@@ -60,13 +61,13 @@ export class DocumentsService {
   }
 
   shareDocument(request: ShareDocumentRequest): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${request.documentId}/share`, {
+    return this.http.post<void>(`${this.apiUrl}/${request.documentId}/shares`, {
       userId: request.userId,
       permission: request.permission,
     });
   }
 
   removeShare(documentId: string, userId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${documentId}/share/${userId}`);
+    return this.http.delete<void>(`${this.apiUrl}/${documentId}/shares/${userId}`);
   }
 }

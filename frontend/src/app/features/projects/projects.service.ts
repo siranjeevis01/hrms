@@ -53,31 +53,31 @@ export class ProjectsService {
     return this.http.get<ProjectTask[]>(`${this.apiUrl}/${projectId}/tasks`, { params });
   }
 
-  getTask(taskId: string): Observable<ProjectTask> {
-    return this.http.get<ProjectTask>(`${environment.apiUrl}/api/projects/projects/${taskId}`);
+  getTask(projectId: string, taskId: string): Observable<ProjectTask> {
+    return this.http.get<ProjectTask>(`${this.apiUrl}/${projectId}/tasks/${taskId}`);
   }
 
-  createTask(request: CreateTaskRequest): Observable<ProjectTask> {
-    return this.http.post<ProjectTask>(`${environment.apiUrl}/api/projects/projects`, request);
+  createTask(projectId: string, request: CreateTaskRequest): Observable<ProjectTask> {
+    return this.http.post<ProjectTask>(`${this.apiUrl}/${projectId}/tasks`, request);
   }
 
-  updateTask(taskId: string, request: Partial<CreateTaskRequest>): Observable<ProjectTask> {
-    return this.http.put<ProjectTask>(`${environment.apiUrl}/api/projects/projects/${taskId}`, request);
+  updateTask(projectId: string, taskId: string, request: Partial<CreateTaskRequest>): Observable<ProjectTask> {
+    return this.http.put<ProjectTask>(`${this.apiUrl}/${projectId}/tasks/${taskId}`, request);
   }
 
-  updateTaskStatus(request: UpdateTaskStatusRequest): Observable<void> {
-    return this.http.patch<void>(`${environment.apiUrl}/api/projects/projects/${request.taskId}/status`, {
+  updateTaskStatus(projectId: string, request: UpdateTaskStatusRequest): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${projectId}/tasks/${request.taskId}/status`, {
       status: request.status,
       position: request.position,
     });
   }
 
-  deleteTask(taskId: string): Observable<void> {
-    return this.http.delete<void>(`${environment.apiUrl}/api/projects/projects/${taskId}`);
+  deleteTask(projectId: string, taskId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${projectId}/tasks/${taskId}`);
   }
 
   getBoard(projectId: string): Observable<BoardColumn[]> {
-    return this.http.get<BoardColumn[]>(`${this.apiUrl}/${projectId}/board`);
+    return this.http.get<BoardColumn[]>(`${this.apiUrl}/${projectId}/boards`);
   }
 
   getBacklog(projectId: string): Observable<ProjectTask[]> {
@@ -125,6 +125,6 @@ export class ProjectsService {
   }
 
   logTime(taskId: string, hours: number, description: string): Observable<void> {
-    return this.http.post<void>(`${environment.apiUrl}/api/projects/projects/${taskId}/time-log`, { hours, description });
+    return this.http.post<void>(`${this.apiUrl}/TimeLogs`, { taskId, hours, description });
   }
 }
