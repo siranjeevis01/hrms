@@ -161,6 +161,20 @@ try
     builder.Services.AddScoped<IDocumentDbContext>(sp => new DocumentDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
     builder.Services.AddScoped<IWorkflowDbContext>(sp => new WorkflowDbContextAdapter(sp.GetRequiredService<HrmsDbContext>()));
 
+    // ── Module Repository Registrations (for monolith) ──
+    builder.Services.AddScoped<HRMS.Services.Attendance.Application.Interfaces.IAttendanceRepository, HRMS.Services.Attendance.Infrastructure.Repositories.AttendanceRepository>();
+    builder.Services.AddScoped<HRMS.Services.Leave.Application.Interfaces.ILeaveRepository, HRMS.Services.Leave.Infrastructure.Repositories.LeaveRepository>();
+
+    // ── Notification Module Infrastructure Services ──
+    builder.Services.AddScoped<HRMS.Services.Notification.Application.Interfaces.INotificationRenderer, HRMS.Services.Notification.Infrastructure.Services.NotificationRenderer>();
+    builder.Services.AddHttpClient<HRMS.Services.Notification.Application.Interfaces.IEmailProvider, HRMS.Services.Notification.Infrastructure.Providers.BrevoEmailProvider>();
+    builder.Services.AddHttpClient<HRMS.Services.Notification.Application.Interfaces.ISmsProvider, HRMS.Services.Notification.Infrastructure.Providers.TwilioSmsProvider>();
+    builder.Services.Configure<HRMS.Services.Notification.Infrastructure.Providers.BrevoEmailOptions>(builder.Configuration.GetSection("Brevo"));
+    builder.Services.Configure<HRMS.Services.Notification.Infrastructure.Providers.TwilioSmsOptions>(builder.Configuration.GetSection("Twilio"));
+    builder.Services.Configure<HRMS.Services.Notification.Infrastructure.Providers.FirebasePushOptions>(builder.Configuration.GetSection("Firebase"));
+    builder.Services.AddScoped<HRMS.Services.Notification.Application.Interfaces.IPushProvider, HRMS.Services.Notification.Infrastructure.Providers.FirebasePushProvider>();
+    builder.Services.AddScoped<HRMS.Services.Notification.Application.Interfaces.INotificationDispatcher, HRMS.Services.Notification.Infrastructure.Services.NotificationDispatcher>();
+
     builder.Services.AddEndpointsApiExplorer();
 
     builder.Services.AddSwaggerGen(c =>

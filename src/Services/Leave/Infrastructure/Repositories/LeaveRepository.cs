@@ -1,16 +1,15 @@
 using HRMS.Services.Leave.Application.Interfaces;
 using HRMS.Services.Leave.Domain.Entities;
 using HRMS.Services.Leave.Domain.Enums;
-using HRMS.Services.Leave.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Services.Leave.Infrastructure.Repositories;
 
 public class LeaveRepository : ILeaveRepository
 {
-    private readonly LeaveDbContext _context;
+    private readonly ILeaveDbContext _context;
 
-    public LeaveRepository(LeaveDbContext context)
+    public LeaveRepository(ILeaveDbContext context)
     {
         _context = context;
     }
