@@ -26,7 +26,7 @@ public class GetMyLeaveBalanceQueryHandler : IRequestHandler<GetMyLeaveBalanceQu
         var year = request.Year ?? DateTime.UtcNow.Year;
 
         var balances = await _context.LeaveBalances
-            .Where(lb => lb.EmployeeId == request.EmployeeId && lb.Year == year && lb.TenantId == tenantId)
+            .Where(lb => lb.EmployeeId == request.EmployeeId && lb.Year == year)
             .ToListAsync(cancellationToken);
 
         var dtos = _mapper.Map<List<LeaveBalanceDto>>(balances);
