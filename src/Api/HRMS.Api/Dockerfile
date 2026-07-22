@@ -7,7 +7,7 @@ RUN dotnet publish "src/Api/HRMS.Api/HRMS.Api.csproj" -c $BUILD_CONFIGURATION -o
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS final
 RUN addgroup -S hrms && adduser -S hrms -G hrms
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl libc6-compat
 WORKDIR /app
 COPY --from=build /app/publish .
 USER hrms

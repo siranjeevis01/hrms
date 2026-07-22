@@ -11,6 +11,7 @@ using HRMS.Services.Identity.Application.Commands.RevokeToken;
 using HRMS.Services.Identity.Application.Commands.VerifyEmail;
 using HRMS.Services.Identity.Application.Commands.VerifyMfa;
 using HRMS.Services.Identity.Application.DTOs;
+using HRMS.Services.Identity.Application.Interfaces;
 using HRMS.Shared.Kernel.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -25,11 +26,25 @@ public class AuthController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<AuthController> _logger;
+    private readonly HRMS.Services.Identity.Infrastructure.Services.IFirebaseAuthService _firebaseAuthService;
+    private readonly IIdentityDbContext _identityDbContext;
+    private readonly IPasswordHasher _passwordHasher;
+    private readonly ITokenService _tokenService;
 
-    public AuthController(IMediator mediator, ILogger<AuthController> logger)
+    public AuthController(
+        IMediator mediator,
+        ILogger<AuthController> logger,
+        HRMS.Services.Identity.Infrastructure.Services.IFirebaseAuthService firebaseAuthService,
+        IIdentityDbContext identityDbContext,
+        IPasswordHasher passwordHasher,
+        ITokenService tokenService)
     {
         _mediator = mediator;
         _logger = logger;
+        _firebaseAuthService = firebaseAuthService;
+        _identityDbContext = identityDbContext;
+        _passwordHasher = passwordHasher;
+        _tokenService = tokenService;
     }
 
     [HttpPost("register")]
@@ -283,18 +298,160 @@ public class AuthController : ControllerBase
     [HttpPost("firebase")]
     [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
-    public IActionResult FirebaseLogin(
+    public async Task<IActionResult> FirebaseLogin(
         [FromBody] FirebaseLoginRequest request,
         CancellationToken cancellationToken)
     {
         _logger.LogInformation("Firebase login attempt");
 
-        return Unauthorized(new ApiErrorResponse
+        try
         {
-            StatusCode = StatusCodes.Status401Unauthorized,
-            Message = "Firebase authentication is not yet configured on the server.",
-            Details = "Contact administrator to configure Firebase Admin SDK."
-        });
+            await _firebaseAuthService.InitializeAppAsync();
+
+            var firebaseToken = await _firebaseAuthService.VerifyIdTokenAsync(request.IdToken);
+            if (firebaseToken == null)
+            {
+                return Unauthorized(new ApiErrorResponse
+                {
+                    StatusCode = StatusCodes.Status401Unauthorized,
+                    Message = "Invalid or expired Firebase token.",
+                    Details = "firebase_token_invalid"
+                });
+            }
+
+            var email = firebaseToken.Claims.TryGetValue("email", out var emailClaim)
+                ? emailClaim?.ToString() : null;
+            var name = firebaseToken.Claims.TryGetValue("name", out var nameClaim)
+                ? nameClaim?.ToString() : null;
+
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return Unauthorized(new ApiErrorResponse
+                {
+                    StatusCode = StatusCodes.Status401Unauthorized,
+                    Message = "No email found in Firebase token.",
+                    Details = "firebase_no_email"
+                });
+            }
+
+            var user = await _identityDbContext.FindUserByEmailAsync(email, cancellationToken);
+
+            if (user == null)
+            {
+                var firstName = name?.Split(' ')[0] ?? email.Split('@')[0];
+                var lastName = name?.Contains(' ') == true ? name.Split(' ').Last() : "User";
+
+                user = Domain.Entities.ApplicationUser.Create(
+                    Guid.NewGuid(), email, firstName, lastName);
+                user.SetFirebaseUid(firebaseToken.Uid);
+                user.VerifyEmail();
+
+                _identityDbContext.AddUser(user);
+
+                var refreshToken = Domain.Entities.RefreshToken.Create(
+                    Guid.NewGuid(),
+                    _tokenService.GenerateRefreshToken(),
+                    user.Id,
+                    DateTime.UtcNow.AddDays(7),
+                    "firebase_login");
+
+                _identityDbContext.AddRefreshToken(refreshToken);
+
+                await _identityDbContext.SetUserPasswordHashAsync(
+                    user.Id,
+                    _passwordHasher.HashPassword(Guid.NewGuid().ToString("N")),
+                    cancellationToken);
+
+                await _identityDbContext.SaveChangesAsync(cancellationToken);
+
+                var roles = await _identityDbContext.GetUserRoleNamesAsync(user.Id, cancellationToken);
+                var permissions = await _identityDbContext.GetUserPermissionsAsync(user.Id, cancellationToken);
+
+                var accessToken = _tokenService.GenerateAccessToken(
+                    user.Id, user.Email, roles, permissions, user.TenantId);
+
+                return Ok(new AuthResponseDto
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken.Token,
+                    ExpiresIn = (int)(_tokenService.GetAccessTokenExpiration() - DateTime.UtcNow).TotalSeconds,
+                    TokenType = "Bearer",
+                    User = new UserDto
+                    {
+                        Id = user.Id,
+                        Email = user.Email,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        PhoneNumber = user.PhoneNumber,
+                        ProfilePictureUrl = user.ProfilePictureUrl,
+                        IsMfaEnabled = user.IsMfaEnabled,
+                        Roles = roles,
+                        Permissions = permissions,
+                        CreatedAt = user.CreatedAt
+                    }
+                });
+            }
+
+            if (!user.IsActive)
+            {
+                return Unauthorized(new ApiErrorResponse
+                {
+                    StatusCode = StatusCodes.Status401Unauthorized,
+                    Message = "Account has been deactivated.",
+                    Details = "account_deactivated"
+                });
+            }
+
+            user.UpdateLastLogin(HttpContext.Connection.RemoteIpAddress?.ToString());
+            _identityDbContext.UpdateUser(user);
+
+            var existingRoles = await _identityDbContext.GetUserRoleNamesAsync(user.Id, cancellationToken);
+            var existingPermissions = await _identityDbContext.GetUserPermissionsAsync(user.Id, cancellationToken);
+
+            var newRefreshToken = Domain.Entities.RefreshToken.Create(
+                Guid.NewGuid(),
+                _tokenService.GenerateRefreshToken(),
+                user.Id,
+                DateTime.UtcNow.AddDays(7),
+                "firebase_login");
+
+            _identityDbContext.AddRefreshToken(newRefreshToken);
+            await _identityDbContext.SaveChangesAsync(cancellationToken);
+
+            var token = _tokenService.GenerateAccessToken(
+                user.Id, user.Email, existingRoles, existingPermissions, user.TenantId);
+
+            return Ok(new AuthResponseDto
+            {
+                AccessToken = token,
+                RefreshToken = newRefreshToken.Token,
+                ExpiresIn = (int)(_tokenService.GetAccessTokenExpiration() - DateTime.UtcNow).TotalSeconds,
+                TokenType = "Bearer",
+                User = new UserDto
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    PhoneNumber = user.PhoneNumber,
+                    ProfilePictureUrl = user.ProfilePictureUrl,
+                    IsMfaEnabled = user.IsMfaEnabled,
+                    Roles = existingRoles,
+                    Permissions = existingPermissions,
+                    CreatedAt = user.CreatedAt
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Firebase login failed");
+            return Unauthorized(new ApiErrorResponse
+            {
+                StatusCode = StatusCodes.Status401Unauthorized,
+                Message = "Firebase authentication failed.",
+                Details = ex.Message
+            });
+        }
     }
 
     [HttpPost("change-password")]

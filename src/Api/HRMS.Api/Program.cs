@@ -55,32 +55,53 @@ try
     builder.Host.UseSerilog();
 
     builder.Services.AddControllers()
-        .AddApplicationPart(typeof(HRMS.Services.Identity.API.Controllers.AuthController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Attendance.API.Controllers.AttendanceController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Audit.API.Controllers.AuditLogsController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Chat.API.Controllers.ChannelsController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Dashboard.API.Controllers.DashboardsController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Document.API.Controllers.DocumentsController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Employee.API.Controllers.EmployeesController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Expense.API.Controllers.ExpenseClaimsController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Helpdesk.API.Controllers.TicketsController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Leave.API.Controllers.LeaveApplicationsController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Notification.API.Controllers.NotificationsController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Organization.API.Controllers.CompanyController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Payroll.API.Controllers.PayrollController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Performance.API.Controllers.PerformanceReviewsController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.ProjectTask.API.Controllers.ProjectsController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Recruitment.API.Controllers.CandidatesController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Report.API.Controllers.ReportTemplatesController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Training.API.Controllers.CoursesController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Travel.API.Controllers.TravelRequestsController).Assembly)
-        .AddApplicationPart(typeof(HRMS.Services.Workflow.API.Controllers.WorkflowDefinitionsController).Assembly)
         .AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
             options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         });
+
+    static void AddApplicationPartSafely(IMvcBuilder mvc, Type controllerType)
+    {
+        try
+        {
+            mvc.AddApplicationPart(controllerType.Assembly);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Failed to add ApplicationPart for {Assembly}", controllerType.Assembly.FullName);
+        }
+    }
+
+    var mvcBuilder = builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        });
+
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Identity.API.Controllers.AuthController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Attendance.API.Controllers.AttendanceController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Audit.API.Controllers.AuditLogsController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Chat.API.Controllers.ChannelsController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Dashboard.API.Controllers.DashboardsController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Document.API.Controllers.DocumentsController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Employee.API.Controllers.EmployeesController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Expense.API.Controllers.ExpenseClaimsController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Helpdesk.API.Controllers.TicketsController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Leave.API.Controllers.LeaveApplicationsController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Notification.API.Controllers.NotificationsController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Organization.API.Controllers.CompanyController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Payroll.API.Controllers.PayrollController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Performance.API.Controllers.PerformanceReviewsController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.ProjectTask.API.Controllers.ProjectsController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Recruitment.API.Controllers.CandidatesController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Report.API.Controllers.ReportTemplatesController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Training.API.Controllers.CoursesController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Travel.API.Controllers.TravelRequestsController));
+    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Workflow.API.Controllers.WorkflowDefinitionsController));
 
     // ── Module Application Services (MediatR, FluentValidation, AutoMapper) ──
     var applicationAssemblies = new[]
@@ -131,6 +152,8 @@ try
     builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.ITotpService, HRMS.Services.Identity.Infrastructure.Services.TotpServiceAdapter>();
     builder.Services.Configure<HRMS.Services.Identity.Infrastructure.Services.JwtSettings>(builder.Configuration.GetSection("Jwt"));
     builder.Services.Configure<HRMS.Services.Identity.Infrastructure.Services.FirebaseAuthSettings>(builder.Configuration.GetSection("Firebase"));
+    builder.Services.AddScoped<HRMS.Services.Identity.Infrastructure.Services.IFirebaseAuthService, HRMS.Services.Identity.Infrastructure.Services.FirebaseAuthService>();
+
     // ── Email Service (SMTP) ──
     builder.Services.Configure<HRMS.Services.Identity.Infrastructure.Services.SmtpOptions>(builder.Configuration.GetSection(HRMS.Services.Identity.Infrastructure.Services.SmtpOptions.SectionName));
     builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.IEmailService, HRMS.Services.Identity.Infrastructure.Services.SmtpEmailService>();
