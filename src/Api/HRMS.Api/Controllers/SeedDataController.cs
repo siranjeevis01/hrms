@@ -65,6 +65,15 @@ public class SeedDataController : ControllerBase
         var tenantIdStr = tenantId.ToString();
         var now = DateTime.UtcNow;
 
+        // Assign all existing users to this tenant
+        var allUsers = await _db.ApplicationUsers.ToListAsync(ct);
+        foreach (var user in allUsers)
+        {
+            _db.Entry(user).Property("TenantId").CurrentValue = tenantId;
+        }
+        if (allUsers.Count > 0)
+            await _db.SaveChangesAsync(ct);
+
         var company = Company.Create("Acme Corporation", "Acme Corporation Pvt Ltd", "ACM-2024-001", "TAX-123456789", tenantId);
         company.UpdateDetails(website: "https://acme.com", email: "hr@acme.com", phone: "+1-555-0100", industry: "Technology", employeeCountRange: "100-500");
         _db.Companies.Add(company);
