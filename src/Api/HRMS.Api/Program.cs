@@ -115,6 +115,10 @@ try
 
     builder.Services.AddAutoMapper(applicationAssemblies);
 
+    // ── Shared Kernel Services ──
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddScoped<HRMS.Shared.Kernel.Interfaces.ICurrentUserService, HRMS.Services.Identity.Infrastructure.Services.CurrentUserService>();
+
     // ── Identity Infrastructure Services (for monolith) ──
     builder.Services.AddScoped<HRMS.Services.Identity.Infrastructure.Services.PasswordHasher>();
     builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.IPasswordHasher, HRMS.Services.Identity.Infrastructure.Services.PasswordHasherAdapter>();
