@@ -131,6 +131,7 @@ try
     builder.Services.AddScoped<HRMS.Services.Identity.Application.Interfaces.ITotpService, HRMS.Services.Identity.Infrastructure.Services.TotpServiceAdapter>();
     builder.Services.Configure<HRMS.Services.Identity.Infrastructure.Services.JwtSettings>(builder.Configuration.GetSection("Jwt"));
     builder.Services.Configure<HRMS.Services.Identity.Infrastructure.Services.FirebaseAuthSettings>(builder.Configuration.GetSection("Firebase"));
+    builder.Services.AddScoped<HRMS.Services.Identity.Infrastructure.Services.IFirebaseAuthService, HRMS.Services.Identity.Infrastructure.Services.FirebaseAuthService>();
 
     // ── Email Service (SMTP) ──
     builder.Services.Configure<HRMS.Services.Identity.Infrastructure.Services.SmtpOptions>(builder.Configuration.GetSection(HRMS.Services.Identity.Infrastructure.Services.SmtpOptions.SectionName));
