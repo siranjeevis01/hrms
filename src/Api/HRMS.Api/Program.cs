@@ -54,18 +54,6 @@ try
 
     builder.Host.UseSerilog();
 
-    static void AddApplicationPartSafely(IMvcBuilder mvc, Type controllerType)
-    {
-        try
-        {
-            mvc.AddApplicationPart(controllerType.Assembly);
-        }
-        catch (Exception ex)
-        {
-            Log.Warning(ex, "Failed to add ApplicationPart for {Assembly}", controllerType.Assembly.FullName);
-        }
-    }
-
     var mvcBuilder = builder.Services.AddControllers()
         .AddJsonOptions(options =>
         {
@@ -74,26 +62,43 @@ try
             options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         });
 
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Identity.API.Controllers.AuthController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Attendance.API.Controllers.AttendanceController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Audit.API.Controllers.AuditLogsController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Chat.API.Controllers.ChannelsController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Dashboard.API.Controllers.DashboardsController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Document.API.Controllers.DocumentsController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Employee.API.Controllers.EmployeesController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Expense.API.Controllers.ExpenseClaimsController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Helpdesk.API.Controllers.TicketsController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Leave.API.Controllers.LeaveApplicationsController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Notification.API.Controllers.NotificationsController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Organization.API.Controllers.CompanyController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Payroll.API.Controllers.PayrollController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Performance.API.Controllers.PerformanceReviewsController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.ProjectTask.API.Controllers.ProjectsController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Recruitment.API.Controllers.CandidatesController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Report.API.Controllers.ReportTemplatesController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Training.API.Controllers.CoursesController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Travel.API.Controllers.TravelRequestsController));
-    AddApplicationPartSafely(mvcBuilder, typeof(HRMS.Services.Workflow.API.Controllers.WorkflowDefinitionsController));
+    var moduleAssemblies = new[]
+    {
+        "HRMS.Services.Identity.API",
+        "HRMS.Services.Attendance.API",
+        "HRMS.Services.Audit.API",
+        "HRMS.Services.Chat.API",
+        "HRMS.Services.Dashboard.API",
+        "HRMS.Services.Document.API",
+        "HRMS.Services.Employee.API",
+        "HRMS.Services.Expense.API",
+        "HRMS.Services.Helpdesk.API",
+        "HRMS.Services.Leave.API",
+        "HRMS.Services.Notification.API",
+        "HRMS.Services.Organization.API",
+        "HRMS.Services.Payroll.API",
+        "HRMS.Services.Performance.API",
+        "HRMS.Services.ProjectTask.API",
+        "HRMS.Services.Recruitment.API",
+        "HRMS.Services.Report.API",
+        "HRMS.Services.Training.API",
+        "HRMS.Services.Travel.API",
+        "HRMS.Services.Workflow.API",
+    };
+
+    foreach (var asmName in moduleAssemblies)
+    {
+        try
+        {
+            var asm = System.Reflection.Assembly.Load(asmName);
+            mvcBuilder.AddApplicationPart(asm);
+            Log.Information("Loaded ApplicationPart: {Assembly}", asmName);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Failed to load ApplicationPart: {Assembly}", asmName);
+        }
+    }
 
     // ── Module Application Services (MediatR, FluentValidation, AutoMapper) ──
     var applicationAssemblies = new[]
