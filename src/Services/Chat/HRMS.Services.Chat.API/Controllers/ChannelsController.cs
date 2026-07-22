@@ -5,6 +5,7 @@ using HRMS.Services.Chat.Application.DTOs;
 using HRMS.Services.Chat.Application.Queries.GetChannelMessages;
 using HRMS.Services.Chat.Application.Queries.GetChannels;
 using HRMS.Shared.Kernel.Common;
+using HRMS.Shared.Kernel.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,10 +16,12 @@ namespace HRMS.Services.Chat.API.Controllers;
 public class ChannelsController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUserService;
 
-    public ChannelsController(IMediator mediator)
+    public ChannelsController(IMediator mediator, ICurrentUserService currentUserService)
     {
         _mediator = mediator;
+        _currentUserService = currentUserService;
     }
 
     [HttpGet]
@@ -29,8 +32,8 @@ public class ChannelsController : ControllerBase
         var tenantId = Guid.Empty;
         if (Request.Query.TryGetValue("tenantId", out var qv) && Guid.TryParse(qv.FirstOrDefault(), out var qt))
             tenantId = qt;
-        else if (Guid.TryParse(User.FindFirst("tenant_id")?.Value, out var jt))
-            tenantId = jt;
+        else if (_currentUserService.TenantId.HasValue)
+            tenantId = _currentUserService.TenantId.Value;
 
         var result = await _mediator.Send(new GetChannelsQuery
         {
