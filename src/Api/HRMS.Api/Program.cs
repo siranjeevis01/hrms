@@ -248,7 +248,11 @@ try
             };
         });
 
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("HRAdmin", policy =>
+            policy.RequireAuthenticatedUser());
+    });
 
     var corsOriginsRaw = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
     if (corsOriginsRaw is null || corsOriginsRaw.Length == 0)
