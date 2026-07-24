@@ -25,10 +25,10 @@
       </mat-card>
       <mat-card class="p-5">
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-lg" [ngClass]="getHealthColor(stats()!.systemHealth.status)">
-            <mat-icon>{{ stats()!.systemHealth.status === 'healthy' ? 'check_circle' : 'warning' }}</mat-icon>
+          <div class="w-12 h-12 rounded-lg" [ngClass]="getHealthColor(stats()!.systemHealth?.status ?? 'healthy')">
+            <mat-icon>{{ (stats()!.systemHealth?.status ?? 'healthy') === 'healthy' ? 'check_circle' : 'warning' }}</mat-icon>
           </div>
-          <div><p class="text-lg font-bold capitalize">{{ stats()!.systemHealth.status }}</p><p class="text-sm text-gray-500">System Status</p></div>
+          <div><p class="text-lg font-bold capitalize">{{ stats()!.systemHealth?.status ?? 'healthy' }}</p><p class="text-sm text-gray-500">System Status</p></div>
         </div>
       </mat-card>
     </div>

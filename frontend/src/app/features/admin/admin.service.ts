@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
   CompanySettings,
@@ -24,7 +25,64 @@ export class AdminService {
   private workflowApi = `${environment.apiUrl}/api/workflow`;
 
   getDashboardStats(): Observable<AdminDashboardStats> {
-    return this.http.get<AdminDashboardStats>(`${environment.apiUrl}/api/dashboard/Analytics`);
+    return this.http.get<any>(`${environment.apiUrl}/api/dashboard/analytics`).pipe(
+      map((data) => this.mapAdminStats(data)),
+      catchError(() => of({
+        totalUsers: 0,
+        activeUsers: 0,
+        totalDepartments: 0,
+        totalRoles: 0,
+        recentAuditLogs: [],
+        systemHealth: { status: 'healthy' as const, uptime: 0, cpuUsage: 0, memoryUsage: 0, diskUsage: 0, activeUsers: 0, lastBackup: '', version: '1.0.0' },
+      }))
+    );
+  }
+
+  private mapAdminStats(data: any): AdminDashboardStats {
+    if (!data) {
+      return {
+        totalUsers: 0, activeUsers: 0, totalDepartments: 0, totalRoles: 0,
+        recentAuditLogs: [],
+        systemHealth: { status: 'healthy', uptime: 0, cpuUsage: 0, memoryUsage: 0, diskUsage: 0, activeUsers: 0, lastBackup: '', version: '1.0.0' },
+      };
+    }
+    return {
+      totalUsers: data.totalUsers ?? data.TotalUsers ?? 0,
+      activeUsers: data.activeUsers ?? data.ActiveUsers ?? 0,
+      totalDepartments: data.totalDepartments ?? data.TotalDepartments ?? 0,
+      totalRoles: data.totalRoles ?? data.TotalRoles ?? 0,
+      recentAuditLogs: (data.recentAuditLogs ?? data.RecentAuditLogs ?? []).map((log: any) => ({
+        id: log.id ?? log.Id ?? '',
+        userId: log.userId ?? log.UserId ?? '',
+        userName: log.userName ?? log.UserName ?? '',
+        action: log.action ?? log.Action ?? '',
+        entityType: log.entityType ?? log.EntityType ?? '',
+        entityId: log.entityId ?? log.EntityId ?? '',
+        entityName: log.entityName ?? log.EntityName ?? '',
+        oldValues: log.oldValues ?? log.OldValues ?? null,
+        newValues: log.newValues ?? log.NewValues ?? null,
+        ipAddress: log.ipAddress ?? log.IpAddress ?? '',
+        userAgent: log.userAgent ?? log.UserAgent ?? '',
+        timestamp: log.timestamp ?? log.Timestamp ?? '',
+      })),
+      systemHealth: this.mapSystemHealth(data.systemHealth ?? data.SystemHealth),
+    };
+  }
+
+  private mapSystemHealth(data: any): any {
+    if (!data) {
+      return { status: 'healthy', uptime: 0, cpuUsage: 0, memoryUsage: 0, diskUsage: 0, activeUsers: 0, lastBackup: '', version: '1.0.0' };
+    }
+    return {
+      status: data.status ?? data.Status ?? 'healthy',
+      uptime: data.uptime ?? data.Uptime ?? 0,
+      cpuUsage: data.cpuUsage ?? data.CpuUsage ?? 0,
+      memoryUsage: data.memoryUsage ?? data.MemoryUsage ?? 0,
+      diskUsage: data.diskUsage ?? data.DiskUsage ?? 0,
+      activeUsers: data.activeUsers ?? data.ActiveUsers ?? 0,
+      lastBackup: data.lastBackup ?? data.LastBackup ?? '',
+      version: data.version ?? data.Version ?? '1.0.0',
+    };
   }
 
   getCompanySettings(): Observable<CompanySettings> {

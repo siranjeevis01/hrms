@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../../environments/environment';
 import {
@@ -14,7 +15,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/api/chat/Conversations`;
+  private apiUrl = `${environment.apiUrl}/api/chat`;
   private hubConnection: signalR.HubConnection | null = null;
 
   private messageReceived$ = new Subject<Message>();
@@ -28,36 +29,40 @@ export class ChatService {
   connectionStatus = this.connectionStatus$.asObservable();
 
   getConversations(): Observable<Conversation[]> {
-    return this.http.get<Conversation[]>(`${this.apiUrl}/conversations`);
+    return this.http.get<Conversation[]>(`${this.apiUrl}/Conversations`).pipe(
+      catchError(() => of([]))
+    );
   }
 
   getMessages(conversationId: string, before?: string): Observable<Message[]> {
-    let url = `${this.apiUrl}/conversations/${conversationId}/messages`;
+    let url = `${this.apiUrl}/Conversations/${conversationId}/messages`;
     if (before) url += `?before=${before}`;
-    return this.http.get<Message[]>(url);
+    return this.http.get<Message[]>(url).pipe(
+      catchError(() => of([]))
+    );
   }
 
   sendMessage(request: SendMessageRequest): Observable<Message> {
-    return this.http.post<Message>(`${this.apiUrl}/messages`, request);
+    return this.http.post<Message>(`${this.apiUrl}/Messages`, request);
   }
 
   createConversation(request: CreateConversationRequest): Observable<Conversation> {
-    return this.http.post<Conversation>(`${this.apiUrl}/conversations`, request);
+    return this.http.post<Conversation>(`${this.apiUrl}/Conversations`, request);
   }
 
   markAsRead(conversationId: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/conversations/${conversationId}/read`, {});
+    return this.http.post<void>(`${this.apiUrl}/Conversations/${conversationId}/read`, {});
   }
 
   sendTypingIndicator(conversationId: string, isTyping: boolean): void {
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
-      this.hubConnection.invoke('SendTypingIndicator', conversationId, isTyping);
+      this.hubConnection.invoke('SendTypingIndicator', conversationId, isTyping).catch(() => {});
     }
   }
 
   startConnection(token: string): void {
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('/hubs/chat', {
+      .withUrl(`${environment.apiUrl}/hubs/notifications`, {
         accessTokenFactory: () => token,
       })
       .withAutomaticReconnect()
@@ -90,7 +95,11 @@ export class ChatService {
   }
 
   stopConnection(): void {
-    this.hubConnection?.stop();
+    try {
+      this.hubConnection?.stop();
+    } catch {
+      // Ignore errors on disconnect
+    }
     this.hubConnection = null;
   }
 }

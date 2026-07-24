@@ -41,10 +41,22 @@ export class ProfileComponent implements OnInit {
       next: (p) => { this.profile.set(p); this.editedProfile = { ...p }; this.loading.set(false); },
       error: () => this.loading.set(false),
     });
-    this.profileService.getEmergencyContacts().subscribe({ next: (c) => this.emergencyContacts.set(c) });
-    this.profileService.getSkills().subscribe({ next: (s) => this.skills.set(s) });
-    this.profileService.getLeaveSummary().subscribe({ next: (l) => this.leaveSummary.set(l) });
-    this.profileService.getAttendanceSummary().subscribe({ next: (a) => this.attendanceSummary.set(a) });
+    this.profileService.getEmergencyContacts().subscribe({
+      next: (c) => this.emergencyContacts.set(Array.isArray(c) ? c : []),
+      error: () => this.emergencyContacts.set([]),
+    });
+    this.profileService.getSkills().subscribe({
+      next: (s) => this.skills.set(Array.isArray(s) ? s : []),
+      error: () => this.skills.set([]),
+    });
+    this.profileService.getLeaveSummary().subscribe({
+      next: (l) => this.leaveSummary.set(Array.isArray(l) ? l : []),
+      error: () => this.leaveSummary.set([]),
+    });
+    this.profileService.getAttendanceSummary().subscribe({
+      next: (a) => this.attendanceSummary.set(a),
+      error: () => this.attendanceSummary.set(null),
+    });
   }
 
   startEditing(): void { this.editedProfile = { ...this.profile()! }; this.editing.set(true); }

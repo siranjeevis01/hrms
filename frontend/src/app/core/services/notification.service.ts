@@ -29,7 +29,9 @@ export class NotificationService {
     this.hubConnection
       .start()
       .then(() => this.listenForNotifications())
-      .catch((err) => console.error('SignalR connection error:', err));
+      .catch(() => {
+        // SignalR hub not available - non-critical, notifications will poll instead
+      });
   }
 
   stopConnection(): void {

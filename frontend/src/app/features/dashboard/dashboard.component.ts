@@ -82,28 +82,30 @@ export class DashboardComponent implements OnInit {
     });
 
     this.dashboardService.getRecentActivities().subscribe({
-      next: (data) => this.activities.set(data),
+      next: (data) => this.activities.set(Array.isArray(data) ? data : []),
       error: () => {},
     });
 
     this.dashboardService.getUpcomingEvents().subscribe({
-      next: (data) => this.events.set(data),
+      next: (data) => this.events.set(Array.isArray(data) ? data : []),
       error: () => {},
     });
 
     this.dashboardService.getEmployeeChart().subscribe({
       next: (data) => {
         this.employeeChartData.set(data);
-        this.pieChartData = {
-          labels: data.labels,
-          datasets: data.datasets.map((ds) => ({
-            ...ds,
-            backgroundColor: [
-              '#3b82f6', '#10b981', '#f59e0b', '#ef4444',
-              '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16',
-            ],
-          })),
-        };
+        if (data && data.labels && data.datasets && data.datasets.length > 0) {
+          this.pieChartData = {
+            labels: data.labels,
+            datasets: data.datasets.map((ds) => ({
+              ...ds,
+              backgroundColor: [
+                '#3b82f6', '#10b981', '#f59e0b', '#ef4444',
+                '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16',
+              ],
+            })),
+          };
+        }
       },
       error: () => {},
     });
@@ -111,16 +113,18 @@ export class DashboardComponent implements OnInit {
     this.dashboardService.getAttendanceChart().subscribe({
       next: (data) => {
         this.attendanceChartData.set(data);
-        this.lineChartData = {
-          labels: data.labels,
-          datasets: data.datasets.map((ds) => ({
-            ...ds,
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            fill: true,
-            tension: 0.4,
-          })),
-        };
+        if (data && data.labels && data.datasets && data.datasets.length > 0) {
+          this.lineChartData = {
+            labels: data.labels,
+            datasets: data.datasets.map((ds) => ({
+              ...ds,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              fill: true,
+              tension: 0.4,
+            })),
+          };
+        }
       },
       error: () => {},
     });
