@@ -58,6 +58,7 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "/hrms/",
               "budgets": [
                 {
                   "type": "initial",
