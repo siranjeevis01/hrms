@@ -17,7 +17,7 @@ services:
       - key: Redis__ConnectionString
         sync: false
       - key: Cors__AllowedOrigins
-        value: '["https://hrms-siranjeevis01.web.app","https://hrms-siranjeevis01.firebaseapp.com","http://localhost:4200"]'
+        value: '["https://hrms-siranjeevis01.web.app","https://hrms-siranjeevis01.firebaseapp.com","https://siranjeevis01.github.io","http://localhost:4200"]'
       - key: Jwt__SecretKey
         generateValue: true
       - key: Jwt__Issuer

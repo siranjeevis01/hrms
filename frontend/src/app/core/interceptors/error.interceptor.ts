@@ -28,10 +28,18 @@ export const errorInterceptor: HttpInterceptorFn = (
         return handle401Error(req, next, authService, router);
       }
 
-      if (error.status === 403) {
-        toastService.error('You do not have permission to perform this action');
-      } else if (error.status === 404) {
+      // Silently ignore 404s on non-critical endpoints (profile sub-resources, dashboard analytics)
+      if (error.status === 404) {
+        const ignorablePatterns = ['/emergency-contacts', '/skills', '/leave-summary',
+          '/attendance-summary', '/documents', '/settings', '/sessions',
+          '/analytics', '/dashboards/stats', '/chat/'];
+        const isIgnorable = ignorablePatterns.some(p => req.url.includes(p));
+        if (isIgnorable) {
+          return throwError(() => error);
+        }
         toastService.error('The requested resource was not found');
+      } else if (error.status === 403) {
+        toastService.error('You do not have permission to perform this action');
       } else if (error.status >= 500) {
         toastService.error('An unexpected error occurred. Please try again later.');
       } else if (error.error?.message) {

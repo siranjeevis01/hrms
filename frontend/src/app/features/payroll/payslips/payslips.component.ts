@@ -100,9 +100,9 @@ export class PayslipsComponent implements OnInit {
       });
   }
 
-  viewPayslip(id: string): void {
+  viewPayslip(row: Payslip): void {
     this.loadingDetail.set(true);
-    this.payrollService.getPayslip(id).subscribe({
+    this.payrollService.getPayslip(row.employeeId, row.month, row.year).subscribe({
       next: (detail) => {
         this.selectedPayslip.set(detail);
         this.loadingDetail.set(false);
@@ -115,8 +115,8 @@ export class PayslipsComponent implements OnInit {
     this.selectedPayslip.set(null);
   }
 
-  downloadPayslip(id: string, name: string): void {
-    this.payrollService.downloadPayslip(id).subscribe({
+  downloadPayslip(row: Payslip, name: string): void {
+    this.payrollService.downloadPayslip(row.employeeId, row.month, row.year).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -131,7 +131,7 @@ export class PayslipsComponent implements OnInit {
 
   bulkDownload(): void {
     this.payslips().forEach((p) => {
-      this.downloadPayslip(p.id, p.employeeName.replace(/\s+/g, '-'));
+      this.downloadPayslip(p, p.employeeName.replace(/\s+/g, '-'));
     });
   }
 

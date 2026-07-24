@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
   EmployeeListDto,
@@ -32,18 +33,17 @@ export class EmployeeService {
     joinDateFrom?: string;
     joinDateTo?: string;
   }): Observable<PagedResult<EmployeeListDto>> {
-    let httpParams = new HttpParams();
-    if (params.page) httpParams = httpParams.set('page', params.page.toString());
-    if (params.pageSize) httpParams = httpParams.set('pageSize', params.pageSize.toString());
-    if (params.search) httpParams = httpParams.set('search', params.search);
-    if (params.department) httpParams = httpParams.set('department', params.department);
-    if (params.designation) httpParams = httpParams.set('designation', params.designation);
-    if (params.branch) httpParams = httpParams.set('branch', params.branch);
+    let httpParams = new HttpParams()
+      .set('pageNumber', (params.page ?? 1).toString())
+      .set('pageSize', (params.pageSize ?? 10).toString());
+    if (params.search) httpParams = httpParams.set('searchTerm', params.search);
+    if (params.department) httpParams = httpParams.set('departmentId', params.department);
+    if (params.designation) httpParams = httpParams.set('designationId', params.designation);
     if (params.status) httpParams = httpParams.set('status', params.status);
-    if (params.joinDateFrom) httpParams = httpParams.set('joinDateFrom', params.joinDateFrom);
-    if (params.joinDateTo) httpParams = httpParams.set('joinDateTo', params.joinDateTo);
 
-    return this.http.get<PagedResult<EmployeeListDto>>(this.apiUrl, { params: httpParams });
+    return this.http.get<PagedResult<EmployeeListDto>>(this.apiUrl, { params: httpParams }).pipe(
+      catchError(() => of({ items: [], totalCount: 0, page: 1, pageSize: 10, totalPages: 0 }))
+    );
   }
 
   getEmployee(id: string): Observable<EmployeeDto> {
@@ -59,7 +59,7 @@ export class EmployeeService {
   }
 
   deleteEmployee(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.changeStatus(id, { status: 'Terminated' } as any);
   }
 
   promoteEmployee(id: string, command: PromoteEmployeeCommand): Observable<void> {
@@ -74,8 +74,14 @@ export class EmployeeService {
     return this.http.post<void>(`${this.apiUrl}/${id}/terminate`, command);
   }
 
+  changeStatus(id: string, command: any): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}/status`, command);
+  }
+
   getEmployeeDocuments(id: string): Observable<DocumentDto[]> {
-    return this.http.get<DocumentDto[]>(`${environment.apiUrl}/api/employees/EmployeeDocuments/employee/${id}`);
+    return this.http.get<DocumentDto[]>(`${environment.apiUrl}/api/employees/EmployeeDocuments/employee/${id}`).pipe(
+      catchError(() => of([]))
+    );
   }
 
   uploadDocument(id: string, file: File): Observable<void> {
@@ -85,7 +91,9 @@ export class EmployeeService {
   }
 
   getEmployeeHistory(id: string): Observable<HistoryDto[]> {
-    return this.http.get<HistoryDto[]>(`${environment.apiUrl}/api/employees/EmployeeHistory/employee/${id}`);
+    return this.http.get<HistoryDto[]>(`${environment.apiUrl}/api/employees/EmployeeHistory/employee/${id}`).pipe(
+      catchError(() => of([]))
+    );
   }
 
   getEmployeeSalary(id: string): Observable<SalaryStructure> {

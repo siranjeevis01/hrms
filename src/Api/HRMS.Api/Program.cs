@@ -275,6 +275,7 @@ try
         : new[] {
             "https://hrms-siranjeevis01.web.app",
             "https://hrms-siranjeevis01.firebaseapp.com",
+            "https://siranjeevis01.github.io",
             "http://localhost:4200"
         };
     var allowAllOrigins = corsOrigins.Any(o => o == "*" || o == "https://*");

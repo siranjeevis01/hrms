@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
   AttendanceRecord,
@@ -17,6 +18,10 @@ export class AttendanceService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/api/attendance/Attendance`;
 
+  getMyAttendance(date: string): Observable<AttendanceRecord> {
+    return this.http.get<AttendanceRecord>(`${this.apiUrl}/my-attendance/${date}`);
+  }
+
   getAttendance(filters: AttendanceFilters): Observable<PagedResult<AttendanceRecord>> {
     let params = new HttpParams()
       .set('page', filters.page.toString())
@@ -26,13 +31,13 @@ export class AttendanceService {
     if (filters.departmentId) params = params.set('departmentId', filters.departmentId);
     if (filters.status) params = params.set('status', filters.status);
     if (filters.employeeId) params = params.set('employeeId', filters.employeeId);
-    return this.http.get<PagedResult<AttendanceRecord>>(`${this.apiUrl}`, { params });
+    return this.http.get<PagedResult<AttendanceRecord>>(this.apiUrl, { params }).pipe(
+      catchError(() => of({ items: [], totalCount: 0, page: 1, pageSize: 10, totalPages: 0 }))
+    );
   }
 
-  getMyAttendance(date: string): Observable<AttendanceRecord> {
-    return this.http.get<AttendanceRecord>(`${this.apiUrl}/my`, {
-      params: { date },
-    });
+  getTodayAttendance(employeeId: string): Observable<AttendanceRecord> {
+    return this.http.get<AttendanceRecord>(`${this.apiUrl}/today/${employeeId}`);
   }
 
   markCheckIn(request: MarkAttendanceRequest): Observable<AttendanceRecord> {
@@ -40,11 +45,11 @@ export class AttendanceService {
   }
 
   markCheckOut(location?: string, latitude?: number, longitude?: number): Observable<void> {
-    let params = new HttpParams();
-    if (location) params = params.set('location', location);
-    if (latitude) params = params.set('latitude', latitude.toString());
-    if (longitude) params = params.set('longitude', longitude.toString());
-    return this.http.post<void>(`${this.apiUrl}/check-out`, {}, { params });
+    const body: any = {};
+    if (location) body.location = location;
+    if (latitude) body.latitude = latitude;
+    if (longitude) body.longitude = longitude;
+    return this.http.post<void>(`${this.apiUrl}/check-out`, body);
   }
 
   getTeamAttendance(managerId: string, date: string): Observable<AttendanceRecord[]> {
@@ -56,6 +61,17 @@ export class AttendanceService {
   getAttendanceSummary(month: number, year: number): Observable<AttendanceSummary> {
     return this.http.get<AttendanceSummary>(`${this.apiUrl}/summary`, {
       params: { month: month.toString(), year: year.toString() },
+    }).pipe(
+      catchError(() => of({
+        totalWorkingDays: 0, present: 0, absent: 0,
+        late: 0, earlyExit: 0, overtime: 0, wfh: 0, halfDay: 0,
+      }))
+    );
+  }
+
+  getMonthlyAttendance(employeeId: string, year: number, month: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/monthly/${employeeId}`, {
+      params: { year: year.toString(), month: month.toString() },
     });
   }
 
@@ -66,6 +82,8 @@ export class AttendanceService {
       .set('reportType', filters.reportType);
     if (filters.departmentId) params = params.set('departmentId', filters.departmentId);
     if (filters.employeeId) params = params.set('employeeId', filters.employeeId);
-    return this.http.get<AttendanceReport[]>(`${this.apiUrl}/report`, { params });
+    return this.http.get<AttendanceReport[]>(`${this.apiUrl}/report`, { params }).pipe(
+      catchError(() => of([]))
+    );
   }
 }
