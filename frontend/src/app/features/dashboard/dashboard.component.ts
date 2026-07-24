@@ -160,4 +160,37 @@ export class DashboardComponent implements OnInit {
     };
     return colors[type] || 'bg-gray-100 text-gray-800';
   }
+
+  getEventIcon(type: string): string {
+    const icons: Record<string, string> = {
+      holiday: 'celebration',
+      meeting: 'groups',
+      deadline: 'flag',
+      training: 'school',
+      birthday: 'cake',
+    };
+    return icons[type] || 'event';
+  }
+
+  getEventIconBg(type: string): string {
+    const bgs: Record<string, string> = {
+      holiday: 'bg-rose-100',
+      meeting: 'bg-blue-100',
+      deadline: 'bg-amber-100',
+      training: 'bg-emerald-100',
+      birthday: 'bg-purple-100',
+    };
+    return bgs[type] || 'bg-gray-100';
+  }
+
+  getEventIconColor(type: string): string {
+    const colors: Record<string, string> = {
+      holiday: 'text-rose-600',
+      meeting: 'text-blue-600',
+      deadline: 'text-amber-600',
+      training: 'text-emerald-600',
+      birthday: 'text-purple-600',
+    };
+    return colors[type] || 'text-gray-600';
+  }
 }
