@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DocumentsService } from '../documents.service';
@@ -16,7 +17,7 @@ import { DocumentItem, DocumentFolder } from '../documents.models';
 @Component({
   selector: 'app-document-list',
   standalone: true,
-  imports: [FormsModule, MatCardModule, MatButtonModule, MatIconModule, MatInputModule, MatSelectModule, MatMenuModule, MatProgressSpinnerModule, MatTooltipModule, TitleCasePipe, DatePipe],
+  imports: [FormsModule, MatCardModule, MatButtonModule, MatIconModule, MatInputModule, MatSelectModule, MatMenuModule, MatDividerModule, MatProgressSpinnerModule, MatTooltipModule, TitleCasePipe, DatePipe],
   templateUrl: './document-list.component.html',
   styleUrl: './document-list.component.scss',
 })

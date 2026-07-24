@@ -1,22 +1,28 @@
-<div class="p-6 space-y-6">
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900">Projects</h1>
-      <p class="text-gray-500 mt-1">Manage and track all your projects</p>
+<div class="p-4 md:p-6 space-y-6">
+  <!-- Header Banner -->
+  <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 p-6 md:p-8 text-white shadow-xl">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute -top-10 -right-10 w-40 h-40 bg-white rounded-full"></div>
+      <div class="absolute -bottom-5 -left-5 w-32 h-32 bg-white rounded-full"></div>
     </div>
-    <button mat-raised-button color="primary" (click)="navigateToCreate()">
-      <mat-icon>add</mat-icon>
-      Create Project
-    </button>
+    <div class="relative z-10 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold">Projects</h1>
+        <p class="mt-2 text-cyan-100 text-sm md:text-base">Manage and track all your projects</p>
+      </div>
+      <button mat-fab extended class="!bg-white !text-cyan-700 hover:!bg-cyan-50 shadow-lg" (click)="navigateToCreate()">
+        <mat-icon>add</mat-icon> Create Project
+      </button>
+    </div>
   </div>
 
-  <div class="flex items-center gap-4">
-    <mat-form-field appearance="outline" class="flex-1 max-w-md">
-      <mat-label>Search projects</mat-label>
-      <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" (keyup.enter)="onSearch()" />
-      <mat-icon matPrefix>search</mat-icon>
+  <!-- Search & Filter -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-wrap items-center gap-4">
+    <mat-form-field appearance="outline" class="flex-1 min-w-[200px] max-w-md" subscriptSizing="dynamic">
+      <mat-icon matPrefix class="text-gray-400">search</mat-icon>
+      <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" (keyup.enter)="onSearch()" placeholder="Search projects..." />
     </mat-form-field>
-    <mat-form-field appearance="outline" class="w-48">
+    <mat-form-field appearance="outline" class="w-48" subscriptSizing="dynamic">
       <mat-label>Status</mat-label>
       <mat-select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); onStatusFilter()">
         <mat-option value="">All</mat-option>
@@ -30,98 +36,94 @@
   </div>
 
   @if (loading()) {
-    <div class="flex justify-center items-center py-20">
+    <div class="flex flex-col justify-center items-center h-64 gap-4">
       <mat-spinner diameter="48"></mat-spinner>
+      <p class="text-sm text-gray-400 animate-pulse">Loading projects...</p>
     </div>
   } @else if (error()) {
-    <div class="text-center py-20">
-      <mat-icon class="text-red-500 text-5xl">error_outline</mat-icon>
-      <p class="mt-4 text-gray-600">{{ error() }}</p>
-      <button mat-button color="primary" (click)="loadProjects()">Retry</button>
+    <div class="bg-red-50 border border-red-200 rounded-2xl p-6 flex items-center gap-4 shadow-sm">
+      <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+        <mat-icon class="text-red-500">error_outline</mat-icon>
+      </div>
+      <div class="flex-1">
+        <p class="text-red-700 font-medium">{{ error() }}</p>
+        <p class="text-red-500 text-sm mt-1">Failed to load projects.</p>
+      </div>
+      <button mat-flat-button color="warn" (click)="loadProjects()" class="shrink-0">
+        <mat-icon>refresh</mat-icon> Retry
+      </button>
     </div>
   } @else if (filteredProjects().length === 0) {
-    <div class="text-center py-20 bg-white rounded-lg border">
-      <mat-icon class="text-gray-400 text-6xl">folder_open</mat-icon>
-      <p class="mt-4 text-gray-600 text-lg">No projects found</p>
+    <div class="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+      <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-cyan-100 to-blue-100 flex items-center justify-center">
+        <mat-icon class="text-cyan-500 text-4xl">folder_open</mat-icon>
+      </div>
+      <p class="mt-6 text-gray-600 text-lg font-medium">No projects found</p>
       <p class="text-gray-400 mt-1">Create your first project to get started</p>
-      <button mat-raised-button color="primary" class="mt-4" (click)="navigateToCreate()">
-        <mat-icon>add</mat-icon>
-        Create Project
+      <button mat-flat-button color="primary" class="mt-6 !rounded-full" (click)="navigateToCreate()">
+        <mat-icon>add</mat-icon> Create Project
       </button>
     </div>
   } @else {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       @for (project of filteredProjects(); track project.id) {
-        <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateToProject(project.id)">
-          <mat-card-content class="p-6">
+        <div class="group bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-cyan-200 transition-all duration-300 overflow-hidden cursor-pointer" (click)="navigateToProject(project.id)">
+          <div class="p-6">
             <div class="flex items-start justify-between mb-4">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-1">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-2">
                   <span class="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{{ project.code }}</span>
-                  <span class="px-2 py-0.5 rounded-full text-xs font-medium" [ngClass]="getStatusColor(project.status)">
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold" [ngClass]="getStatusColor(project.status)">
                     {{ project.status | titlecase }}
                   </span>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mt-2">{{ project.name }}</h3>
+                <h3 class="text-lg font-semibold text-gray-900 group-hover:text-cyan-700 transition-colors truncate">{{ project.name }}</h3>
               </div>
-              <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
-                <mat-icon>more_vert</mat-icon>
+              <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()" class="!-mt-1">
+                <mat-icon class="text-gray-400">more_vert</mat-icon>
               </button>
               <mat-menu #menu="matMenu">
-                <button mat-menu-item>
-                  <mat-icon>edit</mat-icon>
-                  <span>Edit</span>
-                </button>
-                <button mat-menu-item>
-                  <mat-icon>archive</mat-icon>
-                  <span>Archive</span>
-                </button>
-                <button mat-menu-item class="text-red-600">
-                  <mat-icon>delete</mat-icon>
-                  <span>Delete</span>
-                </button>
+                <button mat-menu-item><mat-icon>edit</mat-icon><span>Edit</span></button>
+                <button mat-menu-item><mat-icon>archive</mat-icon><span>Archive</span></button>
+                <button mat-menu-item class="!text-red-600"><mat-icon>delete</mat-icon><span>Delete</span></button>
               </mat-menu>
             </div>
 
             <p class="text-gray-500 text-sm mb-4 line-clamp-2">{{ project.description }}</p>
 
             <div class="mb-4">
-              <div class="flex justify-between text-sm mb-1">
+              <div class="flex justify-between text-sm mb-2">
                 <span class="text-gray-600">Progress</span>
-                <span class="font-medium">{{ project.progress }}%</span>
+                <span class="font-bold text-gray-900">{{ project.progress }}%</span>
               </div>
-              <mat-progress-bar [mode]="'determinate'" [value]="project.progress" [color]="getProgressColor(project.progress)">
-              </mat-progress-bar>
+              <div class="w-full bg-gray-100 rounded-full h-2.5">
+                <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-2.5 rounded-full transition-all duration-700"
+                     [style.width.%]="project.progress"></div>
+              </div>
             </div>
 
-            <div class="flex items-center justify-between pt-2 border-t">
+            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
               <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                  <span class="text-xs font-medium text-blue-700">{{ project.manager.name.charAt(0) }}</span>
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+                  <span class="text-xs font-bold text-white">{{ project.manager.name.charAt(0) }}</span>
                 </div>
                 <span class="text-sm text-gray-600">{{ project.manager.name }}</span>
               </div>
               <div class="flex items-center gap-3 text-sm text-gray-500">
-                <span class="flex items-center gap-1">
-                  <mat-icon class="text-base">people</mat-icon>
-                  {{ project.team.length }}
-                </span>
-                <span class="flex items-center gap-1">
-                  <mat-icon class="text-base">task_alt</mat-icon>
-                  {{ project.completedTaskCount }}/{{ project.taskCount }}
-                </span>
+                <span class="flex items-center gap-1"><mat-icon class="text-base">people</mat-icon>{{ project.team.length }}</span>
+                <span class="flex items-center gap-1"><mat-icon class="text-base">task_alt</mat-icon>{{ project.completedTaskCount }}/{{ project.taskCount }}</span>
               </div>
             </div>
 
-            <div class="flex items-center gap-2 mt-3 pt-3 border-t">
+            <div class="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
               <span class="text-sm text-gray-500">{{ formatBudget(project.budget) }}</span>
               <span class="text-gray-300">|</span>
-              <span class="text-sm" [class]="project.spent > project.budget ? 'text-red-500' : 'text-gray-500'">
+              <span class="text-sm font-medium" [class]="project.spent > project.budget ? 'text-red-500' : 'text-gray-500'">
                 Spent: {{ formatBudget(project.spent) }}
               </span>
             </div>
-          </mat-card-content>
-        </mat-card>
+          </div>
+        </div>
       }
     </div>
   }

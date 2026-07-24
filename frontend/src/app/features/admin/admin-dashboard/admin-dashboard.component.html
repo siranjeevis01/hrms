@@ -1,71 +1,117 @@
-<div class="p-6 space-y-6">
-  <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-
+<div class="p-4 md:p-6 space-y-6">
   @if (loading()) {
-    <div class="flex justify-center py-12"><mat-spinner diameter="48"></mat-spinner></div>
-  } @else if (stats()) {
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <mat-card class="p-5">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center"><mat-icon class="text-blue-600">people</mat-icon></div>
-          <div><p class="text-2xl font-bold text-gray-900">{{ stats()!.totalUsers }}</p><p class="text-sm text-gray-500">Total Users</p></div>
+    <div class="flex flex-col justify-center items-center h-64 gap-4">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p class="text-sm text-gray-400 animate-pulse">Loading admin data...</p>
+    </div>
+  }
+
+  @if (!loading() && stats()) {
+    <!-- Welcome Banner -->
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-700 via-gray-800 to-zinc-900 p-6 md:p-8 text-white shadow-xl">
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-white rounded-full"></div>
+        <div class="absolute -bottom-5 -left-5 w-32 h-32 bg-white rounded-full"></div>
+        <div class="absolute top-1/2 right-1/4 w-20 h-20 bg-white rounded-full"></div>
+      </div>
+      <div class="relative z-10">
+        <h1 class="text-2xl md:text-3xl font-bold">Admin Dashboard</h1>
+        <p class="mt-2 text-gray-300 text-sm md:text-base">System overview and management tools</p>
+      </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200 overflow-hidden">
+        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-bl-[4rem] transition-all duration-300 group-hover:w-24 group-hover:h-24"></div>
+        <div class="relative z-10">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform">
+            <mat-icon class="text-white">people</mat-icon>
+          </div>
+          <p class="text-sm font-medium text-gray-500 mt-4">Total Users</p>
+          <p class="text-3xl font-bold text-gray-900 mt-1">{{ stats()!.totalUsers }}</p>
         </div>
-      </mat-card>
-      <mat-card class="p-5">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center"><mat-icon class="text-green-600">people_alt</mat-icon></div>
-          <div><p class="text-2xl font-bold text-gray-900">{{ stats()!.activeUsers }}</p><p class="text-sm text-gray-500">Active Users</p></div>
+      </div>
+
+      <div class="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-emerald-200 overflow-hidden">
+        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-bl-[4rem] transition-all duration-300 group-hover:w-24 group-hover:h-24"></div>
+        <div class="relative z-10">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-200 group-hover:scale-110 transition-transform">
+            <mat-icon class="text-white">people_alt</mat-icon>
+          </div>
+          <p class="text-sm font-medium text-gray-500 mt-4">Active Users</p>
+          <p class="text-3xl font-bold text-gray-900 mt-1">{{ stats()!.activeUsers }}</p>
         </div>
-      </mat-card>
-      <mat-card class="p-5">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-lg bg-purple-50 flex items-center justify-center"><mat-icon class="text-purple-600">apartment</mat-icon></div>
-          <div><p class="text-2xl font-bold text-gray-900">{{ stats()!.totalDepartments }}</p><p class="text-sm text-gray-500">Departments</p></div>
+      </div>
+
+      <div class="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-violet-200 overflow-hidden">
+        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-bl-[4rem] transition-all duration-300 group-hover:w-24 group-hover:h-24"></div>
+        <div class="relative z-10">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-200 group-hover:scale-110 transition-transform">
+            <mat-icon class="text-white">apartment</mat-icon>
+          </div>
+          <p class="text-sm font-medium text-gray-500 mt-4">Departments</p>
+          <p class="text-3xl font-bold text-gray-900 mt-1">{{ stats()!.totalDepartments }}</p>
         </div>
-      </mat-card>
-      <mat-card class="p-5">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-lg" [ngClass]="getHealthColor(stats()!.systemHealth?.status ?? 'healthy')">
+      </div>
+
+      <div class="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden">
+        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-gray-50 to-gray-100 rounded-bl-[4rem] transition-all duration-300 group-hover:w-24 group-hover:h-24"></div>
+        <div class="relative z-10">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
+               [ngClass]="getHealthColor(stats()!.systemHealth?.status ?? 'healthy')">
             <mat-icon>{{ (stats()!.systemHealth?.status ?? 'healthy') === 'healthy' ? 'check_circle' : 'warning' }}</mat-icon>
           </div>
-          <div><p class="text-lg font-bold capitalize">{{ stats()!.systemHealth?.status ?? 'healthy' }}</p><p class="text-sm text-gray-500">System Status</p></div>
+          <p class="text-sm font-medium text-gray-500 mt-4">System Status</p>
+          <p class="text-xl font-bold text-gray-900 mt-1 capitalize">{{ stats()!.systemHealth?.status ?? 'healthy' }}</p>
         </div>
-      </mat-card>
+      </div>
     </div>
 
-    <h2 class="text-lg font-semibold text-gray-900 mt-6">Quick Links</h2>
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      @for (link of quickLinks; track link.route) {
-        <mat-card class="p-4 cursor-pointer hover:shadow-md transition-shadow" (click)="navigateTo(link.route)">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-3" [ngClass]="link.color">
-            <mat-icon>{{ link.icon }}</mat-icon>
-          </div>
-          <p class="text-sm font-medium text-gray-900">{{ link.label }}</p>
-        </mat-card>
-      }
-    </div>
-
-    @if (stats()!.recentAuditLogs.length > 0) {
-      <mat-card>
-        <div class="px-6 py-4 border-b flex items-center justify-between">
-          <h2 class="font-semibold text-gray-900">Recent Audit Logs</h2>
-          <button mat-button color="primary" (click)="navigateTo('audit-logs')">View All</button>
-        </div>
-        <div class="divide-y">
-          @for (log of stats()!.recentAuditLogs; track log.id) {
-            <div class="px-6 py-3 flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <mat-icon class="text-gray-400">history</mat-icon>
-                <div>
-                  <p class="text-sm text-gray-900"><span class="font-medium">{{ log.userName }}</span> {{ log.action }} on {{ log.entityType }}</p>
-                  <p class="text-xs text-gray-400">{{ log.timestamp | date:'MMM d, h:mm a' }}</p>
-                </div>
-              </div>
-              <span class="text-xs font-mono text-gray-400">{{ log.entityName }}</span>
+    <!-- Quick Links -->
+    <div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        @for (link of quickLinks; track link.route) {
+          <div class="group bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-xl hover:border-indigo-200 transition-all duration-300 cursor-pointer" (click)="navigateTo(link.route)">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform" [ngClass]="link.color">
+              <mat-icon>{{ link.icon }}</mat-icon>
             </div>
-          }
+            <p class="text-sm font-semibold text-gray-900">{{ link.label }}</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Recent Audit Logs -->
+    @if (stats()!.recentAuditLogs.length > 0) {
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900">Recent Audit Logs</h3>
+            <p class="text-sm text-gray-500 mt-0.5">Latest system activity</p>
+          </div>
+          <button mat-flat-button color="primary" (click)="navigateTo('audit-logs')" class="!rounded-full">View All</button>
         </div>
-      </mat-card>
+        <div class="p-0">
+          <div class="divide-y divide-gray-50">
+            @for (log of stats()!.recentAuditLogs; track log.id) {
+              <div class="px-6 py-3 hover:bg-gray-50/70 transition-colors flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center shrink-0">
+                    <mat-icon class="text-gray-500 text-lg">history</mat-icon>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-700"><span class="font-semibold text-gray-900">{{ log.userName }}</span> {{ log.action }} on {{ log.entityType }}</p>
+                    <p class="text-xs text-gray-400 mt-0.5">{{ log.timestamp | date:'MMM d, h:mm a' }}</p>
+                  </div>
+                </div>
+                <span class="text-xs font-mono text-gray-400 bg-gray-50 px-2 py-1 rounded">{{ log.entityName }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
     }
   }
 </div>

@@ -1,189 +1,221 @@
-<div class="min-h-screen bg-gray-50 p-6">
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold text-gray-900">Recruitment Dashboard</h1>
-    <p class="text-gray-600 mt-1">Overview of your recruitment pipeline and activities</p>
-  </div>
-
+<div class="p-4 md:p-6 space-y-6">
   @if (loading()) {
-    <div class="flex justify-center items-center h-64">
+    <div class="flex flex-col justify-center items-center h-64 gap-4">
       <mat-spinner diameter="48"></mat-spinner>
+      <p class="text-sm text-gray-400 animate-pulse">Loading recruitment data...</p>
     </div>
-  } @else if (error()) {
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 flex items-center gap-2">
-      <mat-icon>error</mat-icon>
-      <span>{{ error() }}</span>
-      <button mat-button color="warn" (click)="loadDashboard()">Retry</button>
+  }
+
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-2xl p-6 flex items-center gap-4 shadow-sm">
+      <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+        <mat-icon class="text-red-500">error_outline</mat-icon>
+      </div>
+      <div class="flex-1">
+        <p class="text-red-700 font-medium">{{ error() }}</p>
+        <p class="text-red-500 text-sm mt-1">Please check your connection and try again.</p>
+      </div>
+      <button mat-flat-button color="warn" (click)="loadDashboard()" class="shrink-0">
+        <mat-icon>refresh</mat-icon> Retry
+      </button>
     </div>
-  } @else if (stats(); as s) {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('jobs')" matRipple>
-        <mat-card-content class="p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500">Open Positions</p>
-              <p class="text-2xl font-bold text-blue-600">{{ s.openPositions }}</p>
-            </div>
-            <mat-icon class="text-blue-500 bg-blue-50 p-2 rounded-full">work</mat-icon>
-          </div>
-        </mat-card-content>
-      </mat-card>
+  }
 
-      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('candidates')" matRipple>
-        <mat-card-content class="p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500">Applications This Month</p>
-              <p class="text-2xl font-bold text-purple-600">{{ s.applicationsThisMonth }}</p>
-            </div>
-            <mat-icon class="text-purple-500 bg-purple-50 p-2 rounded-full">description</mat-icon>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('interviews')" matRipple>
-        <mat-card-content class="p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500">Interviews Scheduled</p>
-              <p class="text-2xl font-bold text-amber-600">{{ s.interviewsScheduled }}</p>
-            </div>
-            <mat-icon class="text-amber-500 bg-amber-50 p-2 rounded-full">event</mat-icon>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" (click)="navigateTo('offers')" matRipple>
-        <mat-card-content class="p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500">Offers Pending</p>
-              <p class="text-2xl font-bold text-orange-600">{{ s.offersPending }}</p>
-            </div>
-            <mat-icon class="text-orange-500 bg-orange-50 p-2 rounded-full">gavel</mat-icon>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" matRipple>
-        <mat-card-content class="p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500">Hired This Month</p>
-              <p class="text-2xl font-bold text-green-600">{{ s.hiredThisMonth }}</p>
-            </div>
-            <mat-icon class="text-green-500 bg-green-50 p-2 rounded-full">person_add</mat-icon>
-          </div>
-        </mat-card-content>
-      </mat-card>
+  @if (!loading() && !error()) {
+    <!-- Welcome Banner -->
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-500 p-6 md:p-8 text-white shadow-xl">
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-white rounded-full"></div>
+        <div class="absolute -bottom-5 -left-5 w-32 h-32 bg-white rounded-full"></div>
+        <div class="absolute top-1/2 right-1/4 w-20 h-20 bg-white rounded-full"></div>
+      </div>
+      <div class="relative z-10">
+        <h1 class="text-2xl md:text-3xl font-bold">Recruitment Dashboard</h1>
+        <p class="mt-2 text-purple-100 text-sm md:text-base">Overview of your recruitment pipeline and activities</p>
+      </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      <mat-card class="lg:col-span-2">
-        <mat-card-header>
-          <mat-card-title>Recruitment Pipeline Funnel</mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="p-4">
-          @if (s.pipelineFunnel.length > 0) {
-            <div class="space-y-3">
-              @for (stage of s.pipelineFunnel; track stage.stage; let i = $index) {
-                <div class="flex items-center gap-3">
-                  <span class="w-24 text-sm text-gray-600 text-right">{{ stage.stage }}</span>
-                  <div class="flex-1 bg-gray-100 rounded-full h-8 overflow-hidden">
-                    <div
-                      class="h-full rounded-full flex items-center px-3 text-white text-sm font-medium transition-all duration-500"
-                      [style.width.%]="getFunnelPercentage(stage.count, s.pipelineFunnel[0]?.count || 1)"
-                      [style.background-color]="getFunnelColor(i)">
-                      {{ stage.count }}
+    @if (stats(); as s) {
+      <!-- Stat Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-blue-200 overflow-hidden" (click)="navigateTo('jobs')" matRipple>
+          <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-bl-[4rem] transition-all duration-300 group-hover:w-24 group-hover:h-24"></div>
+          <div class="relative z-10">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform">
+              <mat-icon class="text-white">work</mat-icon>
+            </div>
+            <p class="text-sm font-medium text-gray-500 mt-4">Open Positions</p>
+            <p class="text-3xl font-bold text-gray-900 mt-1">{{ s.openPositions }}</p>
+          </div>
+        </div>
+
+        <div class="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-purple-200 overflow-hidden" (click)="navigateTo('candidates')" matRipple>
+          <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-50 to-purple-100 rounded-bl-[4rem] transition-all duration-300 group-hover:w-24 group-hover:h-24"></div>
+          <div class="relative z-10">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-200 group-hover:scale-110 transition-transform">
+              <mat-icon class="text-white">description</mat-icon>
+            </div>
+            <p class="text-sm font-medium text-gray-500 mt-4">Applications</p>
+            <p class="text-3xl font-bold text-gray-900 mt-1">{{ s.applicationsThisMonth }}</p>
+          </div>
+        </div>
+
+        <div class="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-amber-200 overflow-hidden" (click)="navigateTo('interviews')" matRipple>
+          <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-bl-[4rem] transition-all duration-300 group-hover:w-24 group-hover:h-24"></div>
+          <div class="relative z-10">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-200 group-hover:scale-110 transition-transform">
+              <mat-icon class="text-white">event</mat-icon>
+            </div>
+            <p class="text-sm font-medium text-gray-500 mt-4">Interviews</p>
+            <p class="text-3xl font-bold text-gray-900 mt-1">{{ s.interviewsScheduled }}</p>
+          </div>
+        </div>
+
+        <div class="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-orange-200 overflow-hidden" (click)="navigateTo('offers')" matRipple>
+          <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-50 to-orange-100 rounded-bl-[4rem] transition-all duration-300 group-hover:w-24 group-hover:h-24"></div>
+          <div class="relative z-10">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-200 group-hover:scale-110 transition-transform">
+              <mat-icon class="text-white">gavel</mat-icon>
+            </div>
+            <p class="text-sm font-medium text-gray-500 mt-4">Offers Pending</p>
+            <p class="text-3xl font-bold text-gray-900 mt-1">{{ s.offersPending }}</p>
+          </div>
+        </div>
+
+        <div class="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-emerald-200 overflow-hidden" matRipple>
+          <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-bl-[4rem] transition-all duration-300 group-hover:w-24 group-hover:h-24"></div>
+          <div class="relative z-10">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-200 group-hover:scale-110 transition-transform">
+              <mat-icon class="text-white">person_add</mat-icon>
+            </div>
+            <p class="text-sm font-medium text-gray-500 mt-4">Hired</p>
+            <p class="text-3xl font-bold text-gray-900 mt-1">{{ s.hiredThisMonth }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipeline + Interviews -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-900">Recruitment Pipeline Funnel</h3>
+            <p class="text-sm text-gray-500 mt-0.5">Candidates across stages</p>
+          </div>
+          <div class="p-6">
+            @if (s.pipelineFunnel.length > 0) {
+              <div class="space-y-4">
+                @for (stage of s.pipelineFunnel; track stage.stage; let i = $index) {
+                  <div class="flex items-center gap-4">
+                    <span class="w-28 text-sm text-gray-600 text-right font-medium">{{ stage.stage }}</span>
+                    <div class="flex-1 bg-gray-100 rounded-full h-10 overflow-hidden">
+                      <div class="h-full rounded-full flex items-center px-4 text-white text-sm font-semibold transition-all duration-700"
+                           [style.width.%]="getFunnelPercentage(stage.count, s.pipelineFunnel[0]?.count || 1)"
+                           [style.background-color]="getFunnelColor(i)">
+                        {{ stage.count }}
+                      </div>
                     </div>
                   </div>
+                }
+              </div>
+            } @else {
+              <div class="text-center py-12">
+                <mat-icon class="text-gray-300 text-5xl">filter_alt</mat-icon>
+                <p class="mt-3 text-gray-400 text-sm">No pipeline data available</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">Upcoming Interviews</h3>
+              <p class="text-sm text-gray-500 mt-0.5">Scheduled this week</p>
+            </div>
+            <mat-icon class="text-gray-400">event</mat-icon>
+          </div>
+          <div class="p-0">
+            @if (s.upcomingInterviews.length > 0) {
+              <div class="divide-y divide-gray-50">
+                @for (interview of s.upcomingInterviews; track interview.id) {
+                  <div class="px-6 py-3 hover:bg-gray-50 transition-colors flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center shrink-0 mt-0.5">
+                      <mat-icon class="text-violet-600 text-lg">{{ getInterviewTypeIcon(interview.type) }}</mat-icon>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-700">{{ interview.candidate?.firstName }} {{ interview.candidate?.lastName }}</p>
+                      <p class="text-xs text-gray-400 mt-1">{{ interview.scheduledDate | date:'MMM d, y h:mm a' }}</p>
+                      <p class="text-xs text-gray-400">{{ interview.type | titlecase }} &middot; {{ interview.duration }} min</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="p-12 text-center">
+                <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center">
+                  <mat-icon class="text-gray-300 text-3xl">event_available</mat-icon>
                 </div>
-              }
+                <p class="mt-4 text-gray-400 text-sm">No upcoming interviews</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Applications -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900">Recent Applications</h3>
+            <p class="text-sm text-gray-500 mt-0.5">Latest candidate applications</p>
+          </div>
+          <button mat-flat-button color="primary" (click)="navigateTo('candidates')" class="!rounded-full">View All</button>
+        </div>
+        <div class="p-0">
+          @if (s.recentApplications.length > 0) {
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-gray-100">
+                    <th class="text-left py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Candidate</th>
+                    <th class="text-left py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Position</th>
+                    <th class="text-left py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Applied</th>
+                    <th class="text-left py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                  @for (app of s.recentApplications; track app.id) {
+                    <tr class="hover:bg-gray-50/70 cursor-pointer transition-colors" (click)="navigateTo('candidates/' + app.candidateId)">
+                      <td class="py-3 px-6 font-medium text-gray-900">{{ app.candidate?.firstName }} {{ app.candidate?.lastName }}</td>
+                      <td class="py-3 px-6 text-gray-600">{{ app.job?.title }}</td>
+                      <td class="py-3 px-6 text-gray-500">{{ app.appliedDate | date:'MMM d, y' }}</td>
+                      <td class="py-3 px-6">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold"
+                          [class]="app.status === 'applied' ? 'bg-blue-100 text-blue-700' :
+                                    app.status === 'screening' ? 'bg-amber-100 text-amber-700' :
+                                    app.status === 'shortlisted' ? 'bg-purple-100 text-purple-700' :
+                                    app.status === 'interview' ? 'bg-indigo-100 text-indigo-700' :
+                                    app.status === 'hired' ? 'bg-emerald-100 text-emerald-700' :
+                                    app.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                    'bg-gray-100 text-gray-700'">
+                          {{ app.status | titlecase }}
+                        </span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
             </div>
           } @else {
-            <p class="text-gray-500 text-center py-8">No pipeline data available</p>
+            <div class="p-12 text-center">
+              <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center">
+                <mat-icon class="text-gray-300 text-3xl">inbox</mat-icon>
+              </div>
+              <p class="mt-4 text-gray-400 text-sm">No recent applications</p>
+            </div>
           }
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Upcoming Interviews</mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="p-4">
-          @if (s.upcomingInterviews.length > 0) {
-            <mat-list>
-              @for (interview of s.upcomingInterviews; track interview.id) {
-                <mat-list-item class="cursor-pointer hover:bg-gray-50 rounded-lg">
-                  <mat-icon matListItemIcon>
-                    {{ getInterviewTypeIcon(interview.type) }}
-                  </mat-icon>
-                  <div matListItemTitle class="font-medium">
-                    {{ interview.candidate?.firstName }} {{ interview.candidate?.lastName }}
-                  </div>
-                  <div matListItemLine class="text-sm text-gray-500">
-                    {{ interview.scheduledDate | date:'MMM d, y h:mm a' }}
-                  </div>
-                  <div matListItemLine class="text-xs text-gray-400">
-                    {{ interview.type | titlecase }} - {{ interview.duration }} min
-                  </div>
-                </mat-list-item>
-              }
-            </mat-list>
-          } @else {
-            <p class="text-gray-500 text-center py-8">No upcoming interviews</p>
-          }
-        </mat-card-content>
-      </mat-card>
-    </div>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Recent Applications</mat-card-title>
-        <mat-card-actions>
-          <button mat-button color="primary" (click)="navigateTo('candidates')">View All</button>
-        </mat-card-actions>
-      </mat-card-header>
-      <mat-card-content class="p-4">
-        @if (s.recentApplications.length > 0) {
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead>
-                <tr class="border-b">
-                  <th class="text-left py-2 px-3 text-gray-600 font-medium">Candidate</th>
-                  <th class="text-left py-2 px-3 text-gray-600 font-medium">Position</th>
-                  <th class="text-left py-2 px-3 text-gray-600 font-medium">Applied</th>
-                  <th class="text-left py-2 px-3 text-gray-600 font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (app of s.recentApplications; track app.id) {
-                  <tr class="border-b hover:bg-gray-50 cursor-pointer" (click)="navigateTo('candidates/' + app.candidateId)">
-                    <td class="py-3 px-3 font-medium">
-                      {{ app.candidate?.firstName }} {{ app.candidate?.lastName }}
-                    </td>
-                    <td class="py-3 px-3 text-gray-600">{{ app.job?.title }}</td>
-                    <td class="py-3 px-3 text-gray-500">{{ app.appliedDate | date:'MMM d, y' }}</td>
-                    <td class="py-3 px-3">
-                      <span class="px-2 py-1 rounded-full text-xs font-medium"
-                        [class]="app.status === 'applied' ? 'bg-blue-100 text-blue-800' :
-                                  app.status === 'screening' ? 'bg-yellow-100 text-yellow-800' :
-                                  app.status === 'shortlisted' ? 'bg-purple-100 text-purple-800' :
-                                  app.status === 'interview' ? 'bg-indigo-100 text-indigo-800' :
-                                  app.status === 'hired' ? 'bg-green-100 text-green-800' :
-                                  app.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                                  'bg-gray-100 text-gray-800'">
-                        {{ app.status | titlecase }}
-                      </span>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        } @else {
-          <p class="text-gray-500 text-center py-8">No recent applications</p>
-        }
-      </mat-card-content>
-    </mat-card>
+        </div>
+      </div>
+    }
   }
 </div>

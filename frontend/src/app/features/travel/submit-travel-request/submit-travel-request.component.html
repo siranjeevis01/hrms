@@ -119,7 +119,7 @@
                 <button mat-button (click)="cancel()">Cancel</button>
                 <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="saving()">
                   @if (saving()) { <mat-spinner diameter="20" class="inline-block"></mat-spinner> }
-                  @else { <mat-icon>send</mat-icon> Submit Request }
+                  @else { <ng-container><mat-icon>send</mat-icon> Submit Request</ng-container> }
                 </button>
               </div>
             </div>

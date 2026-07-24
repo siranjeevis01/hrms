@@ -1,81 +1,172 @@
-<div class="p-6 space-y-6">
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900">Expense Dashboard</h1>
-      <p class="text-gray-500 mt-1">Track and manage your expenses</p>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 p-6 space-y-6">
+
+  <!-- Gradient Banner -->
+  <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 p-8 shadow-xl">
+    <div class="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
+    <div class="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-white/10 blur-xl"></div>
+    <div class="absolute top-6 right-20 h-6 w-6 rounded-full bg-white/20"></div>
+    <div class="absolute bottom-4 right-40 h-4 w-4 rounded-full bg-white/15"></div>
+
+    <div class="relative z-10 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-extrabold text-white tracking-tight">Expense Dashboard</h1>
+        <p class="mt-2 text-blue-100 text-sm">Track, manage, and monitor your expenses at a glance</p>
+      </div>
+      <button mat-fab extended
+              class="!bg-white/20 !text-white hover:!bg-white/30 backdrop-blur-sm border border-white/20 !shadow-lg transition-all duration-300"
+              (click)="navigateTo('submit')">
+        <mat-icon>add</mat-icon>
+        Submit Expense
+      </button>
     </div>
-    <button mat-raised-button color="primary" (click)="navigateTo('submit')">
-      <mat-icon>add</mat-icon>
-      Submit Expense
-    </button>
   </div>
 
   @if (loading()) {
-    <div class="flex justify-center py-12"><mat-spinner diameter="48"></mat-spinner></div>
+    <div class="flex flex-col items-center justify-center py-20 space-y-4">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p class="text-sm text-gray-400">Loading dashboard data...</p>
+    </div>
   } @else if (stats()) {
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <mat-card class="p-5">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center"><mat-icon class="text-blue-600">receipt_long</mat-icon></div>
-          <div><p class="text-2xl font-bold text-gray-900">{{ formatCurrency(stats()!.totalThisMonth) }}</p><p class="text-sm text-gray-500">This Month</p></div>
+
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+      <!-- This Month -->
+      <div class="group relative overflow-hidden rounded-2xl bg-white border border-gray-100 p-5 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+        <div class="absolute -top-3 -right-3 h-20 w-20 rounded-full bg-blue-500/5 group-hover:bg-blue-500/10 transition-colors duration-300"></div>
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+            <mat-icon class="text-white text-xl">receipt_long</mat-icon>
+          </div>
+          <div class="min-w-0">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">This Month</p>
+            <p class="text-2xl font-extrabold text-gray-900 truncate">{{ formatCurrency(stats()!.totalThisMonth) }}</p>
+          </div>
         </div>
-      </mat-card>
-      <mat-card class="p-5 cursor-pointer hover:shadow-md" (click)="navigateTo('approvals')">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-lg bg-yellow-50 flex items-center justify-center"><mat-icon class="text-yellow-600">pending_actions</mat-icon></div>
-          <div><p class="text-2xl font-bold text-gray-900">{{ stats()!.pendingCount }}</p><p class="text-sm text-gray-500">Pending Approvals</p></div>
+      </div>
+
+      <!-- Pending Approvals -->
+      <div class="group relative overflow-hidden rounded-2xl bg-white border border-gray-100 p-5 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+           (click)="navigateTo('approvals')">
+        <div class="absolute -top-3 -right-3 h-20 w-20 rounded-full bg-amber-500/5 group-hover:bg-amber-500/10 transition-colors duration-300"></div>
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
+            <mat-icon class="text-white text-xl">pending_actions</mat-icon>
+          </div>
+          <div class="min-w-0">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Pending Approvals</p>
+            <p class="text-2xl font-extrabold text-gray-900">{{ stats()!.pendingCount }}</p>
+          </div>
         </div>
-      </mat-card>
-      <mat-card class="p-5">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center"><mat-icon class="text-green-600">check_circle</mat-icon></div>
-          <div><p class="text-2xl font-bold text-gray-900">{{ formatCurrency(stats()!.totalApproved) }}</p><p class="text-sm text-gray-500">Approved</p></div>
+      </div>
+
+      <!-- Approved -->
+      <div class="group relative overflow-hidden rounded-2xl bg-white border border-gray-100 p-5 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+        <div class="absolute -top-3 -right-3 h-20 w-20 rounded-full bg-emerald-500/5 group-hover:bg-emerald-500/10 transition-colors duration-300"></div>
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+            <mat-icon class="text-white text-xl">check_circle</mat-icon>
+          </div>
+          <div class="min-w-0">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Approved</p>
+            <p class="text-2xl font-extrabold text-gray-900 truncate">{{ formatCurrency(stats()!.totalApproved) }}</p>
+          </div>
         </div>
-      </mat-card>
-      <mat-card class="p-5">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-lg bg-purple-50 flex items-center justify-center"><mat-icon class="text-purple-600">paid</mat-icon></div>
-          <div><p class="text-2xl font-bold text-gray-900">{{ formatCurrency(stats()!.totalReimbursed) }}</p><p class="text-sm text-gray-500">Reimbursed</p></div>
+      </div>
+
+      <!-- Reimbursed -->
+      <div class="group relative overflow-hidden rounded-2xl bg-white border border-gray-100 p-5 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+        <div class="absolute -top-3 -right-3 h-20 w-20 rounded-full bg-purple-500/5 group-hover:bg-purple-500/10 transition-colors duration-300"></div>
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
+            <mat-icon class="text-white text-xl">paid</mat-icon>
+          </div>
+          <div class="min-w-0">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Reimbursed</p>
+            <p class="text-2xl font-extrabold text-gray-900 truncate">{{ formatCurrency(stats()!.totalReimbursed) }}</p>
+          </div>
         </div>
-      </mat-card>
+      </div>
     </div>
 
+    <!-- Charts & Recent Claims -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <mat-card>
-        <div class="px-6 py-4 border-b"><h2 class="font-semibold text-gray-900">Expenses by Category</h2></div>
-        <mat-card-content class="p-6">
+
+      <!-- Chart Card -->
+      <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+            <mat-icon class="text-white text-base">pie_chart</mat-icon>
+          </div>
+          <h2 class="font-semibold text-gray-900">Expenses by Category</h2>
+        </div>
+        <div class="p-6">
           @if (pieChartData) {
             <div class="h-64"><canvas baseChart [data]="pieChartData" [options]="pieChartOptions" type="pie"></canvas></div>
+          } @else {
+            <div class="flex flex-col items-center justify-center h-64 text-gray-300">
+              <mat-icon class="text-5xl">bar_chart</mat-icon>
+              <p class="mt-3 text-sm">No category data available</p>
+            </div>
           }
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card>
-        <div class="px-6 py-4 border-b flex items-center justify-between">
-          <h2 class="font-semibold text-gray-900">Recent Claims</h2>
-          <button mat-button color="primary" (click)="navigateTo('my-expenses')">View All</button>
         </div>
-        <div class="divide-y">
+      </div>
+
+      <!-- Recent Claims -->
+      <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <mat-icon class="text-white text-base">history</mat-icon>
+            </div>
+            <h2 class="font-semibold text-gray-900">Recent Claims</h2>
+          </div>
+          <button mat-stroked-button color="primary" class="!text-xs !rounded-full" (click)="navigateTo('my-expenses')">
+            View All
+          </button>
+        </div>
+        <div class="divide-y divide-gray-50">
           @for (expense of recentExpenses(); track expense.id) {
-            <div class="px-6 py-4 hover:bg-gray-50 flex items-center justify-between">
-              <div>
-                <p class="font-medium text-gray-900">{{ expense.title }}</p>
-                <p class="text-sm text-gray-500">{{ expense.createdAt | date:'MMM d, yyyy' }}</p>
+            <div class="px-6 py-4 hover:bg-gray-50/80 transition-colors duration-150 flex items-center justify-between group">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="flex-shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:from-blue-100 group-hover:to-blue-200 transition-colors duration-200">
+                  <mat-icon class="text-gray-400 text-base group-hover:text-blue-500 transition-colors duration-200">receipt</mat-icon>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-medium text-gray-900 truncate">{{ expense.title }}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">{{ expense.createdAt | date:'MMM d, yyyy' }}</p>
+                </div>
               </div>
-              <div class="text-right">
-                <p class="font-semibold text-gray-900">{{ formatCurrency(expense.totalAmount) }}</p>
-                <span class="px-2 py-0.5 rounded-full text-xs font-medium" [ngClass]="getStatusColor(expense.status)">{{ expense.status | titlecase }}</span>
+              <div class="text-right flex-shrink-0 ml-4">
+                <p class="font-semibold text-gray-900 text-sm">{{ formatCurrency(expense.totalAmount) }}</p>
+                <span class="mt-1 inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide"
+                      [ngClass]="getStatusColor(expense.status)">
+                  {{ expense.status | titlecase }}
+                </span>
               </div>
             </div>
           }
           @if (recentExpenses().length === 0) {
-            <div class="px-6 py-8 text-center text-gray-400">
-              <mat-icon class="text-4xl">receipt</mat-icon>
-              <p class="mt-2">No expenses yet</p>
+            <div class="flex flex-col items-center justify-center py-12 px-6">
+              <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                <mat-icon class="text-gray-300 text-3xl">receipt_long</mat-icon>
+              </div>
+              <p class="text-sm font-medium text-gray-400">No expenses yet</p>
+              <p class="text-xs text-gray-300 mt-1">Submit your first expense to get started</p>
             </div>
           }
         </div>
-      </mat-card>
+      </div>
+    </div>
+
+  } @else {
+    <!-- No Stats Available -->
+    <div class="flex flex-col items-center justify-center py-20">
+      <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+        <mat-icon class="text-gray-300 text-4xl">error_outline</mat-icon>
+      </div>
+      <p class="text-gray-400 font-medium">Unable to load dashboard data</p>
+      <p class="text-sm text-gray-300 mt-1">Please try again later</p>
     </div>
   }
 </div>
