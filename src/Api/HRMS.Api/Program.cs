@@ -254,33 +254,37 @@ try
             policy.RequireAuthenticatedUser());
     });
 
-    var corsOriginsRaw = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
-    if (corsOriginsRaw is null || corsOriginsRaw.Length == 0)
+    var allowedCorsOrigins = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
-        var rawValue = builder.Configuration["Cors:AllowedOrigins"];
-        if (!string.IsNullOrWhiteSpace(rawValue))
+        "https://hrms-siranjeevis01.web.app",
+        "https://hrms-siranjeevis01.firebaseapp.com",
+        "https://siranjeevis01.github.io",
+        "http://localhost:4200",
+        "http://localhost:3000",
+    };
+
+    var envCorsRaw = builder.Configuration["Cors:AllowedOrigins"];
+    if (!string.IsNullOrWhiteSpace(envCorsRaw) && envCorsRaw != "*")
+    {
+        try
         {
-            try
-            {
-                corsOriginsRaw = JsonSerializer.Deserialize<string[]>(rawValue, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            }
-            catch
-            {
-                corsOriginsRaw = rawValue.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            }
+            var parsed = JsonSerializer.Deserialize<string[]>(envCorsRaw, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (parsed != null)
+                foreach (var o in parsed)
+                    if (!string.IsNullOrWhiteSpace(o) && o != "*")
+                        allowedCorsOrigins.Add(o);
+        }
+        catch
+        {
+            foreach (var o in envCorsRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                if (o != "*")
+                    allowedCorsOrigins.Add(o);
         }
     }
-    var corsOrigins = corsOriginsRaw is { Length: > 0 }
-        ? corsOriginsRaw
-        : new[] {
-            "https://hrms-siranjeevis01.web.app",
-            "https://hrms-siranjeevis01.firebaseapp.com",
-            "https://siranjeevis01.github.io",
-            "http://localhost:4200"
-        };
-    var allowAllOrigins = corsOrigins.Any(o => o == "*" || o == "https://*");
 
-    Log.Information("CORS origins configured: {Origins}, AllowAll: {AllowAll}", string.Join(", ", corsOrigins), allowAllOrigins);
+    var allowAllOrigins = envCorsRaw?.Trim() == "*";
+
+    Log.Information("CORS configured: AllowAll={AllowAll}, Origins={Origins}", allowAllOrigins, string.Join(", ", allowedCorsOrigins));
 
     builder.Services.AddCors(options =>
     {
@@ -294,8 +298,10 @@ try
             }
             else
             {
-                policy.SetIsOriginAllowedToAllowWildcardSubdomains()
-                    .WithOrigins(corsOrigins)
+                policy.SetIsOriginAllowed(origin =>
+                        allowedCorsOrigins.Contains(origin) ||
+                        origin.EndsWith(".github.io", StringComparison.OrdinalIgnoreCase) ||
+                        origin.EndsWith(".onrender.com", StringComparison.OrdinalIgnoreCase))
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials()
