@@ -35,10 +35,20 @@ export class DashboardService {
   getRecentActivities(): Observable<Activity[]> {
     return this.http.get<any>(`${this.apiUrl}/analytics`).pipe(
       map((data) => {
-        if (Array.isArray(data)) return data;
-        if (data?.activities) return data.activities;
-        if (data?.recentActivities) return data.recentActivities;
-        return [];
+        let events: any[] = [];
+        if (Array.isArray(data)) events = data;
+        else if (data?.activities) events = data.activities;
+        else if (data?.recentActivities) events = data.recentActivities;
+        else if (data?.recentEvents) events = data.recentEvents;
+        else return [];
+        return events.map((e: any) => ({
+          id: e.id ?? e.Id ?? '',
+          type: e.eventType ?? e.EventType ?? e.type ?? e.Type ?? 'info',
+          description: e.data ?? e.Data ?? e.description ?? e.Description ?? '',
+          user: e.entityType ?? e.EntityType ?? e.user ?? e.User ?? '',
+          timestamp: e.timestamp ?? e.Timestamp ?? new Date(),
+          icon: '',
+        }));
       }),
       catchError(() => of([]))
     );
@@ -47,10 +57,20 @@ export class DashboardService {
   getUpcomingEvents(): Observable<Event[]> {
     return this.http.get<any>(`${this.apiUrl}/dashboards`).pipe(
       map((data) => {
-        if (Array.isArray(data)) return data;
-        if (data?.events) return data.events;
-        if (data?.upcomingEvents) return data.upcomingEvents;
-        return [];
+        let items: any[] = [];
+        if (Array.isArray(data)) items = data;
+        else if (data?.events) items = data.events;
+        else if (data?.upcomingEvents) items = data.upcomingEvents;
+        else if (data?.items) items = data.items;
+        else if (data?.dashboards) items = data.dashboards;
+        else return [];
+        return items.map((e: any) => ({
+          id: e.id ?? e.Id ?? '',
+          title: e.title ?? e.Title ?? e.name ?? e.Name ?? '',
+          date: e.date ?? e.Date ?? e.createdAt ?? e.CreatedAt ?? new Date(),
+          type: e.type ?? e.Type ?? 'meeting',
+          description: e.description ?? e.Description ?? '',
+        }));
       }),
       catchError(() => of([]))
     );
@@ -92,13 +112,13 @@ export class DashboardService {
       };
     }
     return {
-      totalEmployees: data.totalEmployees ?? data.TotalEmployees ?? 0,
-      activeEmployees: data.activeEmployees ?? data.ActiveEmployees ?? 0,
+      totalEmployees: data.totalEmployees ?? data.TotalEmployees ?? data.totalDashboards ?? data.TotalDashboards ?? 0,
+      activeEmployees: data.activeEmployees ?? data.ActiveEmployees ?? data.totalWidgets ?? data.TotalWidgets ?? 0,
       newHires: data.newHires ?? data.NewHires ?? 0,
       attritionRate: data.attritionRate ?? data.AttritionRate ?? 0,
       avgAttendance: data.avgAttendance ?? data.AvgAttendance ?? 0,
       pendingLeaves: data.pendingLeaves ?? data.PendingLeaves ?? 0,
-      openPositions: data.openPositions ?? data.OpenPositions ?? 0,
+      openPositions: data.openPositions ?? data.OpenPositions ?? data.totalShares ?? data.TotalShares ?? 0,
       totalDepartments: data.totalDepartments ?? data.TotalDepartments ?? 0,
     };
   }

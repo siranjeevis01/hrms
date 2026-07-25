@@ -48,8 +48,11 @@ export class ProfileService {
     return this.http.post<{ url: string }>(`${this.apiUrl}/avatar`, formData);
   }
 
-  getEmergencyContacts(): Observable<EmergencyContact[]> {
-    return this.http.get<any>(`${this.employeeApi}/EmergencyContacts`).pipe(
+  getEmergencyContacts(employeeId?: string): Observable<EmergencyContact[]> {
+    const url = employeeId
+      ? `${this.employeeApi}/EmergencyContacts/employee/${employeeId}`
+      : `${this.employeeApi}/EmergencyContacts`;
+    return this.http.get<any>(url).pipe(
       map((data) => {
         if (Array.isArray(data)) return data.map((c: any) => this.mapEmergencyContact(c));
         if (data?.items) return data.items.map((c: any) => this.mapEmergencyContact(c));
@@ -59,8 +62,8 @@ export class ProfileService {
     );
   }
 
-  addEmergencyContact(contact: Partial<EmergencyContact>): Observable<EmergencyContact> {
-    return this.http.post<EmergencyContact>(`${this.employeeApi}/EmergencyContacts`, contact);
+  addEmergencyContact(employeeId: string, contact: Partial<EmergencyContact>): Observable<EmergencyContact> {
+    return this.http.post<EmergencyContact>(`${this.employeeApi}/EmergencyContacts/employee/${employeeId}`, contact);
   }
 
   updateEmergencyContact(id: string, contact: Partial<EmergencyContact>): Observable<EmergencyContact> {
@@ -71,8 +74,11 @@ export class ProfileService {
     return this.http.delete<void>(`${this.employeeApi}/EmergencyContacts/${id}`);
   }
 
-  getSkills(): Observable<EmployeeSkill[]> {
-    return this.http.get<any>(`${this.employeeApi}/EmployeeSkills`).pipe(
+  getSkills(employeeId?: string): Observable<EmployeeSkill[]> {
+    const url = employeeId
+      ? `${this.employeeApi}/EmployeeSkills/employee/${employeeId}`
+      : `${this.employeeApi}/EmployeeSkills`;
+    return this.http.get<any>(url).pipe(
       map((data) => {
         if (Array.isArray(data)) return data.map((s: any) => this.mapSkill(s));
         if (data?.items) return data.items.map((s: any) => this.mapSkill(s));
@@ -82,8 +88,8 @@ export class ProfileService {
     );
   }
 
-  addSkill(skill: Partial<EmployeeSkill>): Observable<EmployeeSkill> {
-    return this.http.post<EmployeeSkill>(`${this.employeeApi}/EmployeeSkills`, skill);
+  addSkill(employeeId: string, skill: Partial<EmployeeSkill>): Observable<EmployeeSkill> {
+    return this.http.post<EmployeeSkill>(`${this.employeeApi}/EmployeeSkills/employee/${employeeId}`, skill);
   }
 
   deleteSkill(id: string): Observable<void> {
@@ -112,8 +118,8 @@ export class ProfileService {
     );
   }
 
-  getAttendanceSummary(): Observable<AttendanceSummary> {
-    return this.http.get<any>(`${environment.apiUrl}/api/attendance/attendance/summary`).pipe(
+  getAttendanceSummary(employeeId: string): Observable<AttendanceSummary> {
+    return this.http.get<any>(`${environment.apiUrl}/api/attendance/Attendance/summary/${employeeId}`).pipe(
       map((data) => this.mapAttendanceSummary(data)),
       catchError(() => of({
         present: 0, absent: 0, late: 0, wfh: 0,

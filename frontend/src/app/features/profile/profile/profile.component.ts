@@ -38,14 +38,24 @@ export class ProfileComponent implements OnInit {
   loadProfile(): void {
     this.loading.set(true);
     this.profileService.getProfile().subscribe({
-      next: (p) => { this.profile.set(p); this.editedProfile = { ...p }; this.loading.set(false); },
+      next: (p) => {
+        this.profile.set(p);
+        this.editedProfile = { ...p };
+        this.loading.set(false);
+        this.loadSubResources(p.employeeId);
+      },
       error: () => this.loading.set(false),
     });
-    this.profileService.getEmergencyContacts().subscribe({
+  }
+
+  private loadSubResources(employeeId: string): void {
+    if (!employeeId) return;
+
+    this.profileService.getEmergencyContacts(employeeId).subscribe({
       next: (c) => this.emergencyContacts.set(Array.isArray(c) ? c : []),
       error: () => this.emergencyContacts.set([]),
     });
-    this.profileService.getSkills().subscribe({
+    this.profileService.getSkills(employeeId).subscribe({
       next: (s) => this.skills.set(Array.isArray(s) ? s : []),
       error: () => this.skills.set([]),
     });
@@ -53,7 +63,7 @@ export class ProfileComponent implements OnInit {
       next: (l) => this.leaveSummary.set(Array.isArray(l) ? l : []),
       error: () => this.leaveSummary.set([]),
     });
-    this.profileService.getAttendanceSummary().subscribe({
+    this.profileService.getAttendanceSummary(employeeId).subscribe({
       next: (a) => this.attendanceSummary.set(a),
       error: () => this.attendanceSummary.set(null),
     });

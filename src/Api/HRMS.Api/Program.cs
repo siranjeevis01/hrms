@@ -389,6 +389,10 @@ try
 
     app.UseSession();
 
+    // ── SignalR Hubs (monolith) ──
+    builder.Services.AddSignalR();
+    app.MapHub<HRMS.Services.Notification.API.Controllers.NotificationHub>("/hubs/notifications");
+
     app.MapGet("/", () => Results.Json(new
     {
         service = "HRMS Pro API",

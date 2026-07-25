@@ -1,8 +1,8 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://hrms-api-1.onrender.com',
-  signalRUrl: 'https://hrms-api-1.onrender.com/hubs/notifications',
-  wakeUpUrl: 'https://hrms-api-1.onrender.com/health/live',
+  apiUrl: 'https://hrms-30g6.onrender.com',
+  signalRUrl: 'https://hrms-30g6.onrender.com/hubs/notifications',
+  wakeUpUrl: 'https://hrms-30g6.onrender.com/health/live',
   wakeUpDelayMs: 65000,
   firebase: {
     apiKey: 'AIzaSyAsZoG0eqFFSTQEnAdLALb9caUlaDlkxuo',
