@@ -13,7 +13,7 @@ jobs:
         run: |
           echo "Pinging backend to prevent cold start..."
           for i in 1 2 3 4 5 6; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://hrms-api-1.onrender.com/health/live || echo "000")
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://hrms-30g6.onrender.com/health/live || echo "000")
             echo "Attempt $i: HTTP $STATUS"
             if [ "$STATUS" = "200" ]; then
               echo "Backend is alive!"

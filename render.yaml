@@ -17,7 +17,7 @@ services:
       - key: Redis__ConnectionString
         sync: false
       - key: Cors__AllowedOrigins
-        value: '["https://hrms-siranjeevis01.web.app","https://hrms-siranjeevis01.firebaseapp.com","https://siranjeevis01.github.io","http://localhost:4200"]'
+        value: '*'
       - key: Jwt__SecretKey
         generateValue: true
       - key: Jwt__Issuer
@@ -32,20 +32,3 @@ services:
     plan: free
     database: hrms
     user: hrms_admin
-
-  - type: static_site
-    name: hrms-frontend
-    plan: free
-    rootDir: frontend
-    buildCommand: npm install && npx ng build --configuration=production
-    staticPublishPath: dist/frontend/browser
-    routes:
-      - type: rewrite
-        source: /api/*
-        destination: https://hrms-api.onrender.com/api/*
-      - type: rewrite
-        source: /hubs/*
-        destination: https://hrms-api.onrender.com/hubs/*
-      - type: rewrite
-        source: /*
-        destination: /index.html

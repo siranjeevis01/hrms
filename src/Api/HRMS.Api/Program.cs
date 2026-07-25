@@ -339,6 +339,8 @@ try
     builder.Services.AddHealthChecks()
         .AddNpgSql(connectionString, name: "postgresql", tags: new[] { "db", "ready" });
 
+    builder.Services.AddSignalR();
+
     builder.Services.AddDistributedMemoryCache();
     builder.Services.AddSession();
 
@@ -395,8 +397,6 @@ try
 
     app.UseSession();
 
-    // ── SignalR Hubs (monolith) ──
-    builder.Services.AddSignalR();
     app.MapHub<HRMS.Services.Notification.API.Controllers.NotificationHub>("/hubs/notifications");
 
     app.MapGet("/", () => Results.Json(new
